@@ -1,0 +1,6 @@
+# microservice specific routes
+
+POST        /:registrationNumber                controllers.EmailController.sendEmail(registrationNumber: String)
+POST        /:name/:registrationNumber/event    controllers.EmailController.receiveEvent(name: String, registrationNumber: String, emailAddress: String)
+GET         /cache/:registrationNumber          controllers.NotificationCacheController.getNotification(registrationNumber: String)
+DELETE      /cache/:registrationNumber          controllers.NotificationCacheController.deleteNotification(registrationNumber: String)

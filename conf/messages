@@ -1,0 +1,15 @@
+# Validation errors
+name.invalid = Invalid name
+status.invalid = Invalid status
+contact_number.invalid = Invalid contact number
+registration_number.invalid = Invalid registration number
+contact_type.invalid = Invalid contact type
+template_mapping.error = Template does not exist for provided contact type
+email.invalid = Invalid email address
+unknown.failure = Unknown reason. Dependent system did not provide failure reason
+error_builder.failure = Error builder failed to extract error message
+content_type.invalid = Invalid request content type
+error.maxLength = Invalid email address
+error.expected.jsboolean = Boolean value expected
+error.expected.jsstring = String value expected
+uri.invalid = URI not found
