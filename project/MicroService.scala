@@ -37,7 +37,7 @@ trait MicroService {
     import scoverage.ScoverageKeys
     Seq(
       // Semicolon-separated list of regexs matching classes to exclude
-      ScoverageKeys.coverageExcludedPackages := "<empty>;app.*;config.*;Reverse.*;uk.gov.hmrc.*;prod.*;testOnlyDoNotUseInAppConf.*;connectors.*;models.*",
+      ScoverageKeys.coverageExcludedPackages := "<empty>;app.*;config.*;Reverse.*;uk.gov.hmrc.*;prod.*;testOnlyDoNotUseInAppConf.*;connectors.*;models.*;repositories.*;",
       ScoverageKeys.coverageMinimum := 80,
       ScoverageKeys.coverageFailOnMinimum := false,
       ScoverageKeys.coverageHighlighting := true,
