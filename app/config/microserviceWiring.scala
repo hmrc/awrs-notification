@@ -29,7 +29,7 @@ object WSHttp extends WSGet with WSPost with AppName with RunMode with HttpAudit
 }
 
 object AwrsNotificationAuditConnector extends AuditConnector with AppName with RunMode {
-  override lazy val auditingConfig = LoadAuditingConfig(s"auditing")
+  override lazy val auditingConfig = LoadAuditingConfig(s"$env.auditing")
 }
 
 object AwrsNotificationAuthConnector extends AuthConnector with ServicesConfig {
