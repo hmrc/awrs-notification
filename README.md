@@ -1,5 +1,5 @@
 
-# awrs-notification
+# AWRS-NOTIFICATION
 
 [![Build Status](https://travis-ci.org/hmrc/awrs-notification.svg?branch=master)](https://travis-ci.org/hmrc/awrs-notification) [ ![Download](https://api.bintray.com/packages/hmrc/releases/awrs-notification/images/download.svg) ](https://bintray.com/hmrc/releases/awrs-notification/_latestVersion)
 
