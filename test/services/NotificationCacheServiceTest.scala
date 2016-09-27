@@ -139,7 +139,7 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneSe
 
       when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(None)
 
-      val result = Await.result(notificationCacheService.findNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
+      val result = Await.result(notificationCacheService.findNotificationViewedStatus("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
 
       result.isDefined shouldBe false
     }
