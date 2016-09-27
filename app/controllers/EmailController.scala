@@ -39,13 +39,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object EmailController extends EmailController {
   override val emailService = EmailService
-  override val notificationRepo: NotificationRepository = NotificationRepository()
 }
 
 trait EmailController extends BaseController with Auditable {
 
   val emailService: EmailService
-  val notificationRepo: NotificationRepository
 
   def sendEmail(registrationNumber: String) = Action.async {
     implicit request =>

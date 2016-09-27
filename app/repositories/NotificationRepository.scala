@@ -67,7 +67,6 @@ class NotificationMongoRepository()(implicit mongo: () => DefaultDB)
         Logger.debug(s"[NotificationMongoRepository][findByRegistrationNumber] : { registrationNumber : $registrationNumber, exception: ${f.getMessage} }")
         Future.successful(None)
     }
-
   }
 
   override def insertStatusNotification(statusNotification: StatusNotification): Future[Boolean] =

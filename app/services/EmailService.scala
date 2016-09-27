@@ -24,6 +24,7 @@ import models.{EmailResponse, PushNotificationRequest, SendEmailRequest}
 import play.api.Logger
 import play.api.i18n.Messages
 import play.api.libs.json._
+import repositories.ViewedStatus
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http._
 import utils.ErrorHandling._
@@ -59,6 +60,8 @@ trait EmailService extends Auditable {
       case (Some(templateId), true) =>
         // store the notification details in Mongo if the template and reference number are valid
         cacheService.storeNotification(notificationRequest, registrationNumber)
+        // make sure the notification status flag is set to false to make sure it is viewed when the user next logs in
+        cacheService.storeNotificationViewedStatus(false, registrationNumber)
 
         val parameterMap: Map[String, String] = Map("name" -> notificationRequest.name, "registrationNumber" -> registrationNumber)
 

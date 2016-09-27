@@ -4,3 +4,5 @@ POST        /:registrationNumber                controllers.EmailController.send
 POST        /:name/:registrationNumber/event    controllers.EmailController.receiveEvent(name: String, registrationNumber: String, emailAddress: String)
 GET         /cache/:registrationNumber          controllers.NotificationCacheController.getNotification(registrationNumber: String)
 DELETE      /cache/:registrationNumber          controllers.NotificationCacheController.deleteNotification(registrationNumber: String)
+GET         /cache/viewed/:registrationNumber   controllers.NotificationCacheController.getNotificationViewedStatus(registrationNumber: String)
+PUT         /cache/viewed/:registrationNumber   controllers.NotificationCacheController.markAsViewed(registrationNumber: String)
