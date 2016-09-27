@@ -38,19 +38,16 @@ import scala.concurrent.{Await, Future}
 class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with OneServerPerSuite {
 
   val mockEmailService = mock[EmailService]
-  val mockNotificiationRepo = mock[NotificationRepository]
 
   val emailController = new EmailController {
     override val emailService = mockEmailService
     override val audit: Audit = new TestAudit
-    override val notificationRepo: NotificationRepository = mockNotificiationRepo
   }
 
   trait EmailControllerFixture {
     val emailController = new EmailController {
       override val emailService = mockEmailService
       override val audit: Audit = new TestAudit
-      override val notificationRepo: NotificationRepository = mockNotificiationRepo
     }
   }
 

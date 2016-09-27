@@ -25,7 +25,7 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.StatusNotification
+import repositories.{StatusNotification, ViewedStatus}
 import services.NotificationCacheService
 import uk.gov.hmrc.play.test._
 
@@ -85,5 +85,46 @@ class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with Sc
       doc.toString shouldBe errorMsg
     }
 
+    "return 200 status and the stored status when the notification viewed status is returned successfully from mongo" in {
+      def test(storedViewed: Boolean) = {
+        when(mockNotificiationCacheService.findNotificationViewedStatus(any())(any())).thenReturn(Future.successful(Some(ViewedStatus(Some("XXAW00000123488"), Some(storedViewed)))))
+
+        val result = notificationCacheController.getNotificationViewedStatus("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
+        status(result) shouldBe OK
+        Json.parse(contentAsString(result)).as[ViewedStatus].viewed.get shouldBe storedViewed
+      }
+      Seq(true, false).foreach(viewed => test(viewed))
+    }
+
+    // false is returned because this can only occur on a first visited by a user before a notification was committed to the cache
+    "return 200 status and false for viewed when the notification viewed status is not stored in mongo" in {
+      when(mockNotificiationCacheService.findNotificationViewedStatus(any())(any())).thenReturn(Future.successful(None))
+
+      val result = notificationCacheController.getNotificationViewedStatus("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
+      Json.parse(contentAsString(result)).as[ViewedStatus].viewed.get shouldBe false
+    }
+
+    "return 200 when the mark as viewed call is called successfully " in {
+      when(mockNotificiationCacheService.markAsViewed(any())(any())).thenReturn(Future.successful(true, None))
+      val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
+      status(result) shouldBe OK
+    }
+
+    "return 500 when the mark as viewed call fails unexpectedly " in {
+      when(mockNotificiationCacheService.markAsViewed(any())(any())).thenReturn(Future.successful(false, None))
+      val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
+      status(result) shouldBe 500
+    }
+
+    "return 500 when the mark as viewed call  fails unexpectedly with an error message" in {
+      val errorMsg = "Error"
+      when(mockNotificiationCacheService.markAsViewed(any())(any())).thenReturn(Future.successful(false, Some(errorMsg)))
+      val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
+      status(result) shouldBe 500
+      val doc = contentAsString(result)
+      doc.toString shouldBe errorMsg
+    }
+
   }
+
 }

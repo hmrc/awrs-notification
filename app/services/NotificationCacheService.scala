@@ -16,8 +16,8 @@
 
 package services
 
-import models.PushNotificationRequest
-import repositories.{NotificationRepository, StatusNotification}
+import models.{PushNotificationRequest, ViewedStatusResponse}
+import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import models.ContactTypes._
 import uk.gov.hmrc.play.http.HeaderCarrier
 
@@ -27,6 +27,7 @@ import scala.concurrent.Future
 trait NotificationCacheService {
 
   val repository: NotificationRepository
+  val viewedRepository: NotificationViewedRepository
 
   def storeNotification(pushNotification: PushNotificationRequest, registrationNumber: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
 
@@ -60,8 +61,29 @@ trait NotificationCacheService {
         }
     }
 
+  def storeNotificationViewedStatus(viewedStatus: Boolean, registrationNumber: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    val status = ViewedStatus(registrationNumber = Some(registrationNumber), viewed = Some(viewedStatus))
+    viewedRepository.insertViewedStatus(status)
+  }
+
+  def findNotificationViewedStatus(registrationNumber: String)(implicit hc: HeaderCarrier): Future[Option[ViewedStatus]] =
+    viewedRepository.findViewedStatusByRegistrationNumber(registrationNumber) map {
+      case viewedStatus@Some(_) => viewedStatus
+      case _ => None
+    }
+
+  def markAsViewed(registrationNumber: String)(implicit hc: HeaderCarrier): Future[(Boolean, Option[String])] =
+    viewedRepository.markAsViewed(registrationNumber) map {
+      result =>
+        result.ok match {
+          case true => (true, None)
+          case false => (false, result.errmsg)
+        }
+    }
+
 }
 
 object NotificationCacheService extends NotificationCacheService {
   override val repository = NotificationRepository()
+  override val viewedRepository = NotificationViewedRepository()
 }

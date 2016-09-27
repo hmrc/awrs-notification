@@ -23,7 +23,7 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import reactivemongo.api.commands.WriteResult
-import repositories.{NotificationRepository, StatusNotification}
+import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -33,10 +33,12 @@ import scala.concurrent.duration._
 class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite {
 
   val mockNotificationRepository = mock[NotificationRepository]
+  val mockNotificationViewedRepository = mock[NotificationViewedRepository]
   val mockHeaderCarrier = mock[HeaderCarrier]
 
   val notificationCacheService = new NotificationCacheService {
     override val repository = mockNotificationRepository
+    override val viewedRepository = mockNotificationViewedRepository
   }
 
   "NotificationCacheService" should {
@@ -118,6 +120,61 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneSe
       when(writeResult.errmsg).thenReturn(error)
 
       val result = Await.result(notificationCacheService.deleteNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
+
+      result shouldBe((false, error))
+    }
+
+    "return the viewed status found in mongo when it exists" in {
+
+      val viewedStatus = Some(ViewedStatus(Some("XXAW00000123488"), Some(false)))
+
+      when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(viewedStatus)
+
+      val result = Await.result(notificationCacheService.findNotificationViewedStatus("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
+
+      result shouldBe viewedStatus
+    }
+
+    "return None when the viewed status is not found in mongo" in {
+
+      when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(None)
+
+      val result = Await.result(notificationCacheService.findNotificationViewedStatus("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
+
+      result.isDefined shouldBe false
+    }
+
+    "return true when the viewed status is stored in mongo" in {
+
+      when(mockNotificationViewedRepository.insertViewedStatus(any())).thenReturn(Future.successful(true))
+
+      val result = Await.result(notificationCacheService.storeNotificationViewedStatus(false, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
+
+      result shouldBe true
+    }
+
+    "return true when the viewed status is updated in mongo" in {
+
+      val writeResult = mock[WriteResult]
+
+      when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(writeResult)
+      when(writeResult.ok).thenReturn(true)
+
+      val result = Await.result(notificationCacheService.markAsViewed("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
+
+      result shouldBe((true, None))
+    }
+
+    "return false when an unexpected error occurs when calling the mark as viewed service" in {
+
+      val writeResult = mock[WriteResult]
+      val error = Some("Unexpected Error")
+
+      when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(writeResult)
+      when(writeResult.ok).thenReturn(false)
+      when(writeResult.errmsg).thenReturn(error)
+
+      val result = Await.result(notificationCacheService.markAsViewed("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
 
       result shouldBe((false, error))
     }
