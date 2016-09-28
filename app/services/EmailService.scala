@@ -24,7 +24,6 @@ import models.{ConfirmationEmailRequest, EmailResponse, PushNotificationRequest,
 import play.api.Logger
 import play.api.i18n.Messages
 import play.api.libs.json._
-import repositories.ViewedStatus
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http._
 import utils.ErrorHandling._
@@ -32,6 +31,7 @@ import utils.ErrorHandling._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import org.joda.time.DateTime
 
 trait EmailService extends Auditable {
 
@@ -55,32 +55,38 @@ trait EmailService extends Auditable {
         Future.successful(EmailResponse(500, Some(e.getMessage)))
     }
 
+  def now(): String = DateTime.now.toString("dd MMMM yyyy")
+
   def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
     Try(confirmationEmailJson.as[ConfirmationEmailRequest]) match {
       case Success(request) =>
-
+        val submissionDate = now()
         EmailConfig.getConfirmationTemplate(request) match {
           case Some(templateId) =>
-            val parameterMap: Map[String, String] = Map("organisationName" -> confirmationEmailJson.bus, "applicationReference" -> registrationNumber, "submissionDate" -> xxx)
+            val parameterMap: Map[String, String] = Map("organisationName" -> request.businessName, "applicationReference" -> request.reference, "submissionDate" -> submissionDate)
 
-            val emailRequest = SendEmailRequest(to = List(EmailAddress(confirmationEmailJson.email)),
+            val emailRequest = SendEmailRequest(to = List(EmailAddress(request.email)),
               templateId = templateId,
               parameters = parameterMap,
               force = false,
-              Some("http://" + host + controllers.routes.EmailController.receiveEvent(notificationRequest.name, registrationNumber, notificationRequest.email).url))
+              eventUrl = Some("http://" + host + controllers.routes.EmailController.receiveConfirmationEvent(request.apiType.toString, request.businessName, request.reference, request.email, submissionDate).url))
 
-            sendEmailFun.apply(emailRequest)
+            val auditMap: Map[String, String] = Map("apiType" -> request.apiType, "organisationName" -> request.businessName, "applicationReference" -> request.reference, "emailAddress" -> request.email, "submissionDate" -> submissionDate)
+            val auditEventType: String = "awrs-api-confirmation"
+            sendDataEvent(transactionName = TransactionName, detail = auditMap, eventType = auditEventType)
+
+            sendEmailRequest(emailRequest)
 
           case _ =>
-            Logger.warn("[API12] Email service error: " + Messages("template_mapping.error"))
+            Logger.warn(s"[API Confirmation] Email service error: " + Messages("template_mapping.error"))
             Future.successful(EmailResponse(503, Some(Messages("template_mapping.error"))))
         }
       case Failure(ex: JsResultException) =>
-        Logger.warn("[API12] Email service JsResultException: " + ex.errors)
+        Logger.warn(s"[API Confirmation] Email service JsResultException: " + ex.errors)
         Future.successful(getValidationError(ex.errors))
 
       case Failure(e) =>
-        Logger.warn("[API12] Email service error: " + e.getMessage)
+        Logger.warn(s"[API Confirmation] Email service error: " + e.getMessage)
         Future.successful(EmailResponse(500, Some(e.getMessage)))
     }
 
@@ -136,6 +142,7 @@ trait EmailService extends Auditable {
         Logger.warn("[API12] Email connector Exception: " + e.getMessage)
         EmailResponse(500, Some(e.getMessage))
     }
+
 
 }
 

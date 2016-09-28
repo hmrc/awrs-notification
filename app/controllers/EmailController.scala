@@ -17,25 +17,19 @@
 package controllers
 
 import audit.Auditable
-import config.AwrsNotificationAuditConnector
 import models.{CallBackEventList, EmailResponse}
+import play.api.Logger
+import play.api.Play._
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsValue, Json}
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.config.AppName
-import utils.JsonConstructor
+import play.api.libs.json.JsValue
+import play.api.mvc._
 import services.EmailService
 import uk.gov.hmrc.play.microservice.controller.BaseController
-import play.api.mvc._
-
-import scala.concurrent.Future
-import play.api.Logger
-
-import scala.util.{Failure, Success, Try}
-import play.api.Play._
-import repositories.NotificationRepository
+import utils.JsonConstructor
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 object EmailController extends EmailController {
   override val emailService = EmailService
@@ -56,7 +50,7 @@ trait EmailController extends BaseController with Auditable {
       getResponseJson(request, response)
   }
 
-  def sendConfimationEmail = Action.async {
+  def sendConfirmationEmail = Action.async {
     implicit request =>
       def response(requestJson: JsValue) =
         emailService.sendConfirmationEmail(requestJson, request.host) flatMap {
@@ -67,7 +61,7 @@ trait EmailController extends BaseController with Auditable {
       getResponseJson(request, response)
   }
 
-  private def extractResponse(emailResponse: EmailResponse): Future[SimpleResult] = {
+  private def extractResponse(emailResponse: EmailResponse): Future[Result] = {
     emailResponse.status match {
       case OK =>
         Future.successful(Ok)
@@ -109,6 +103,32 @@ trait EmailController extends BaseController with Auditable {
                     sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
                   case None =>
                     Logger.warn("[API12] No need to audit the Event Received: " + event.eventType)
+                }
+            }
+            Future.successful(Ok)
+          case Failure(e) =>
+            Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
+        }
+      }
+      getResponseJson(request, response)
+  }
+
+  def receiveConfirmationEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
+    implicit request =>
+      def response(requestJson: JsValue) = {
+        val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
+        val auditEventType: String = "awrs-api-confirmation"
+
+        Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
+          case Success(callbackEventList) =>
+            callbackEventList.foreach {
+              event =>
+                configuration.getString(event.eventType.toLowerCase) match {
+                  case Some(_) =>
+                    Logger.warn(s"[API Confirmation] Email Callback Event Received: ${event.eventType}")
+                    sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
+                  case None =>
+                    Logger.warn(s"[API Confirmation] No need to audit the Event Received: ${event.eventType}")
                 }
             }
             Future.successful(Ok)
