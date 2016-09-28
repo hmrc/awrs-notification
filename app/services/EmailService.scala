@@ -20,7 +20,7 @@ import audit.Auditable
 import config.EmailConfig
 import connectors.EmailConnector
 import models.AwrsValidator._
-import models.{EmailResponse, PushNotificationRequest, SendEmailRequest}
+import models.{ConfirmationEmailRequest, EmailResponse, PushNotificationRequest, SendEmailRequest}
 import play.api.Logger
 import play.api.i18n.Messages
 import play.api.libs.json._
@@ -41,7 +41,7 @@ trait EmailService extends Auditable {
 
   lazy val TransactionName = "Send Email Request"
 
-  def sendEmail(pushNotificationJson: JsValue, registrationNumber: String, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
+  def sendNotificationEmail(pushNotificationJson: JsValue, registrationNumber: String, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
     Try(pushNotificationJson.as[PushNotificationRequest]) match {
       case Success(notification) =>
         matchTemplateAndRegNumber(notification, registrationNumber, host, sendEmailRequest)
@@ -55,8 +55,37 @@ trait EmailService extends Auditable {
         Future.successful(EmailResponse(500, Some(e.getMessage)))
     }
 
+  def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
+    Try(confirmationEmailJson.as[ConfirmationEmailRequest]) match {
+      case Success(request) =>
+
+        EmailConfig.getConfirmationTemplate(request) match {
+          case Some(templateId) =>
+            val parameterMap: Map[String, String] = Map("organisationName" -> confirmationEmailJson.bus, "applicationReference" -> registrationNumber, "submissionDate" -> xxx)
+
+            val emailRequest = SendEmailRequest(to = List(EmailAddress(confirmationEmailJson.email)),
+              templateId = templateId,
+              parameters = parameterMap,
+              force = false,
+              Some("http://" + host + controllers.routes.EmailController.receiveEvent(notificationRequest.name, registrationNumber, notificationRequest.email).url))
+
+            sendEmailFun.apply(emailRequest)
+
+          case _ =>
+            Logger.warn("[API12] Email service error: " + Messages("template_mapping.error"))
+            Future.successful(EmailResponse(503, Some(Messages("template_mapping.error"))))
+        }
+      case Failure(ex: JsResultException) =>
+        Logger.warn("[API12] Email service JsResultException: " + ex.errors)
+        Future.successful(getValidationError(ex.errors))
+
+      case Failure(e) =>
+        Logger.warn("[API12] Email service error: " + e.getMessage)
+        Future.successful(EmailResponse(500, Some(e.getMessage)))
+    }
+
   private def matchTemplateAndRegNumber(notificationRequest: PushNotificationRequest, registrationNumber: String, host: String, sendEmailFun: (SendEmailRequest) => Future[EmailResponse])(implicit hc: HeaderCarrier): Future[EmailResponse] =
-    (EmailConfig.getTemplate(notificationRequest), registrationNumber.matches(registrationRegex)) match {
+    (EmailConfig.getNotificationTemplate(notificationRequest), registrationNumber.matches(registrationRegex)) match {
       case (Some(templateId), true) =>
         // store the notification details in Mongo if the template and reference number are valid
         cacheService.storeNotification(notificationRequest, registrationNumber)

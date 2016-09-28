@@ -45,27 +45,43 @@ trait EmailController extends BaseController with Auditable {
 
   val emailService: EmailService
 
-  def sendEmail(registrationNumber: String) = Action.async {
+  def sendNotificationEmail(registrationNumber: String) = Action.async {
     implicit request =>
       def response(requestJson: JsValue) =
-        emailService.sendEmail(requestJson, registrationNumber, request.host) flatMap {
+        emailService.sendNotificationEmail(requestJson, registrationNumber, request.host) flatMap {
           emailResponse =>
-            emailResponse.status match {
-              case 200 =>
-                Future.successful(Ok)
-              case 400 =>
-                Future.successful(BadRequest(JsonConstructor.constructErrorResponse(emailResponse)))
-              case 404 =>
-                Future.successful(NotFound(JsonConstructor.constructErrorResponse(emailResponse)))
-              case 500 =>
-                Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(emailResponse)))
-              case _ =>
-                Future.successful(ServiceUnavailable(JsonConstructor.constructErrorResponse(emailResponse)))
-            }
+            extractResponse(emailResponse)
         }
 
       getResponseJson(request, response)
   }
+
+  def sendConfimationEmail = Action.async {
+    implicit request =>
+      def response(requestJson: JsValue) =
+        emailService.sendConfirmationEmail(requestJson, request.host) flatMap {
+          emailResponse =>
+            extractResponse(emailResponse)
+        }
+
+      getResponseJson(request, response)
+  }
+
+  private def extractResponse(emailResponse: EmailResponse): Future[SimpleResult] = {
+    emailResponse.status match {
+      case OK =>
+        Future.successful(Ok)
+      case BAD_REQUEST =>
+        Future.successful(BadRequest(JsonConstructor.constructErrorResponse(emailResponse)))
+      case NOT_FOUND =>
+        Future.successful(NotFound(JsonConstructor.constructErrorResponse(emailResponse)))
+      case INTERNAL_SERVER_ERROR =>
+        Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(emailResponse)))
+      case _ =>
+        Future.successful(ServiceUnavailable(JsonConstructor.constructErrorResponse(emailResponse)))
+    }
+  }
+
 
   private def getResponseJson(request: Request[AnyContent], responseFun: (JsValue) => Future[Result]): Future[Result] = {
     request.body match {

@@ -31,47 +31,47 @@ class ConfigTest extends UnitSpec with OneServerPerSuite {
 
   "Config Test" should {
     "load existing template from config (REJR)" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.REJR)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.REJR)))
       result shouldBe UpdateApplicationTemplate
     }
 
     "load existing template from config REVR" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.REVR)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.REVR)))
       result shouldBe UpdateRegistrationTemplate
     }
 
     "load existing template from config CONA" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.CONA)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.CONA)))
       result shouldBe UpdateApplicationTemplate
     }
 
     "load existing template from config MTRJ" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.MTRJ)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.MTRJ)))
       result shouldBe UpdateApplicationTemplate
     }
 
     "load existing template from config NMRJ" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.NMRJ)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.NMRJ)))
       result shouldBe UpdateApplicationTemplate
     }
 
     "load existing template from config MTRV" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.MTRV)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.MTRV)))
       result shouldBe UpdateRegistrationTemplate
     }
 
     "load existing template from config NMRV" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.NMRV)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.NMRV)))
       result shouldBe UpdateRegistrationTemplate
     }
 
     "load existing template from config OTHR" in {
-      val result = EmailConfig.getTemplate(createRequest(contactType = Some(ContactTypes.OTHR)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(contactType = Some(ContactTypes.OTHR)))
       result shouldBe UpdateApplicationTemplate
     }
 
     "load APPR template from config" in {
-      val result = EmailConfig.getTemplate(createRequest(status = Some(EmailConfig.Approved)))
+      val result = EmailConfig.getNotificationTemplate(createRequest(status = Some(EmailConfig.Approved)))
       result shouldBe UpdateApplicationTemplate
     }
 

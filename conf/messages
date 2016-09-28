@@ -13,3 +13,4 @@ error.maxLength = Invalid email address
 error.expected.jsboolean = Boolean value expected
 error.expected.jsstring = String value expected
 uri.invalid = URI not found
+api_type.invalid = Invalid API type
