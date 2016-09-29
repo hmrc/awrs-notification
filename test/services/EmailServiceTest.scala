@@ -291,7 +291,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val longName = "a" * (AwrsValidator.maxTextLength + 1)
       val inputJson = s"""{"name": "$longName", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(202)))
+      acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
@@ -329,7 +329,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
     "return 400 status when the email has unknown characters" in {
       val inputJson = """{"name": "name", "email": "example%@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(202)))
+      acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
@@ -340,7 +340,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
     "return 400 status when the name has unknown characters" in {
       val inputJson = """{"name": "name£«æ…≥≤", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(202)))
+      acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
@@ -357,7 +357,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       emailService.now() should fullyMatch regex re
     }
 
-    "return 202 status when the email is sent successfully" in {
+    "return 200 status when the email is sent successfully" in {
       val inputJson: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com"))
 
       acceptedMock
@@ -367,6 +367,23 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
+    "return 500 status when calls to send the email is unsuccessful" in {
+      val inputJson: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com"))
+
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400)))
+
+      val result: EmailResponse = await(emailService.sendConfirmationEmail(inputJson, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 500
+    }
+
+    "return appropriate status when the input email json is corrupt" in {
+      val inputJson: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com"))
+
+      val result: EmailResponse = await(emailService.sendConfirmationEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 400
+    }
   }
 
 }
