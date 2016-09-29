@@ -26,7 +26,6 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.NotificationRepository
 import services.EmailService
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -53,7 +52,7 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
 
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
-  "EmailController" should {
+  "EmailController for notification" should {
     "use the correct Email Service" in {
       EmailController.emailService shouldBe EmailService
     }
@@ -173,4 +172,49 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       }
     }
   }
+
+  "EmailController for confirmation" should {
+
+    "return 200 status when the email is sent successfully" in {
+      when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
+
+      val result = emailController.sendConfirmationEmail.apply(FakeRequest().withJsonBody(Json.obj()))
+      status(result) shouldBe OK
+    }
+
+    "return 400 status when the input json fails validation" in {
+      when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some("Bad Thing Happened"))))
+
+      val result = Await.result(emailController.sendConfirmationEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+
+      status(result) shouldBe BAD_REQUEST
+      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Bad Thing Happened\"}"
+    }
+
+    "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
+      val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveConfirmationEvent("API4","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+
+      status(result) shouldBe OK
+    }
+
+    "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
+      val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveConfirmationEvent("API4","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
+      val result = emailController.receiveConfirmationEvent("API4","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withTextBody("You naughty!"))
+
+      whenReady(result) {
+        result =>
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid request content type\"}"
+      }
+    }
+
+  }
+
 }

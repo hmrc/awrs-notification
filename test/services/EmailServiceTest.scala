@@ -56,7 +56,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
 
   "EmailService for notification" should {
 
-    "return 202 status when the email is sent successfully" in {
+    "return 200 status when the email is sent successfully" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
@@ -66,7 +66,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (140 char name)" in {
+    "return 200 status when the email is sent successfully (140 char name)" in {
       val longName = "a" * AwrsValidator.maxTextLength
       val inputJson = s"""{"name": "$longName", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
 
@@ -77,7 +77,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (REVR)" in {
+    "return 200 status when the email is sent successfully (REVR)" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "REVR", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
@@ -87,7 +87,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (CONA)" in {
+    "return 200 status when the email is sent successfully (CONA)" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "CONA", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
@@ -97,7 +97,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (MTRJ)" in {
+    "return 200 status when the email is sent successfully (MTRJ)" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "MTRJ", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
@@ -107,7 +107,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (NMRJ)" in {
+    "return 200 status when the email is sent successfully (NMRJ)" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "NMRJ", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
@@ -117,7 +117,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (MTRV)" in {
+    "return 200 status when the email is sent successfully (MTRV)" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "MTRV", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
@@ -127,7 +127,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (NMRV)" in {
+    "return 200 status when the email is sent successfully (NMRV)" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "NMRV", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
@@ -137,7 +137,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       result.status shouldBe 200
     }
 
-    "return 202 status when the email is sent successfully (OTHR)" in {
+    "return 200 status when the email is sent successfully (OTHR)" in {
       val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "OTHR", "contact_number": "123456789012", "variation": false}"""
 
       acceptedMock
