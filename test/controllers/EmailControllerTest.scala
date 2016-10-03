@@ -26,7 +26,6 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.NotificationRepository
 import services.EmailService
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -53,83 +52,83 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
 
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
-  "EmailController" should {
+  "EmailController for notification" should {
     "use the correct Email Service" in {
       EmailController.emailService shouldBe EmailService
     }
 
     "return 200 status when the email is sent successfully" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
 
-      val result = emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj()))
+      val result = emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe OK
     }
 
     "return 400 status when the input json fails validation" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some("Bad Thing Happened"))))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some("Bad Thing Happened"))))
 
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Bad Thing Happened\"}"
     }
 
     "return 400 status when the input json fails validation (empty response body)" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some(""))))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some(""))))
 
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}"
     }
 
     "return 400 status when the input json fails validation (no errors)" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, None)))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, None)))
 
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}"
     }
 
     "return 404 status when the email template is not found" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(404, Some("Invalid template"))))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(404, Some("Invalid template"))))
 
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe NOT_FOUND
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid template\"}"
     }
 
     "return 500 status when the email connector fails for external reasons (template not found or validation error occurred in external Email service)" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(500, Some("Invalid template"))))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(500, Some("Invalid template"))))
 
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid template\"}"
     }
 
     "return 500 status when the request is of wrong type" in {
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withTextBody("TEXT")), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withTextBody("TEXT")), 2.second)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid request content type\"}"
     }
 
     "return 503 status when email connector fails for external reasons" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(503, Some("Something Bad Happened"))))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(503, Some("Something Bad Happened"))))
 
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe SERVICE_UNAVAILABLE
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Something Bad Happened\"}"
     }
 
     "return 503 status when email connector fails for external reasons (empty response)" in {
-      when(mockEmailService.sendEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(503, Some(""))))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(503, Some(""))))
 
-      val result = Await.result(emailController.sendEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe SERVICE_UNAVAILABLE
       jsonBodyOf(result).toString shouldBe "{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}"
@@ -173,4 +172,49 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       }
     }
   }
+
+  "EmailController for confirmation" should {
+
+    "return 200 status when the email is sent successfully" in {
+      when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
+
+      val result = emailController.sendConfirmationEmail.apply(FakeRequest().withJsonBody(Json.obj()))
+      status(result) shouldBe OK
+    }
+
+    "return 400 status when the input json fails validation" in {
+      when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some("Bad Thing Happened"))))
+
+      val result = Await.result(emailController.sendConfirmationEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+
+      status(result) shouldBe BAD_REQUEST
+      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Bad Thing Happened\"}"
+    }
+
+    "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
+      val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveConfirmationEvent("API4","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+
+      status(result) shouldBe OK
+    }
+
+    "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
+      val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveConfirmationEvent("API4","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
+      val result = emailController.receiveConfirmationEvent("API4","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withTextBody("You naughty!"))
+
+      whenReady(result) {
+        result =>
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid request content type\"}"
+      }
+    }
+
+  }
+
 }

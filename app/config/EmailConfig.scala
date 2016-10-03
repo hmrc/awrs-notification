@@ -16,7 +16,7 @@
 
 package config
 
-import models.PushNotificationRequest
+import models.{ConfirmationEmailRequest, PushNotificationRequest}
 import play.api.Play._
 
 
@@ -25,14 +25,18 @@ trait EmailConfig {
   lazy val DefaultTemplate = "DFLT"
   lazy val Approved = "04"
 
-  def getTemplate(notificationRequest: PushNotificationRequest): Option[String] = {
+  def getNotificationTemplate(notificationRequest: PushNotificationRequest): Option[String] = {
     val template = (notificationRequest.contact_type, notificationRequest.status) match {
       case (Some(contactType), _) => contactType
       case (_, Some(Approved)) => ApprovedTemplate
       case (_, _) => DefaultTemplate
     }
-    configuration.getString(s"awrs.$template")
+    configuration.getString(s"awrs.notification.$template")
   }
+
+  def getConfirmationTemplate(confirmationEmailRequest: ConfirmationEmailRequest): Option[String] =
+    configuration.getString(s"awrs.confirmation.${confirmationEmailRequest.apiType.toString}")
+
 }
 
 object EmailConfig extends EmailConfig
