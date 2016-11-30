@@ -27,13 +27,15 @@ class ConfigTest extends UnitSpec with OneServerPerSuite {
   lazy val UpdateApplicationTemplate = Some("awrs_notification_template_app_change")
   lazy val API4ApplicationTemplate = Some("awrs_notification_template_comfirmation_api4")
   lazy val API6ApplicationTemplate = Some("awrs_notification_template_comfirmation_api6")
+  lazy val API4NewBusApplicationTemplate = Some("awrs_notification_template_comfirmation_api4_new_business")
+  lazy val API6NewBusApplicationTemplate = Some("awrs_notification_template_comfirmation_api6_new_business")
 
   def createNotificationRequest(status: Option[String] = None, contactType: Option[ContactTypes.ContactType] = None) =
     PushNotificationRequest("name", "example@example.com", status, contactType, None, variation = false)
 
 
-  def createConfirmationRequest(apiTypes: ApiType) =
-    ConfirmationEmailRequest(apiTypes, "my business", "010101", "example@example.com")
+  def createConfirmationRequest(apiTypes: ApiType, isNewBusiness: Boolean) =
+    ConfirmationEmailRequest(apiTypes, "my business", "010101", "example@example.com", isNewBusiness)
 
   "Config Test" should {
     "load existing template from config (REJR)" in {
@@ -81,13 +83,23 @@ class ConfigTest extends UnitSpec with OneServerPerSuite {
       result shouldBe UpdateApplicationTemplate
     }
 
-    "load API4 confirmation template from config" in {
-      val result = EmailConfig.getConfirmationTemplate(createConfirmationRequest(ApiTypes.API4))
+    "load new business API4 confirmation template from config" in {
+      val result = EmailConfig.getConfirmationTemplate(createConfirmationRequest(ApiTypes.API4, isNewBusiness = true))
+      result shouldBe API4NewBusApplicationTemplate
+    }
+
+    "load new business API6 confirmation template from config" in {
+      val result = EmailConfig.getConfirmationTemplate(createConfirmationRequest(ApiTypes.API6, isNewBusiness = true))
+      result shouldBe API6NewBusApplicationTemplate
+    }
+
+    "load established business API4 confirmation template from config" in {
+      val result = EmailConfig.getConfirmationTemplate(createConfirmationRequest(ApiTypes.API4, isNewBusiness = false))
       result shouldBe API4ApplicationTemplate
     }
 
-    "load API6 confirmation template from config" in {
-      val result = EmailConfig.getConfirmationTemplate(createConfirmationRequest(ApiTypes.API6))
+    "load established business API6 confirmation template from config" in {
+      val result = EmailConfig.getConfirmationTemplate(createConfirmationRequest(ApiTypes.API6, isNewBusiness = false))
       result shouldBe API6ApplicationTemplate
     }
   }

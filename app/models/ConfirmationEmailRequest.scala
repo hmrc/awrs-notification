@@ -21,7 +21,7 @@ import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
 
-case class ConfirmationEmailRequest(apiType: ApiTypes.ApiType, businessName: String, reference: String, email: String)
+case class ConfirmationEmailRequest(apiType: ApiTypes.ApiType, businessName: String, reference: String, email: String, isNewBusiness: Boolean)
 
 object ApiTypes extends Enumeration {
 

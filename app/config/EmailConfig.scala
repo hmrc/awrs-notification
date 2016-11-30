@@ -35,7 +35,7 @@ trait EmailConfig {
   }
 
   def getConfirmationTemplate(confirmationEmailRequest: ConfirmationEmailRequest): Option[String] =
-    configuration.getString(s"awrs.confirmation.${confirmationEmailRequest.apiType.toString}")
+    configuration.getString(s"awrs.confirmation.${confirmationEmailRequest.isNewBusiness match {case true =>"new_business.";case false=>""}}${confirmationEmailRequest.apiType.toString}")
 
 }
 
