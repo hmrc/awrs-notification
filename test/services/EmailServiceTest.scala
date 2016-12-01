@@ -357,29 +357,25 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       emailService.now() should fullyMatch regex re
     }
 
-    "return 200 status when the email is sent successfully" in {
-      val inputJson: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com"))
+    val testEmailRequest: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com", isNewBusiness = true))
 
+    "return 200 status when the email is sent successfully" in {
       acceptedMock
 
-      val result: EmailResponse = await(emailService.sendConfirmationEmail(inputJson, host = "")(hc = mockHeaderCarrier))
+      val result: EmailResponse = await(emailService.sendConfirmationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
       result.status shouldBe 200
     }
 
     "return 500 status when calls to send the email is unsuccessful" in {
-      val inputJson: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com"))
-
       when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400)))
 
-      val result: EmailResponse = await(emailService.sendConfirmationEmail(inputJson, host = "")(hc = mockHeaderCarrier))
+      val result: EmailResponse = await(emailService.sendConfirmationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
       result.status shouldBe 500
     }
 
     "return appropriate status when the input email json is corrupt" in {
-      val inputJson: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com"))
-
       val result: EmailResponse = await(emailService.sendConfirmationEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
 
       result.status shouldBe 400

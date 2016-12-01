@@ -21,7 +21,7 @@ import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
 
-case class ConfirmationEmailRequest(apiType: ApiTypes.ApiType, businessName: String, reference: String, email: String)
+case class ConfirmationEmailRequest(apiType: ApiTypes.ApiType, businessName: String, reference: String, email: String, isNewBusiness:Boolean)
 
 object ApiTypes extends Enumeration {
 
@@ -29,8 +29,9 @@ object ApiTypes extends Enumeration {
 
   type ApiType = Value
 
-  val API4 = Value("API4")
-  val API6 = Value("API6")
+  val API4 = Value("api4")
+  val API6Pending = Value("api6.pending")
+  val API6Approved = Value("api6.approved")
 
   implicit val reader = new Reads[ApiTypes.Value] {
 
