@@ -17,14 +17,12 @@
 package services
 
 import audit.TestAudit
+import config.ErrorConfig
 import connectors.EmailConnector
 import models.{ApiTypes, AwrsValidator, ConfirmationEmailRequest, EmailResponse}
-import org.mockito.Matchers._
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
-import play.api.i18n.Messages
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.http._
@@ -257,7 +255,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "fds", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("registration_number.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidRegNumber
     }
 
     "return 400 status with the failure message when invalid status is passed" in {
@@ -266,7 +264,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("status.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidStatus
     }
 
     "return 400 status with the failure message when invalid variation is passed" in {
@@ -275,7 +273,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("error.expected.jsboolean")
+      result.errors.get shouldBe ErrorConfig.errorExpectedBoolean
     }
 
     "return 400 status with the failure message when invalid email address is passed" in {
@@ -284,7 +282,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("email.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidEmail
     }
 
     "return 400 status with the failure message when invalid name is passed (max length exceeded)" in {
@@ -296,7 +294,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("name.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidName
     }
 
     "return 400 status with the failure message when invalid contact number is passed" in {
@@ -305,7 +303,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("contact_number.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidContactNumber
     }
 
     "return 400 status with the failure message when invalid contact type is passed" in {
@@ -314,7 +312,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("contact_type.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidContactType
     }
 
     "return 400 status with the failure message when Email is more than 100 characters" in {
@@ -323,7 +321,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("error.maxLength")
+      result.errors.get shouldBe ErrorConfig.errorMaxLength
     }
 
     "return 400 status when the email has unknown characters" in {
@@ -334,7 +332,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("email.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidEmail
     }
 
     "return 400 status when the name has unknown characters" in {
@@ -345,7 +343,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
 
       result.status shouldBe 400
-      result.errors.get shouldBe Messages("name.invalid")
+      result.errors.get shouldBe ErrorConfig.invalidName
     }
 
   }

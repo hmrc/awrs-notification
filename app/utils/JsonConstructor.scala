@@ -16,8 +16,8 @@
 
 package utils
 
+import config.ErrorConfig
 import models.EmailResponse
-import play.api.i18n.Messages
 import play.api.libs.json.{JsValue, Json}
 
 object JsonConstructor {
@@ -27,7 +27,7 @@ object JsonConstructor {
       case Some(errors) if errors.nonEmpty =>
         constructErrorJson(errors)
       case _ =>
-        constructErrorJson(Messages("unknown.failure"))
+        constructErrorJson(ErrorConfig.invalidUnknown)
     }
 
   def constructErrorJson(inputString: String) : JsValue =

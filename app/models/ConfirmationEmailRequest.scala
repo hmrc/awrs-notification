@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.i18n.Messages
+import config.ErrorConfig
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
@@ -39,9 +39,9 @@ object ApiTypes extends Enumeration {
       case JsString(s) =>
         Try(ApiTypes.withName(s)) match {
           case Success(value) => JsSuccess(value)
-          case Failure(e) => JsError(Messages("api_type.invalid"))
+          case Failure(e) => JsError(ErrorConfig.invalidApiType)
         }
-      case _ => JsError(Messages("error.expected.jsstring"))
+      case _ => JsError(ErrorConfig.errorExpectedString)
     }
 
   }
