@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package models
 
-import play.api.i18n.Messages
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-import play.api.libs.functional.syntax._
+import config.ErrorConfig
 import models.AwrsValidator._
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
 
@@ -47,9 +47,9 @@ object ContactTypes extends Enumeration {
       case JsString(s) =>
         Try(ContactTypes.withName(s)) match {
           case Success(value) => JsSuccess(value)
-          case Failure(e) => JsError(Messages("contact_type.invalid"))
+          case Failure(e) => JsError(ErrorConfig.invalidContactType)
         }
-      case _ => JsError(Messages("error.expected.jsstring"))
+      case _ => JsError(ErrorConfig.errorExpectedString)
     }
 
   }
@@ -76,11 +76,11 @@ object PushNotificationRequest {
   }
 
   implicit val pushNotificationRequestFormat: Reads[PushNotificationRequest] = (
-    (JsPath \ "name").read[String](verifyingWithError[String](validText(validateISO88591), Messages("name.invalid"))) and
-      (JsPath \ "email").read[String](maxLength[String](100) keepAnd pattern(emailRegex, Messages("email.invalid"))) and
-      (JsPath \ "status").readNullable[String](pattern(statusRegex, Messages("status.invalid"))) and
+    (JsPath \ "name").read[String](verifyingWithError[String](validText(validateISO88591), ErrorConfig.invalidName)) and
+      (JsPath \ "email").read[String](maxLength[String](100) keepAnd pattern(emailRegex, ErrorConfig.invalidEmail)) and
+      (JsPath \ "status").readNullable[String](pattern(statusRegex, ErrorConfig.invalidStatus)) and
       (JsPath \ "contact_type").readNullable[ContactTypes.ContactType] and
-      (JsPath \ "contact_number").readNullable[String](pattern(contactNoRegex, Messages("contact_number.invalid"))) and
+      (JsPath \ "contact_number").readNullable[String](pattern(contactNoRegex, ErrorConfig.invalidContactNumber)) and
       (JsPath \ "variation").read[Boolean]
     ) (PushNotificationRequest.apply _)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.i18n.Messages
+import config.ErrorConfig
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
@@ -39,9 +39,9 @@ object ApiTypes extends Enumeration {
       case JsString(s) =>
         Try(ApiTypes.withName(s)) match {
           case Success(value) => JsSuccess(value)
-          case Failure(e) => JsError(Messages("api_type.invalid"))
+          case Failure(e) => JsError(ErrorConfig.invalidApiType)
         }
-      case _ => JsError(Messages("error.expected.jsstring"))
+      case _ => JsError(ErrorConfig.errorExpectedString)
     }
 
   }

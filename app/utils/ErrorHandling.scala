@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package utils
 
+import config.ErrorConfig
 import models.EmailResponse
 import play.api.data.validation.ValidationError
-import play.api.i18n.Messages
 import play.api.libs.json.JsPath
 import uk.gov.hmrc.play.http.HttpResponse
 
@@ -40,12 +40,12 @@ object ErrorHandling {
       case head :: tail =>
         head._2.headOption.map(_.message) match {
           case Some(message) =>
-            EmailResponse(400, Some(Messages(message)))
+            EmailResponse(400, Some(ErrorConfig.getError(message)))
           case _ =>
-            EmailResponse(500, Some(Messages("error_builder.failure")))
+            EmailResponse(500, Some(ErrorConfig.invalidWErrorBuilder))
         }
       case _ =>
-        EmailResponse(500, Some(Messages("error_builder.failure")))
+        EmailResponse(500, Some(ErrorConfig.invalidWErrorBuilder))
     }
 
 }

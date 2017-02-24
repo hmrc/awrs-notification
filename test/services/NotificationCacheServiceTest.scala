@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,21 @@ import org.mockito.Matchers._
 import org.mockito.Mock
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import reactivemongo.api.commands.WriteResult
+import play.api.inject.guice.GuiceApplicationBuilder
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
-
+import reactivemongo.api.commands.WriteResult
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import org.scalatestplus.play.OneAppPerSuite
 
-class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneServerPerSuite {
+class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
   val mockNotificationRepository = mock[NotificationRepository]
   val mockNotificationViewedRepository = mock[NotificationViewedRepository]
   val mockHeaderCarrier = mock[HeaderCarrier]
+  override implicit lazy val app = new GuiceApplicationBuilder().configure(Map("metrics.enabled" -> false)).build()
 
   val notificationCacheService = new NotificationCacheService {
     override val repository = mockNotificationRepository

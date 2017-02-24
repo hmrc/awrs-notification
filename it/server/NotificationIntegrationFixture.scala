@@ -17,13 +17,13 @@
 package server
 
 import play.modules.reactivemongo.MongoDbConnection
-import uk.gov.hmrc.play.it.{ExternalService, MongoMicroServiceEmbeddedServer, ServiceSpec}
+import uk.gov.hmrc.play.it.{ExternalServiceRunner, MongoMicroServiceEmbeddedServer, ServiceSpec}
 
 class NotificationIntegrationServer(override val testName: String) extends MongoMicroServiceEmbeddedServer {
-  val datastream = ExternalService.runFromJar("datastream")
-  val auth = ExternalService.runFromJar("auth")
-  val email = ExternalService.runFromJar("email")
-  val mailgun = ExternalService.runFromJar("mailgun")
+  val datastream = ExternalServiceRunner.runFromJar("datastream")
+  val auth = ExternalServiceRunner.runFromJar("auth")
+  val email = ExternalServiceRunner.runFromJar("email")
+  val mailgun = ExternalServiceRunner.runFromJar("mailgun")
   override val externalServices = Seq(datastream, auth, email, mailgun)
 }
 

@@ -25,30 +25,34 @@ object MicroServiceBuild extends Build with MicroService {
 }
 
 private object AppDependencies {
-  import play.PlayImport._
+  import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val playHealthVersion = "1.1.0"
-  private val microserviceBootstrapVersion = "4.4.0"
-  private val playConfigVersion = "2.0.1"
-  private val playAuthVersion = "3.3.0"
-  private val playJsonLoggerVersion = "2.1.1"
-  private val domainVersion = "3.3.0"
-  private val playUrlBindersVersion = "1.0.0"
-  private val playReactivemongoVersion = "4.8.0"
-  private val emailAddress = "1.1.0"
-  private val reactiveMongoTest = "1.6.0"
-  private val hmrcTestVersion = "1.8.0"
+  private val playHealthVersion = "2.0.0"
+  private val microserviceBootstrapVersion = "5.8.0"
+  private val playConfigVersion = "3.0.0"
+  private val playAuthVersion = "4.2.0"
+  private val logbackJsonLoggerVersion = "3.1.0"
+  private val domainVersion = "4.0.0"
+  private val playUrlBindersVersion = "2.0.0"
+  private val playReactivemongoVersion = "5.1.0"
+  private val emailAddress = "2.0.0"
+  private val reactiveMongoTest = "2.0.0"
+  private val hmrcTestVersion = "2.2.0"
+  private val mockitoVersion = "1.9.0"
+  private val scalatestPlusPlayVersion = "1.5.1"
+  private val jSoupVersion = "1.8.3"
+  private val scalaTestVersion = "2.2.6"
+  private val pegdownVersion = "1.6.0"
 
   val compile = Seq(
     "uk.gov.hmrc" %% "play-reactivemongo" % playReactivemongoVersion,
-
     ws,
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
     "uk.gov.hmrc" %% "play-authorisation" % playAuthVersion,
-    "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion,
+    "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "emailaddress" % emailAddress
@@ -63,11 +67,12 @@ private object AppDependencies {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
-        "org.scalatest" %% "scalatest" % "2.2.6" % scope,
-        "org.pegdown" % "pegdown" % "1.4.2" % scope,
-        "org.scalatestplus" %% "play" % "1.2.0" % scope,
+        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
+        "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "uk.gov.hmrc" %% "reactivemongo-test" % reactiveMongoTest % scope
+        "org.mockito" % "mockito-core" % mockitoVersion % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalatestPlusPlayVersion % scope,
+        "org.jsoup" % "jsoup" % jSoupVersion % scope
       )
     }.test
   }
@@ -79,9 +84,10 @@ private object AppDependencies {
 
       override lazy val test = Seq(
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
-        "org.scalatest" %% "scalatest" % "2.2.6" % scope,
-        "org.pegdown" % "pegdown" % "1.4.2" % scope,
-        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
+        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
+        "org.pegdown" % "pegdown" % pegdownVersion % scope,
+        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalatestPlusPlayVersion % scope
       )
     }.test
   }

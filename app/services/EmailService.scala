@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
 package services
 
 import audit.Auditable
-import config.EmailConfig
+import config.{EmailConfig, ErrorConfig}
 import connectors.EmailConnector
 import models.AwrsValidator._
 import models.{ConfirmationEmailRequest, EmailResponse, PushNotificationRequest, SendEmailRequest}
+import org.joda.time.DateTime
 import play.api.Logger
-import play.api.i18n.Messages
 import play.api.libs.json._
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http._
@@ -31,7 +31,6 @@ import utils.ErrorHandling._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-import org.joda.time.DateTime
 
 trait EmailService extends Auditable {
 
@@ -78,8 +77,8 @@ trait EmailService extends Auditable {
             sendEmailRequest(logName = "API Confirmation", emailRequest)
 
           case _ =>
-            Logger.warn(s"[API Confirmation] Email service error: " + Messages("template_mapping.error"))
-            Future.successful(EmailResponse(503, Some(Messages("template_mapping.error"))))
+            Logger.warn(s"[API Confirmation] Email service error: " + ErrorConfig.invalidTemplate)
+            Future.successful(EmailResponse(503, Some(ErrorConfig.invalidTemplate)))
         }
       case Failure(ex: JsResultException) =>
         Logger.warn(s"[API Confirmation] Email service JsResultException: " + ex.errors)
@@ -112,12 +111,12 @@ trait EmailService extends Auditable {
 
         sendEmailRequest(logName = "API12", emailRequest)
       case (_, false) =>
-        Logger.warn("[API12] Email service error: " + Messages("registration_number.invalid"))
-        Future.successful(EmailResponse(400, Some(Messages("registration_number.invalid"))))
+        Logger.warn("[API12] Email service error: " + ErrorConfig.invalidRegNumber)
+        Future.successful(EmailResponse(400, Some(ErrorConfig.invalidRegNumber)))
 
       case (_, _) =>
-        Logger.warn("[API12] Email service error: " + Messages("template_mapping.error"))
-        Future.successful(EmailResponse(503, Some(Messages("template_mapping.error"))))
+        Logger.warn("[API12] Email service error: " + ErrorConfig.invalidTemplate)
+        Future.successful(EmailResponse(503, Some(ErrorConfig.invalidTemplate)))
     }
 
   private def sendEmailRequest(logName: String, request: SendEmailRequest)(implicit headerCarrier: HeaderCarrier): Future[EmailResponse] =

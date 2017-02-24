@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package controllers
 
 import audit.Auditable
+import config.ErrorConfig
 import models.{CallBackEventList, EmailResponse}
 import play.api.Logger
 import play.api.Play._
-import play.api.i18n.Messages
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import services.EmailService
@@ -83,7 +83,7 @@ trait EmailController extends BaseController with Auditable {
         responseFun.apply(js.json)
       case _ =>
         Logger.warn("[API12] Invalid request body type passed to microservice - just JSON accepted")
-        Future.successful(InternalServerError(JsonConstructor.constructErrorJson(Messages("content_type.invalid"))))
+        Future.successful(InternalServerError(JsonConstructor.constructErrorJson(ErrorConfig.invalidContentType)))
     }
   }
 

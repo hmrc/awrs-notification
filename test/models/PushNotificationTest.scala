@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package models
 
-import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json._
 import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatestplus.play.OneAppPerSuite
 
-class PushNotificationTest extends UnitSpec with OneServerPerSuite {
+class PushNotificationTest extends UnitSpec with OneAppPerSuite {
 
   "Push Notification" should {
     "transform a valid JSON to PushNotification model object" in {

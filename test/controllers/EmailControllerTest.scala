@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,19 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.{contentAsString, _}
 import services.EmailService
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test._
-
+import org.jsoup.Jsoup
+import org.scalatestplus.play.OneAppPerSuite
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with OneServerPerSuite {
+class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with OneAppPerSuite {
 
   val mockEmailService = mock[EmailService]
 
@@ -70,7 +70,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Bad Thing Happened\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Bad Thing Happened\"}")
     }
 
     "return 400 status when the input json fails validation (empty response body)" in {
@@ -79,7 +81,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}")
     }
 
     "return 400 status when the input json fails validation (no errors)" in {
@@ -88,7 +92,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}")
     }
 
     "return 404 status when the email template is not found" in {
@@ -97,7 +103,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe NOT_FOUND
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid template\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Invalid template\"}")
     }
 
     "return 500 status when the email connector fails for external reasons (template not found or validation error occurred in external Email service)" in {
@@ -106,14 +114,18 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid template\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Invalid template\"}")
     }
 
     "return 500 status when the request is of wrong type" in {
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withTextBody("TEXT")), 2.second)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid request content type\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Invalid request content type\"}")
     }
 
     "return 503 status when email connector fails for external reasons" in {
@@ -122,7 +134,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe SERVICE_UNAVAILABLE
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Something Bad Happened\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Something Bad Happened\"}")
     }
 
     "return 503 status when email connector fails for external reasons (empty response)" in {
@@ -131,7 +145,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe SERVICE_UNAVAILABLE
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Unknown reason. Dependent system did not provide failure reason\"}")
     }
 
     "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
@@ -168,7 +184,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       whenReady(result) {
         result =>
           status(result) shouldBe INTERNAL_SERVER_ERROR
-          jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid request content type\"}"
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.toString should include("{\"reason\":\"Invalid request content type\"}")
       }
     }
   }
@@ -188,7 +206,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       val result = Await.result(emailController.sendConfirmationEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
-      jsonBodyOf(result).toString shouldBe "{\"reason\":\"Bad Thing Happened\"}"
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Bad Thing Happened\"}")
     }
 
     "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
@@ -211,7 +231,9 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       whenReady(result) {
         result =>
           status(result) shouldBe INTERNAL_SERVER_ERROR
-          jsonBodyOf(result).toString shouldBe "{\"reason\":\"Invalid request content type\"}"
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.toString should include("{\"reason\":\"Invalid request content type\"}")
       }
     }
 
