@@ -28,7 +28,7 @@ import scala.concurrent.Future
 trait EmailConnector extends ServicesConfig with RawResponseReads {
 
   lazy val serviceURL = baseUrl("email")
-  val sendEmailURI = "/send-templated-email"
+  val sendEmailURI = "/hmrc/email"
   val http: HttpGet with HttpPost = WSHttp
 
   def sendEmail(emailData: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse]= {
