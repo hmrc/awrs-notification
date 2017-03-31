@@ -24,6 +24,7 @@ import play.api.Play._
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import services.EmailService
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import utils.JsonConstructor
 
@@ -43,6 +44,17 @@ trait EmailController extends BaseController with Auditable {
     implicit request =>
       def response(requestJson: JsValue) =
         emailService.sendNotificationEmail(requestJson, registrationNumber, request.host) flatMap {
+          emailResponse =>
+            extractResponse(emailResponse)
+        }
+
+      getResponseJson(request, response)
+  }
+
+  def sendWithdrawnEmail = Action.async {
+    implicit request =>
+      def response(requestJson: JsValue) =
+        emailService.sendWithdrawnEmail(requestJson, request.host) flatMap {
           emailResponse =>
             extractResponse(emailResponse)
         }
@@ -92,23 +104,7 @@ trait EmailController extends BaseController with Auditable {
       def response(requestJson: JsValue) = {
         val auditMap: Map[String, String] = Map("name" -> name, "registrationNumber" -> registrationNumber, "emailAddress" -> emailAddress)
         val auditEventType: String = "awrs-notification"
-
-        Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
-          case Success(callbackEventList) =>
-            callbackEventList.foreach {
-              event =>
-                configuration.getString(event.eventType.toLowerCase) match {
-                  case Some(_) =>
-                    Logger.warn("[API12] Email Callback Event Received: " + event.eventType)
-                    sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
-                  case None =>
-                    Logger.warn("[API12] No need to audit the Event Received: " + event.eventType)
-                }
-            }
-            Future.successful(Ok)
-          case Failure(e) =>
-            Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
-        }
+        getEmailEvent(requestJson, auditMap, auditEventType, "12")
       }
       getResponseJson(request, response)
   }
@@ -118,24 +114,37 @@ trait EmailController extends BaseController with Auditable {
       def response(requestJson: JsValue) = {
         val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
         val auditEventType: String = "awrs-api-confirmation"
-
-        Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
-          case Success(callbackEventList) =>
-            callbackEventList.foreach {
-              event =>
-                configuration.getString(event.eventType.toLowerCase) match {
-                  case Some(_) =>
-                    Logger.warn(s"[API Confirmation] Email Callback Event Received: ${event.eventType}")
-                    sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
-                  case None =>
-                    Logger.warn(s"[API Confirmation] No need to audit the Event Received: ${event.eventType}")
-                }
-            }
-            Future.successful(Ok)
-          case Failure(e) =>
-            Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
-        }
+        getEmailEvent(requestJson, auditMap, auditEventType, " Confirmation")
       }
       getResponseJson(request, response)
+  }
+
+  def receiveWithdrawnEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
+    implicit request =>
+      def response(requestJson: JsValue) = {
+        val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
+        val auditEventType: String = "awrs-api-withdrawn"
+        getEmailEvent(requestJson, auditMap, auditEventType, "8")
+      }
+      getResponseJson(request, response)
+  }
+
+  private def getEmailEvent(requestJson: JsValue, auditMap: Map[String, String], auditEventType: String, apiType: String)(implicit hc: HeaderCarrier) = {
+    Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
+      case Success(callbackEventList) =>
+        callbackEventList.foreach {
+          event =>
+            configuration.getString(event.eventType.toLowerCase) match {
+              case Some(_) =>
+                Logger.warn(s"[API${apiType}] Email Callback Event Received: ${event.eventType}")
+                sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
+              case None =>
+                Logger.warn(s"[API${apiType}] No need to audit the Event Received: ${event.eventType}")
+            }
+        }
+        Future.successful(Ok)
+      case Failure(e) =>
+        Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
+    }
   }
 }

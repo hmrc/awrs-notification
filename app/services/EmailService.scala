@@ -56,6 +56,10 @@ trait EmailService extends Auditable {
 
   private[services] def now(): String = DateTime.now.toString("dd MMMM yyyy")
 
+  def sendWithdrawnEmail(withdrawnEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
+    Future.successful(new EmailResponse(200,None))
+  }
+
   def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
     Try(confirmationEmailJson.as[ConfirmationEmailRequest]) match {
       case Success(request) =>

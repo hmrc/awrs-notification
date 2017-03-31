@@ -191,6 +191,35 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
     }
   }
 
+  "EmailController for withdrawn" should {
+    "return 200 status when the email is sent succesfully" in {
+      when(mockEmailService.sendWithdrawnEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
+
+      val result = emailController.sendWithdrawnEmail.apply(FakeRequest().withJsonBody(Json.obj()))
+      status(result) shouldBe OK
+    }
+
+    "return 400 status when the input json fails validation" in {
+      when(mockEmailService.sendWithdrawnEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some("Error"))))
+
+      val result = Await.result(emailController.sendWithdrawnEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+
+      status(result) shouldBe BAD_REQUEST
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Error\"}")
+    }
+
+    "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
+      val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveWithdrawnEvent("API8","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+      status(result) shouldBe OK
+
+    }
+
+
+  }
+
   "EmailController for confirmation" should {
 
     "return 200 status when the email is sent successfully" in {
