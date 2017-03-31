@@ -216,6 +216,26 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       status(result) shouldBe OK
 
     }
+    
+
+    "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
+      val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveWithdrawnEvent("API8","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
+      val result = emailController.receiveWithdrawnEvent("API8","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withTextBody("Error"))
+
+      whenReady(result) {
+        result =>
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.toString should include("{\"reason\":\"Invalid request content type\"}")
+      }
+    }
 
 
   }
