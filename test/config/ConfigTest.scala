@@ -31,6 +31,8 @@ class ConfigTest extends UnitSpec with OneAppPerSuite {
   lazy val API6PendingApplicationTemplate = Some("awrs_notification_template_comfirmation_api6_pending")
   lazy val API6NewBusApprovedApplicationTemplate = Some("awrs_notification_template_comfirmation_api6_new_business")
   lazy val API6NewBusPendingApplicationTemplate = Some("awrs_notification_template_comfirmation_api6_new_business_pending")
+  lazy val API10CancellationTemplate = Some("awrs_notification_template_cancellation_api10")
+  lazy val API8WithdrawnTemplate = Some ("awrs_notification_template_withdrawn_api8")
 
   def createNotificationRequest(status: Option[String] = None, contactType: Option[ContactTypes.ContactType] = None) =
     PushNotificationRequest("name", "example@example.com", status, contactType, None, variation = false)
@@ -93,6 +95,16 @@ class ConfigTest extends UnitSpec with OneAppPerSuite {
     "load new business API4 confirmation template from config" in {
       val result = EmailConfig.getConfirmationTemplate(createConfirmationRequest(ApiTypes.API4, isNewBusiness = true))
       result shouldBe API4NewBusApplicationTemplate
+    }
+
+    "load cancellation API10 template from config" in {
+      val result = EmailConfig.getCancellationTemplate(ConfirmationEmailRequest(ApiTypes.API10, "my business", "010101", "example@example.com", false))
+      result shouldBe API10CancellationTemplate
+    }
+
+    "load withdraw API8 template from config" in {
+      val result = EmailConfig.getWithdrawnTemplate(ConfirmationEmailRequest(ApiTypes.API8, "my business", "010101", "example@example.com", false))
+      result shouldBe API8WithdrawnTemplate
     }
 
     "load established business API6 with pending confirmation template from config" in {

@@ -381,4 +381,56 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite wi
     }
   }
 
+  "EmailService for cancellation" should {
+    val testEmailRequest: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API10, businessName = "businessName", reference = "reference", email = "example@example.com", false))
+
+    "return 200 status when the email is sent successfully" in {
+      acceptedMock
+
+      val result: EmailResponse = await(emailService.sendCancellationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 200
+    }
+
+    "return 500 status when calls to send the email is unsuccessful" in {
+      when(emailService.emailConnector.sendEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(400)))
+
+      val result: EmailResponse = await(emailService.sendCancellationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 500
+    }
+
+    "return appropriate status when the input email json is corrupt" in {
+      val result: EmailResponse = await(emailService.sendCancellationEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 400
+    }
+  }
+
+  "EmailService for withdrawal" should {
+    val testEmailRequest: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API8, businessName = "businessName", reference = "reference", email = "example@example.com", false))
+
+    "return 200 status when the email is sent successfully" in {
+      acceptedMock
+
+      val result: EmailResponse = await(emailService.sendWithdrawnEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 200
+    }
+
+    "return 500 status when calls to send the email is unsuccessful" in {
+      when(emailService.emailConnector.sendEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(400)))
+
+      val result: EmailResponse = await(emailService.sendWithdrawnEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 500
+    }
+
+    "return appropriate status when the input email json is corrupt" in {
+      val result: EmailResponse = await(emailService.sendWithdrawnEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 400
+    }
+  }
+
 }

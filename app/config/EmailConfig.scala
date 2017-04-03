@@ -45,6 +45,18 @@ trait EmailConfig {
     configuration.getString(templateName)
   }
 
+  def getCancellationTemplate(confirmationEmailRequest: ConfirmationEmailRequest): Option[String] = {
+    import models.ApiTypes._
+    val templateName = s"awrs.cancellation.${confirmationEmailRequest.apiType.toString}"
+    configuration.getString(templateName)
+  }
+
+  def getWithdrawnTemplate(confirmationEmailRequest: ConfirmationEmailRequest): Option[String] = {
+    import models.ApiTypes._
+    val templateName = s"awrs.withdrawn.${confirmationEmailRequest.apiType.toString}"
+    configuration.getString(templateName)
+  }
+
 }
 
 object EmailConfig extends EmailConfig
