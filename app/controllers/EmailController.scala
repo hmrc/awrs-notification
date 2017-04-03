@@ -62,6 +62,17 @@ trait EmailController extends BaseController with Auditable {
       getResponseJson(request, response)
   }
 
+  def sendCancellationEmail = Action.async {
+    implicit request =>
+      def response(requestJson: JsValue) =
+        emailService.sendCancellationEmail(requestJson, request.host) flatMap {
+          emailResponse =>
+            extractResponse(emailResponse)
+        }
+
+      getResponseJson(request, response)
+  }
+
   def sendConfirmationEmail = Action.async {
     implicit request =>
       def response(requestJson: JsValue) =
@@ -125,6 +136,16 @@ trait EmailController extends BaseController with Auditable {
         val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
         val auditEventType: String = "awrs-api-withdrawn"
         getEmailEvent(requestJson, auditMap, auditEventType, "8")
+      }
+      getResponseJson(request, response)
+  }
+
+  def receiveCancellationEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
+    implicit request =>
+      def response(requestJson: JsValue) = {
+        val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
+        val auditEventType: String = "awrs-api-cancellation"
+        getEmailEvent(requestJson, auditMap, auditEventType, "10")
       }
       getResponseJson(request, response)
   }

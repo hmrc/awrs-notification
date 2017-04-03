@@ -216,7 +216,7 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       status(result) shouldBe OK
 
     }
-    
+
 
     "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
       val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
@@ -236,8 +236,52 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
           document.toString should include("{\"reason\":\"Invalid request content type\"}")
       }
     }
+  }
+
+  "EmailController for cancellation" should {
+    "return 200 status when the email is sent succesfully" in {
+      when(mockEmailService.sendCancellationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
+
+      val result = emailController.sendCancellationEmail.apply(FakeRequest().withJsonBody(Json.obj()))
+      status(result) shouldBe OK
+    }
+
+    "return 400 status when the input json fails validation" in {
+      when(mockEmailService.sendCancellationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(400, Some("Error"))))
+
+      val result = Await.result(emailController.sendCancellationEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+
+      status(result) shouldBe BAD_REQUEST
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.toString should include("{\"reason\":\"Error\"}")
+    }
+
+    "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
+      val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveCancellationEvent("API8","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+      status(result) shouldBe OK
+    }
 
 
+    "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
+      val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
+      val result = emailController.receiveCancellationEvent("API8","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
+      val result = emailController.receiveCancellationEvent("API8","company","XFS00000123456", "example@example.com", "10 September 2016").apply(FakeRequest().withTextBody("Error"))
+
+      whenReady(result) {
+        result =>
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.toString should include("{\"reason\":\"Invalid request content type\"}")
+      }
+    }
   }
 
   "EmailController for confirmation" should {
