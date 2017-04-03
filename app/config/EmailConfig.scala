@@ -16,7 +16,7 @@
 
 package config
 
-import models.{ConfirmationEmailRequest, PushNotificationRequest}
+import models.{EmailRequest, PushNotificationRequest}
 import play.api.Play._
 
 
@@ -34,26 +34,23 @@ trait EmailConfig {
     configuration.getString(s"awrs.notification.$template")
   }
 
-  def getConfirmationTemplate(confirmationEmailRequest: ConfirmationEmailRequest): Option[String] = {
-    import models.ApiTypes._
+  def getConfirmationTemplate(emailRequest: EmailRequest): Option[String] = {
     val templateName = s"awrs.confirmation.${
-      confirmationEmailRequest.isNewBusiness match {
+      emailRequest.isNewBusiness match {
         case true => "new_business."
         case false => ""
       }
-    }${confirmationEmailRequest.apiType.toString}"
+    }${emailRequest.apiType.toString}"
     configuration.getString(templateName)
   }
 
-  def getCancellationTemplate(confirmationEmailRequest: ConfirmationEmailRequest): Option[String] = {
-    import models.ApiTypes._
-    val templateName = s"awrs.cancellation.${confirmationEmailRequest.apiType.toString}"
+  def getCancellationTemplate(emailRequest: EmailRequest): Option[String] = {
+    val templateName = s"awrs.cancellation.${emailRequest.apiType.toString}"
     configuration.getString(templateName)
   }
 
-  def getWithdrawnTemplate(confirmationEmailRequest: ConfirmationEmailRequest): Option[String] = {
-    import models.ApiTypes._
-    val templateName = s"awrs.withdrawn.${confirmationEmailRequest.apiType.toString}"
+  def getWithdrawnTemplate(emailRequest: EmailRequest): Option[String] = {
+    val templateName = s"awrs.withdrawn.${emailRequest.apiType.toString}"
     configuration.getString(templateName)
   }
 

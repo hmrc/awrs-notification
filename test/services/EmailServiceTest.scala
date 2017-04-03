@@ -19,7 +19,7 @@ package services
 import audit.TestAudit
 import config.ErrorConfig
 import connectors.EmailConnector
-import models.{ApiTypes, AwrsValidator, ConfirmationEmailRequest, EmailResponse}
+import models.{ApiTypes, AwrsValidator, EmailRequest, EmailResponse}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
@@ -356,7 +356,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite wi
       emailService.now() should fullyMatch regex re
     }
 
-    val testEmailRequest: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com", isNewBusiness = true))
+    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com", isNewBusiness = true))
 
     "return 200 status when the email is sent successfully" in {
       acceptedMock
@@ -382,7 +382,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite wi
   }
 
   "EmailService for cancellation" should {
-    val testEmailRequest: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API10, businessName = "businessName", reference = "reference", email = "example@example.com", false))
+    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API10, businessName = "businessName", reference = "reference", email = "example@example.com", false))
 
     "return 200 status when the email is sent successfully" in {
       acceptedMock
@@ -408,7 +408,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite wi
   }
 
   "EmailService for withdrawal" should {
-    val testEmailRequest: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API8, businessName = "businessName", reference = "reference", email = "example@example.com", false))
+    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API8, businessName = "businessName", reference = "reference", email = "example@example.com", false))
 
     "return 200 status when the email is sent successfully" in {
       acceptedMock

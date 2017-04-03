@@ -20,7 +20,7 @@ import audit.Auditable
 import config.{EmailConfig, ErrorConfig}
 import connectors.EmailConnector
 import models.AwrsValidator._
-import models.{ConfirmationEmailRequest, EmailResponse, PushNotificationRequest, SendEmailRequest}
+import models.{EmailRequest, EmailResponse, PushNotificationRequest, SendEmailRequest}
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.json._
@@ -57,7 +57,7 @@ trait EmailService extends Auditable {
   private[services] def now(): String = DateTime.now.toString("dd MMMM yyyy")
 
   def sendWithdrawnEmail(withdrawnEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
-    Try(withdrawnEmailJson.as[ConfirmationEmailRequest]) match {
+    Try(withdrawnEmailJson.as[EmailRequest]) match {
       case Success(request) =>
         val submissionDate = now()
         EmailConfig.getWithdrawnTemplate(request) match {
@@ -91,7 +91,7 @@ trait EmailService extends Auditable {
   }
 
   def sendCancellationEmail(cancellationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
-    Try(cancellationEmailJson.as[ConfirmationEmailRequest]) match {
+    Try(cancellationEmailJson.as[EmailRequest]) match {
       case Success(request) =>
         val submissionDate = now()
         EmailConfig.getCancellationTemplate(request) match {
@@ -125,7 +125,7 @@ trait EmailService extends Auditable {
   }
 
   def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
-    Try(confirmationEmailJson.as[ConfirmationEmailRequest]) match {
+    Try(confirmationEmailJson.as[EmailRequest]) match {
       case Success(request) =>
         val submissionDate = now()
         EmailConfig.getConfirmationTemplate(request) match {
