@@ -57,78 +57,22 @@ trait EmailService extends Auditable {
   private[services] def now(): String = DateTime.now.toString("dd MMMM yyyy")
 
   def sendWithdrawnEmail(withdrawnEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
-    Try(withdrawnEmailJson.as[EmailRequest]) match {
-      case Success(request) =>
-        val submissionDate = now()
-        EmailConfig.getWithdrawnTemplate(request) match {
-          case Some(templateId) =>
-            val parameterMap: Map[String, String] = Map("organisationName" -> request.businessName, "applicationReference" -> request.reference, "submissionDate" -> submissionDate)
-
-            val emailRequest = SendEmailRequest(to = List(EmailAddress(request.email)),
-              templateId = templateId,
-              parameters = parameterMap,
-              force = false,
-              eventUrl = Some("http://" + host + controllers.routes.EmailController.receiveWithdrawnEvent(request.apiType.toString, request.businessName, request.reference, request.email, submissionDate).url))
-
-            val auditMap: Map[String, String] = Map("apiType" -> request.apiType, "organisationName" -> request.businessName, "applicationReference" -> request.reference, "emailAddress" -> request.email, "submissionDate" -> submissionDate)
-            val auditEventType: String = "awrs-api-withdrawl"
-            sendDataEvent(transactionName = TransactionName, detail = auditMap, eventType = auditEventType)
-
-            sendEmailRequest(logName = "API Cancellation", emailRequest)
-
-          case _ =>
-            Logger.warn(s"[API Withdraw] Email service error: " + ErrorConfig.invalidTemplate)
-            Future.successful(EmailResponse(503, Some(ErrorConfig.invalidTemplate)))
-        }
-      case Failure(ex: JsResultException) =>
-        Logger.warn(s"[API Withdraw] Email service JsResultException: " + ex.errors)
-        Future.successful(getValidationError(ex.errors))
-
-      case Failure(e) =>
-        Logger.warn(s"[API Withdraw] Email service error: " + e.getMessage)
-        Future.successful(EmailResponse(500, Some(e.getMessage)))
-    }
+    SendEmail(withdrawnEmailJson, host, EmailConfig.getWithdrawnTemplate, "Withdrawl")
   }
 
   def sendCancellationEmail(cancellationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
-    Try(cancellationEmailJson.as[EmailRequest]) match {
-      case Success(request) =>
-        val submissionDate = now()
-        EmailConfig.getCancellationTemplate(request) match {
-          case Some(templateId) =>
-            val parameterMap: Map[String, String] = Map("organisationName" -> request.businessName, "applicationReference" -> request.reference, "submissionDate" -> submissionDate)
-
-            val emailRequest = SendEmailRequest(to = List(EmailAddress(request.email)),
-              templateId = templateId,
-              parameters = parameterMap,
-              force = false,
-              eventUrl = Some("http://" + host + controllers.routes.EmailController.receiveCancellationEvent(request.apiType.toString, request.businessName, request.reference, request.email, submissionDate).url))
-
-            val auditMap: Map[String, String] = Map("apiType" -> request.apiType, "organisationName" -> request.businessName, "applicationReference" -> request.reference, "emailAddress" -> request.email, "submissionDate" -> submissionDate)
-            val auditEventType: String = "awrs-api-cancellation"
-            sendDataEvent(transactionName = TransactionName, detail = auditMap, eventType = auditEventType)
-
-            sendEmailRequest(logName = "API Cancellation", emailRequest)
-
-          case _ =>
-            Logger.warn(s"[API Cancellation] Email service error: " + ErrorConfig.invalidTemplate)
-            Future.successful(EmailResponse(503, Some(ErrorConfig.invalidTemplate)))
-        }
-      case Failure(ex: JsResultException) =>
-        Logger.warn(s"[API Cancellation] Email service JsResultException: " + ex.errors)
-        Future.successful(getValidationError(ex.errors))
-
-      case Failure(e) =>
-        Logger.warn(s"[API Cancellation] Email service error: " + e.getMessage)
-        Future.successful(EmailResponse(500, Some(e.getMessage)))
-    }
+    SendEmail(cancellationEmailJson, host, EmailConfig.getCancellationTemplate, "Cancellation")
   }
 
-  def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
-    Try(confirmationEmailJson.as[EmailRequest]) match {
+  def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
+    SendEmail(confirmationEmailJson, host, EmailConfig.getConfirmationTemplate, "Confirmation")
+  }
+
+  private def SendEmail(email: JsValue, host: String, getEmailTemplate: (EmailRequest) => Option[String], action: String)(implicit hc: HeaderCarrier) = {
+    Try(email.as[EmailRequest]) match {
       case Success(request) =>
         val submissionDate = now()
-        EmailConfig.getConfirmationTemplate(request) match {
+        getEmailTemplate(request) match {
           case Some(templateId) =>
             val parameterMap: Map[String, String] = Map("organisationName" -> request.businessName, "applicationReference" -> request.reference, "submissionDate" -> submissionDate)
 
@@ -139,23 +83,24 @@ trait EmailService extends Auditable {
               eventUrl = Some("http://" + host + controllers.routes.EmailController.receiveConfirmationEvent(request.apiType.toString, request.businessName, request.reference, request.email, submissionDate).url))
 
             val auditMap: Map[String, String] = Map("apiType" -> request.apiType, "organisationName" -> request.businessName, "applicationReference" -> request.reference, "emailAddress" -> request.email, "submissionDate" -> submissionDate)
-            val auditEventType: String = "awrs-api-confirmation"
+            val auditEventType: String = s"awrs-api-${action.toLowerCase}"
             sendDataEvent(transactionName = TransactionName, detail = auditMap, eventType = auditEventType)
 
-            sendEmailRequest(logName = "API Confirmation", emailRequest)
+            sendEmailRequest(logName = s"API ${action}", emailRequest)
 
           case _ =>
-            Logger.warn(s"[API Confirmation] Email service error: " + ErrorConfig.invalidTemplate)
+            Logger.warn(s"[API ${action}] Email service error: " + ErrorConfig.invalidTemplate)
             Future.successful(EmailResponse(503, Some(ErrorConfig.invalidTemplate)))
         }
       case Failure(ex: JsResultException) =>
-        Logger.warn(s"[API Confirmation] Email service JsResultException: " + ex.errors)
+        Logger.warn(s"[API ${action}] Email service JsResultException: " + ex.errors)
         Future.successful(getValidationError(ex.errors))
 
       case Failure(e) =>
-        Logger.warn(s"[API Confirmation] Email service error: " + e.getMessage)
+        Logger.warn(s"[API ${action}] Email service error: " + e.getMessage)
         Future.successful(EmailResponse(500, Some(e.getMessage)))
     }
+  }
 
   private def matchTemplateAndRegNumber(notificationRequest: PushNotificationRequest, registrationNumber: String, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
     (EmailConfig.getNotificationTemplate(notificationRequest), registrationNumber.matches(registrationRegex)) match {
