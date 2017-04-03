@@ -120,32 +120,12 @@ trait EmailController extends BaseController with Auditable {
       getResponseJson(request, response)
   }
 
-  def receiveConfirmationEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
+  def receiveEmailEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
     implicit request =>
       def response(requestJson: JsValue) = {
         val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
-        val auditEventType: String = "awrs-api-confirmation"
-        getEmailEvent(requestJson, auditMap, auditEventType, " Confirmation")
-      }
-      getResponseJson(request, response)
-  }
-
-  def receiveWithdrawnEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
-    implicit request =>
-      def response(requestJson: JsValue) = {
-        val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
-        val auditEventType: String = "awrs-api-withdrawn"
-        getEmailEvent(requestJson, auditMap, auditEventType, "8")
-      }
-      getResponseJson(request, response)
-  }
-
-  def receiveCancellationEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
-    implicit request =>
-      def response(requestJson: JsValue) = {
-        val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
-        val auditEventType: String = "awrs-api-cancellation"
-        getEmailEvent(requestJson, auditMap, auditEventType, "10")
+        val auditEventType: String = s"awrs-api-${apiType.toLowerCase}"
+        getEmailEvent(requestJson, auditMap, auditEventType, apiType)
       }
       getResponseJson(request, response)
   }

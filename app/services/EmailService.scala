@@ -80,7 +80,7 @@ trait EmailService extends Auditable {
               templateId = templateId,
               parameters = parameterMap,
               force = false,
-              eventUrl = Some("http://" + host + controllers.routes.EmailController.receiveConfirmationEvent(request.apiType.toString, request.businessName, request.reference, request.email, submissionDate).url))
+              eventUrl = Some("http://" + host + controllers.routes.EmailController.receiveEmailEvent(request.apiType.toString, request.businessName, request.reference, request.email, submissionDate).url))
 
             val auditMap: Map[String, String] = Map("apiType" -> request.apiType, "organisationName" -> request.businessName, "applicationReference" -> request.reference, "emailAddress" -> request.email, "submissionDate" -> submissionDate)
             val auditEventType: String = s"awrs-api-${action.toLowerCase}"
