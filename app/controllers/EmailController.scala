@@ -40,7 +40,7 @@ trait EmailController extends BaseController with Auditable {
 
   val emailService: EmailService
 
-  def sendNotificationEmail(registrationNumber: String) = Action.async {
+  def sendNotificationEmail(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) =
         emailService.sendNotificationEmail(requestJson, registrationNumber, request.host) flatMap {
@@ -51,37 +51,26 @@ trait EmailController extends BaseController with Auditable {
       getResponseJson(request, response)
   }
 
-  def sendWithdrawnEmail = Action.async {
-    implicit request =>
-      def response(requestJson: JsValue) =
-        emailService.sendWithdrawnEmail(requestJson, request.host) flatMap {
-          emailResponse =>
-            extractResponse(emailResponse)
-        }
-
-      getResponseJson(request, response)
+  def sendWithdrawnEmail: Action[AnyContent] = Action.async {
+    implicit request => sendEmail(request, emailService.sendWithdrawnEmail)
   }
 
-  def sendCancellationEmail = Action.async {
-    implicit request =>
-      def response(requestJson: JsValue) =
-        emailService.sendCancellationEmail(requestJson, request.host) flatMap {
-          emailResponse =>
-            extractResponse(emailResponse)
-        }
-
-      getResponseJson(request, response)
+  def sendCancellationEmail: Action[AnyContent] = Action.async {
+    implicit request => sendEmail(request, emailService.sendCancellationEmail)
   }
 
-  def sendConfirmationEmail = Action.async {
-    implicit request =>
-      def response(requestJson: JsValue) =
-        emailService.sendConfirmationEmail(requestJson, request.host) flatMap {
-          emailResponse =>
-            extractResponse(emailResponse)
-        }
+  def sendConfirmationEmail: Action[AnyContent] = Action.async {
+    implicit request => sendEmail(request,emailService.sendConfirmationEmail)
+  }
 
-      getResponseJson(request, response)
+  private def sendEmail(request: Request[AnyContent], emailSender: (JsValue,String) => Future[EmailResponse])(implicit hc : HeaderCarrier) = {
+    def response(requestJson: JsValue) =
+      emailSender(requestJson, request.host) flatMap {
+        emailResponse =>
+          extractResponse(emailResponse)
+      }
+
+    getResponseJson(request, response)
   }
 
   private def extractResponse(emailResponse: EmailResponse): Future[Result] = {
@@ -110,7 +99,7 @@ trait EmailController extends BaseController with Auditable {
     }
   }
 
-  def receiveEvent(name: String, registrationNumber: String, emailAddress: String) = Action.async {
+  def receiveEvent(name: String, registrationNumber: String, emailAddress: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) = {
         val auditMap: Map[String, String] = Map("name" -> name, "registrationNumber" -> registrationNumber, "emailAddress" -> emailAddress)
@@ -120,7 +109,7 @@ trait EmailController extends BaseController with Auditable {
       getResponseJson(request, response)
   }
 
-  def receiveEmailEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
+  def receiveEmailEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) = {
         val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
