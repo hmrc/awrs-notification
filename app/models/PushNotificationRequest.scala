@@ -32,14 +32,14 @@ object ContactTypes extends Enumeration {
 
   type ContactType = Value
 
-  val REJR = Value("REJR")
-  val REVR = Value("REVR")
-  val CONA = Value("CONA")
-  val MTRJ = Value("MTRJ")
-  val NMRJ = Value("NMRJ")
-  val MTRV = Value("MTRV")
-  val NMRV = Value("NMRV")
-  val OTHR = Value("OTHR")
+    val REJR = Value("REJR")//Rejected
+    val REVR = Value("REVR")//Revoked
+    val CONA = Value("CONA")//Approved with Conditions
+    val MTRJ = Value("MTRJ")//Minded to Reject
+    val NMRJ = Value("NMRJ")//No longer minded to Reject
+    val MTRV = Value("MTRV")//Minded to Revoke
+    val NMRV = Value("NMRV")//No longer minded to Revoke
+    val OTHR = Value("OTHR")//Other
 
   implicit val reader = new Reads[ContactTypes.Value] {
 

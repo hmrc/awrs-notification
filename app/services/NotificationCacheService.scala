@@ -16,41 +16,47 @@
 
 package services
 
-import models.{PushNotificationRequest, ViewedStatusResponse}
+import models.{PushNotificationRequest}
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import models.ContactTypes._
+import org.joda.time.{LocalDateTime}
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait NotificationCacheService {
-
   val repository: NotificationRepository
   val viewedRepository: NotificationViewedRepository
+  val dateFormat: String = "yyyy-MM-dd'T'HH:mm:ss"
+  val fmt: DateTimeFormatter= DateTimeFormat.forPattern(dateFormat)
 
   def storeNotification(pushNotification: PushNotificationRequest, registrationNumber: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
 
     val notification = StatusNotification(registrationNumber = Some(registrationNumber),
       contactNumber = pushNotification.contact_number,
       contactType = pushNotification.contact_type,
-      status = pushNotification.status
+      status = pushNotification.status,
+      storageDatetime =  Some(fmt.print(new LocalDateTime()))
     )
     // only store for the 'minded to' and 'not minded to' contact types
     pushNotification.contact_type match {
-      case Some(MTRJ | MTRV | NMRV) => repository.insertStatusNotification(notification)
+      case Some(MTRJ | MTRV | NMRV | REJR | REVR) => repository.insertStatusNotification(notification)
       case _ => Future.successful(false)
     }
   }
 
-  def findNotification(registrationNumber: String)(implicit hc: HeaderCarrier): Future[Option[StatusNotification]] =
+  def findNotification(registrationNumber: String)(implicit hc: HeaderCarrier): Future[Option[StatusNotification]] = {
+
     repository.findByRegistrationNumber(registrationNumber) map {
       case notification@Some(x) => x.contactType match {
-        case Some(MTRJ | MTRV | NMRV) => notification
+        case Some(MTRJ | MTRV | NMRV | REJR | REVR) => notification
         case _ => None
       }
       case _ => None
     }
+  }
 
   def deleteNotification(registrationNumber: String)(implicit hc: HeaderCarrier): Future[(Boolean, Option[String])] =
     repository.deleteStatusNotification(registrationNumber) map {
