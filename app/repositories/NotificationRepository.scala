@@ -30,7 +30,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-case class StatusNotification(registrationNumber: Option[String], contactNumber: Option[String], contactType: Option[ContactType], status: Option[String])
+case class StatusNotification(registrationNumber: Option[String],
+                              contactNumber: Option[String],
+                              contactType: Option[ContactType],
+                              status: Option[String],
+                              storageDatetime: Option[String])
 
 object StatusNotification {
   implicit val formats = Json.format[StatusNotification]

@@ -50,7 +50,7 @@ class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with Sc
     }
 
     "return 200 status when the notification is returned successfully" in {
-      when(mockNotificiationCacheService.findNotification(any())(any())).thenReturn(Future.successful(Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"), Some(ContactTypes.MTRJ), Some("04")))))
+      when(mockNotificiationCacheService.findNotification(any())(any())).thenReturn(Future.successful(Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"), Some(ContactTypes.MTRJ), Some("04"), Some("2017-04-01T0013:07:11")))))
 
       val result = notificationCacheController.getNotification("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe OK
