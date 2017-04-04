@@ -44,13 +44,9 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAp
 
   "NotificationCacheService" should {
     "return StatusNotification object when the notification is found in mongo" in {
-
       val notification = Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"), Some(ContactTypes.MTRJ), Some("04"), Some("2017-04-01T0013:07:11")))
-
       when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(notification)
-
       val result = Await.result(notificationCacheService.findNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result.get.contactType shouldBe notification.get.contactType
       result.get.status shouldBe notification.get.status
       result.get.registrationNumber shouldBe notification.get.registrationNumber
@@ -59,190 +55,126 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAp
     }
 
     "return None when the notification is found in mongo but not the correct contact type" in {
-
       val notification = Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"), Some(ContactTypes.OTHR), Some("04"), Some("2017-04-01T0013:07:11")))
-
       when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(notification)
-
       val result = Await.result(notificationCacheService.findNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result.isDefined shouldBe false
     }
 
     "return None when the notification is not found in mongo" in {
-
       val notification = None
-
       when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(notification)
-
       val result = Await.result(notificationCacheService.findNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result.isDefined shouldBe false
     }
 
     "return false when the notification is not stored in mongo because it is not the correct contact type (CONA)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.CONA), contact_number = Some("123456789012"), variation = false)
-
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe false
     }
 
     "return false when the notification is not stored in mongo because it is not the correct contact type (OTHR)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.OTHR), contact_number = Some("123456789012"), variation = false)
-
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe false
     }
 
     "return false when the notification is not stored in mongo because it is not the correct contact type (NMRJ)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.NMRJ), contact_number = Some("123456789012"), variation = false)
-
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe false
     }
 
 
     "return true when the notification is stored in mongo (NMRJ)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.REJR), contact_number = Some("123456789012"), variation = false)
-
       when(mockNotificationRepository.insertStatusNotification(any())).thenReturn(Future.successful(true))
-
       val result: Boolean = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe true
     }
+
     "return true when the notification is stored in mongo (REVR)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.REVR), contact_number = Some("123456789012"), variation = false)
-
       when(mockNotificationRepository.insertStatusNotification(any())).thenReturn(Future.successful(true))
-
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe true
     }
 
     "return true when the notification is stored in mongo (MTRJ)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.MTRJ), contact_number = Some("123456789012"), variation = false)
-
       when(mockNotificationRepository.insertStatusNotification(any())).thenReturn(Future.successful(true))
-
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe true
     }
 
     "return true when the notification is stored in mongo (MTRV)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.MTRV), contact_number = Some("123456789012"), variation = false)
-
       when(mockNotificationRepository.insertStatusNotification(any())).thenReturn(Future.successful(true))
-
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe true
     }
 
     "return true when the notification is stored in mongo (NMRV)" in {
-
       val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.NMRV), contact_number = Some("123456789012"), variation = false)
-
       when(mockNotificationRepository.insertStatusNotification(any())).thenReturn(Future.successful(true))
-
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe true
     }
 
     "return true when the notification is deleted from mongo" in {
-
       val writeResult = mock[WriteResult]
-
       when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(writeResult)
       when(writeResult.ok).thenReturn(true)
-
       val result = Await.result(notificationCacheService.deleteNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
-      result shouldBe((true, None))
+      result shouldBe ((true, None))
     }
 
     "return false when an unexpected error occurs" in {
-
       val writeResult = mock[WriteResult]
       val error = Some("Unexpected Error")
-
       when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(writeResult)
       when(writeResult.ok).thenReturn(false)
       when(writeResult.errmsg).thenReturn(error)
-
       val result = Await.result(notificationCacheService.deleteNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
-      result shouldBe((false, error))
+      result shouldBe ((false, error))
     }
 
     "return the viewed status found in mongo when it exists" in {
-
       val viewedStatus = Some(ViewedStatus(Some("XXAW00000123488"), Some(false)))
-
       when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(viewedStatus)
-
       val result = Await.result(notificationCacheService.findNotificationViewedStatus("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe viewedStatus
     }
 
     "return None when the viewed status is not found in mongo" in {
-
       when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(None)
-
       val result = Await.result(notificationCacheService.findNotificationViewedStatus("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result.isDefined shouldBe false
     }
 
     "return true when the viewed status is stored in mongo" in {
-
       when(mockNotificationViewedRepository.insertViewedStatus(any())).thenReturn(Future.successful(true))
-
       val result = Await.result(notificationCacheService.storeNotificationViewedStatus(false, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
       result shouldBe true
     }
 
     "return true when the viewed status is updated in mongo" in {
-
       val writeResult = mock[WriteResult]
-
       when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(writeResult)
       when(writeResult.ok).thenReturn(true)
-
       val result = Await.result(notificationCacheService.markAsViewed("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
-      result shouldBe((true, None))
+      result shouldBe ((true, None))
     }
 
     "return false when an unexpected error occurs when calling the mark as viewed service" in {
-
       val writeResult = mock[WriteResult]
       val error = Some("Unexpected Error")
-
       when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(writeResult)
       when(writeResult.ok).thenReturn(false)
       when(writeResult.errmsg).thenReturn(error)
-
       val result = Await.result(notificationCacheService.markAsViewed("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
-
-      result shouldBe((false, error))
+      result shouldBe ((false, error))
     }
-
   }
-
 }
