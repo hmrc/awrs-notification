@@ -39,7 +39,7 @@ class ConfigTest extends UnitSpec with OneAppPerSuite {
 
 
   def createConfirmationRequest(apiTypes: ApiType, isNewBusiness: Boolean) =
-    EmailRequest(apiTypes, "my business", "010101", "example@example.com", isNewBusiness = isNewBusiness)
+    EmailRequest(apiTypes, "my business",  "example@example.com", Some("010101"),isNewBusiness = Some(isNewBusiness))
 
   "Config Test" should {
     "load existing template from config (REJR)" in {
@@ -98,12 +98,12 @@ class ConfigTest extends UnitSpec with OneAppPerSuite {
     }
 
     "load cancellation API10 template from config" in {
-      val result = EmailConfig.getCancellationTemplate(EmailRequest(ApiTypes.API10, "my business", "010101", "example@example.com", false))
+      val result = EmailConfig.getCancellationTemplate(EmailRequest(ApiTypes.API10, "my business", "example@example.com"))
       result shouldBe API10CancellationTemplate
     }
 
     "load withdraw API8 template from config" in {
-      val result = EmailConfig.getWithdrawnTemplate(EmailRequest(ApiTypes.API8, "my business", "010101", "example@example.com", false))
+      val result = EmailConfig.getWithdrawnTemplate(EmailRequest(ApiTypes.API8, "my business", "example@example.com"))
       result shouldBe API8WithdrawnTemplate
     }
 

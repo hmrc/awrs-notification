@@ -37,8 +37,9 @@ trait EmailConfig {
   def getConfirmationTemplate(emailRequest: EmailRequest): Option[String] = {
     val templateName = s"awrs.confirmation.${
       emailRequest.isNewBusiness match {
-        case true => "new_business."
-        case false => ""
+        case Some(true) => "new_business."
+        case Some(false) => ""
+        case _ => ""
       }
     }${emailRequest.apiType.toString}"
     configuration.getString(templateName)
