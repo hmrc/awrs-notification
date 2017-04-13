@@ -24,6 +24,7 @@ import play.api.Play._
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import services.EmailService
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import utils.JsonConstructor
 
@@ -39,7 +40,7 @@ trait EmailController extends BaseController with Auditable {
 
   val emailService: EmailService
 
-  def sendNotificationEmail(registrationNumber: String) = Action.async {
+  def sendNotificationEmail(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) =
         emailService.sendNotificationEmail(requestJson, registrationNumber, request.host) flatMap {
@@ -50,15 +51,26 @@ trait EmailController extends BaseController with Auditable {
       getResponseJson(request, response)
   }
 
-  def sendConfirmationEmail = Action.async {
-    implicit request =>
-      def response(requestJson: JsValue) =
-        emailService.sendConfirmationEmail(requestJson, request.host) flatMap {
-          emailResponse =>
-            extractResponse(emailResponse)
-        }
+  def sendWithdrawnEmail: Action[AnyContent] = Action.async {
+    implicit request => sendEmail(request, emailService.sendWithdrawnEmail)
+  }
 
-      getResponseJson(request, response)
+  def sendCancellationEmail: Action[AnyContent] = Action.async {
+    implicit request => sendEmail(request, emailService.sendCancellationEmail)
+  }
+
+  def sendConfirmationEmail: Action[AnyContent] = Action.async {
+    implicit request => sendEmail(request,emailService.sendConfirmationEmail)
+  }
+
+  private def sendEmail(request: Request[AnyContent], emailSender: (JsValue,String) => Future[EmailResponse])(implicit hc : HeaderCarrier) = {
+    def response(requestJson: JsValue) =
+      emailSender(requestJson, request.host) flatMap {
+        emailResponse =>
+          extractResponse(emailResponse)
+      }
+
+    getResponseJson(request, response)
   }
 
   private def extractResponse(emailResponse: EmailResponse): Future[Result] = {
@@ -87,55 +99,42 @@ trait EmailController extends BaseController with Auditable {
     }
   }
 
-  def receiveEvent(name: String, registrationNumber: String, emailAddress: String) = Action.async {
+  def receiveEvent(name: String, registrationNumber: String, emailAddress: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) = {
         val auditMap: Map[String, String] = Map("name" -> name, "registrationNumber" -> registrationNumber, "emailAddress" -> emailAddress)
         val auditEventType: String = "awrs-notification"
-
-        Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
-          case Success(callbackEventList) =>
-            callbackEventList.foreach {
-              event =>
-                configuration.getString(event.eventType.toLowerCase) match {
-                  case Some(_) =>
-                    Logger.warn("[API12] Email Callback Event Received: " + event.eventType)
-                    sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
-                  case None =>
-                    Logger.warn("[API12] No need to audit the Event Received: " + event.eventType)
-                }
-            }
-            Future.successful(Ok)
-          case Failure(e) =>
-            Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
-        }
+        getEmailEvent(requestJson, auditMap, auditEventType, "12")
       }
       getResponseJson(request, response)
   }
 
-  def receiveConfirmationEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String) = Action.async {
+  def receiveEmailEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) = {
         val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
-        val auditEventType: String = "awrs-api-confirmation"
-
-        Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
-          case Success(callbackEventList) =>
-            callbackEventList.foreach {
-              event =>
-                configuration.getString(event.eventType.toLowerCase) match {
-                  case Some(_) =>
-                    Logger.warn(s"[API Confirmation] Email Callback Event Received: ${event.eventType}")
-                    sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
-                  case None =>
-                    Logger.warn(s"[API Confirmation] No need to audit the Event Received: ${event.eventType}")
-                }
-            }
-            Future.successful(Ok)
-          case Failure(e) =>
-            Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
-        }
+        val auditEventType: String = s"awrs-api-${apiType.toLowerCase}"
+        getEmailEvent(requestJson, auditMap, auditEventType, apiType)
       }
       getResponseJson(request, response)
+  }
+
+  private def getEmailEvent(requestJson: JsValue, auditMap: Map[String, String], auditEventType: String, apiType: String)(implicit hc: HeaderCarrier) = {
+    Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
+      case Success(callbackEventList) =>
+        callbackEventList.foreach {
+          event =>
+            configuration.getString(event.eventType.toLowerCase) match {
+              case Some(_) =>
+                Logger.warn(s"[API${apiType}] Email Callback Event Received: ${event.eventType}")
+                sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
+              case None =>
+                Logger.warn(s"[API${apiType}] No need to audit the Event Received: ${event.eventType}")
+            }
+        }
+        Future.successful(Ok)
+      case Failure(e) =>
+        Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
+    }
   }
 }

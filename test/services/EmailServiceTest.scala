@@ -19,7 +19,7 @@ package services
 import audit.TestAudit
 import config.ErrorConfig
 import connectors.EmailConnector
-import models.{ApiTypes, AwrsValidator, ConfirmationEmailRequest, EmailResponse}
+import models.{ApiTypes, AwrsValidator, EmailRequest, EmailResponse}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
@@ -356,7 +356,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite wi
       emailService.now() should fullyMatch regex re
     }
 
-    val testEmailRequest: JsValue = Json.toJson(ConfirmationEmailRequest(ApiTypes.API4, businessName = "businessName", reference = "reference", email = "example@example.com", isNewBusiness = true))
+    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API4, businessName = "businessName", email = "example@example.com", reference = Some("reference") ,isNewBusiness = Some(true)))
 
     "return 200 status when the email is sent successfully" in {
       acceptedMock
@@ -376,6 +376,58 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite wi
 
     "return appropriate status when the input email json is corrupt" in {
       val result: EmailResponse = await(emailService.sendConfirmationEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 400
+    }
+  }
+
+  "EmailService for cancellation" should {
+    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API10, businessName = "businessName", email = "example@example.com"))
+
+    "return 200 status when the email is sent successfully" in {
+      acceptedMock
+
+      val result: EmailResponse = await(emailService.sendCancellationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 200
+    }
+
+    "return 500 status when calls to send the email is unsuccessful" in {
+      when(emailService.emailConnector.sendEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(400)))
+
+      val result: EmailResponse = await(emailService.sendCancellationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 500
+    }
+
+    "return appropriate status when the input email json is corrupt" in {
+      val result: EmailResponse = await(emailService.sendCancellationEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 400
+    }
+  }
+
+  "EmailService for withdrawal" should {
+    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API8, businessName = "businessName", email = "example@example.com"))
+
+    "return 200 status when the email is sent successfully" in {
+      acceptedMock
+
+      val result: EmailResponse = await(emailService.sendWithdrawnEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 200
+    }
+
+    "return 500 status when calls to send the email is unsuccessful" in {
+      when(emailService.emailConnector.sendEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(400)))
+
+      val result: EmailResponse = await(emailService.sendWithdrawnEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
+
+      result.status shouldBe 500
+    }
+
+    "return appropriate status when the input email json is corrupt" in {
+      val result: EmailResponse = await(emailService.sendWithdrawnEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
 
       result.status shouldBe 400
     }

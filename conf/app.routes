@@ -7,7 +7,11 @@ DELETE      /cache/:registrationNumber             controllers.NotificationCache
 GET         /cache/viewed/:registrationNumber      controllers.NotificationCacheController.getNotificationViewedStatus(registrationNumber: String)
 PUT         /cache/viewed/:registrationNumber      controllers.NotificationCacheController.markAsViewed(registrationNumber: String)
 POST        /email/confirmation                    controllers.EmailController.sendConfirmationEmail
-POST        /email/confirmation/event              controllers.EmailController.receiveConfirmationEvent(apiType : String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate : String)
+POST        /email/cancellation                    controllers.EmailController.sendCancellationEmail
+POST        /email/withdrawn                       controllers.EmailController.sendWithdrawnEmail
+POST        /email/confirmation/event              controllers.EmailController.receiveEmailEvent(apiType : String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate : String)
+POST        /email/cancellation/event              controllers.EmailController.receiveEmailEvent(apiType : String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate : String)
+POST        /email/withdrawn/event                 controllers.EmailController.receiveEmailEvent(apiType : String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate : String)
 
 
 
