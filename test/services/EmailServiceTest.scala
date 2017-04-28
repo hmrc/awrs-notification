@@ -382,7 +382,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite wi
   }
 
   "EmailService for cancellation" should {
-    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API10, businessName = "businessName", email = "example@example.com"))
+    val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API10, businessName = "businessName", email = "example@example.com", deregistrationDateStr = Some("12-07-2019")))
 
     "return 200 status when the email is sent successfully" in {
       acceptedMock

@@ -78,9 +78,11 @@ trait EmailService extends Auditable {
           case Some(templateId) =>
 
             val reference = request.reference.getOrElse("null")
+            val deregistrationDateStr = request.deregistrationDateStr.getOrElse("")
             val parameterMap: Map[String, String] = Map("organisationName" -> request.businessName,
               "applicationReference" -> reference,
-              "submissionDate" -> submissionDate)
+              "submissionDate" -> submissionDate,
+              "deregistrationDate" -> deregistrationDateStr)
 
             val emailRequest = SendEmailRequest(to = List(EmailAddress(request.email)),
               templateId = templateId,
