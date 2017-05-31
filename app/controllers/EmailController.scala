@@ -99,20 +99,20 @@ trait EmailController extends BaseController with Auditable {
     }
   }
 
-  def receiveEvent(name: String, registrationNumber: String, emailAddress: String): Action[AnyContent] = Action.async {
+  def receiveEvent(name: String, registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) = {
-        val auditMap: Map[String, String] = Map("name" -> name, "registrationNumber" -> registrationNumber, "emailAddress" -> emailAddress)
+        val auditMap: Map[String, String] = Map("name" -> name, "registrationNumber" -> registrationNumber)
         val auditEventType: String = "awrs-notification"
         getEmailEvent(requestJson, auditMap, auditEventType, "12")
       }
       getResponseJson(request, response)
   }
 
-  def receiveEmailEvent(apiType: String, organisationName: String, applicationReference: String, emailAddress: String, submissionDate: String): Action[AnyContent] = Action.async {
+  def receiveEmailEvent(apiType: String, applicationReference: String, submissionDate: String): Action[AnyContent] = Action.async {
     implicit request =>
       def response(requestJson: JsValue) = {
-        val auditMap: Map[String, String] = Map("apiType" -> apiType,  "organisationName" -> organisationName, "applicationReference" -> applicationReference, "emailAddress" -> emailAddress, "submissionDate" -> submissionDate)
+        val auditMap: Map[String, String] = Map("apiType" -> apiType, "applicationReference" -> applicationReference, "submissionDate" -> submissionDate)
         val auditEventType: String = s"awrs-api-${apiType.toLowerCase}"
         getEmailEvent(requestJson, auditMap, auditEventType, apiType)
       }
