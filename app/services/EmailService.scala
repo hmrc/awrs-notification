@@ -89,7 +89,7 @@ trait EmailService extends Auditable {
               parameters = parameterMap,
               force = false,
               eventUrl = Some("http://" + host + controllers.routes.EmailController.receiveEmailEvent(request.apiType.toString,
-                request.businessName, reference, request.email, submissionDate).url))
+                reference, submissionDate).url))
 
             val auditMap: Map[String, String] = Map("apiType" -> request.apiType,
               "organisationName" -> request.businessName,
@@ -132,8 +132,7 @@ trait EmailService extends Auditable {
           templateId = templateId,
           parameters = parameterMap,
           force = false,
-          Some("http://" + host + controllers.routes.EmailController.receiveEvent(notificationRequest.name,
-            registrationNumber, notificationRequest.email).url))
+          Some("http://" + host + controllers.routes.EmailController.receiveEvent(notificationRequest.name,registrationNumber).url))
 
         val auditMap: Map[String, String] = Map("name" -> notificationRequest.name,
           "registrationNumber" -> registrationNumber,
