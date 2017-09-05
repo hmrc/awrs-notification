@@ -33,7 +33,7 @@ trait NotificationCacheController extends BaseController with Auditable {
 
   val notificationService: NotificationCacheService
 
-  def getNotification(registrationNumber: String) = Action.async {
+  def getNotification(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService.findNotification(registrationNumber) map {
         case Some(notification) => NoContent
@@ -41,7 +41,7 @@ trait NotificationCacheController extends BaseController with Auditable {
       }
   }
 
-  def deleteNotification(registrationNumber: String) = Action.async {
+  def deleteNotification(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService.deleteNotification(registrationNumber) map {
         case (true, _) => Ok
@@ -50,7 +50,7 @@ trait NotificationCacheController extends BaseController with Auditable {
       }
   }
 
-  def getNotificationViewedStatus(registrationNumber: String) = Action.async {
+  def getNotificationViewedStatus(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService.findNotificationViewedStatus(registrationNumber) map {
         case Some(viewedStatus) => Ok(Json.toJson[ViewedStatusResponse](viewedStatus))
@@ -58,7 +58,7 @@ trait NotificationCacheController extends BaseController with Auditable {
       }
   }
 
-  def markAsViewed(registrationNumber: String) = Action.async {
+  def markAsViewed(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService.markAsViewed(registrationNumber) map {
         case (true, _) => Ok
