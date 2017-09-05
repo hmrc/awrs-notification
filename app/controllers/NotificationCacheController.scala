@@ -36,7 +36,7 @@ trait NotificationCacheController extends BaseController with Auditable {
   def getNotification(registrationNumber: String) = Action.async {
     implicit request =>
       notificationService.findNotification(registrationNumber) map {
-        case Some(notification) => Ok(Json.toJson(notification))
+        case Some(notification) => NoContent
         case _ => NotFound
       }
   }
