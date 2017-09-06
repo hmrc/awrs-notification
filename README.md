@@ -67,6 +67,7 @@ A successful response returns HTTP 200 without body.
 | Code| Text 	       | Description  | 
 | --- | ---------------| ------------ |
 | 200 | OK             | Success      | 
+| 204 | No Content     | Success      | 
 | 400 | Bad Request             | The request was invalid and/or has not passed validation      |
 | 404 | Not Found             | The resource requested does not exist      |
 | 500 | Internal Server Error             | There is a problem with the service or dependent systems      |
@@ -173,7 +174,7 @@ e.g.
 
 | Code| Text 	       | Description  | 
 | --- | ---------------| ------------ |
-| 200 | OK             | Success      | 
+| 204 | No Content     | Success      | 
 | 404 | Not Found      | The notification was not found      |
 
 To delete a notification from MONGO you can call the endpoint as follows,
