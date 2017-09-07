@@ -49,12 +49,11 @@ class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with Sc
       NotificationCacheController.notificationService shouldBe NotificationCacheService
     }
 
-    "return 204 status when the notification is returned successfully" in {
+    "return 200 status when the notification is returned successfully" in {
       when(mockNotificiationCacheService.findNotification(any())(any())).thenReturn(Future.successful(Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"), Some(ContactTypes.MTRJ), Some("04"), Some("2017-04-01T0013:07:11")))))
 
       val result = notificationCacheController.getNotification("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
-      status(result) shouldBe NO_CONTENT
-      contentAsString(result) shouldBe ""
+      status(result) shouldBe OK
     }
 
     "return 404 status when the notification is not cached for valid contact types" in {
