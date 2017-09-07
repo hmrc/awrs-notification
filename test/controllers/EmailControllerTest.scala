@@ -57,11 +57,11 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
       EmailController.emailService shouldBe EmailService
     }
 
-    "return 200 status when the email is sent successfully" in {
+    "return 204 status when the email is sent successfully" in {
       when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
 
       val result = emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj()))
-      status(result) shouldBe OK
+      status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {
@@ -192,11 +192,11 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
   }
 
   "EmailController for withdrawn" should {
-    "return 200 status when the email is sent succesfully" in {
+    "return 204 status when the email is sent succesfully" in {
       when(mockEmailService.sendWithdrawnEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
 
       val result = emailController.sendWithdrawnEmail.apply(FakeRequest().withJsonBody(Json.obj()))
-      status(result) shouldBe OK
+      status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {
@@ -239,11 +239,11 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
   }
 
   "EmailController for cancellation" should {
-    "return 200 status when the email is sent succesfully" in {
+    "return 204 status when the email is sent succesfully" in {
       when(mockEmailService.sendCancellationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
 
       val result = emailController.sendCancellationEmail.apply(FakeRequest().withJsonBody(Json.obj()))
-      status(result) shouldBe OK
+      status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {
@@ -286,11 +286,11 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
 
   "EmailController for confirmation" should {
 
-    "return 200 status when the email is sent successfully" in {
+    "return 204 status when the email is sent successfully" in {
       when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
 
       val result = emailController.sendConfirmationEmail.apply(FakeRequest().withJsonBody(Json.obj()))
-      status(result) shouldBe OK
+      status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {

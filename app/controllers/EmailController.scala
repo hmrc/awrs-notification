@@ -76,7 +76,7 @@ trait EmailController extends BaseController with Auditable {
   private def extractResponse(emailResponse: EmailResponse): Future[Result] = {
     emailResponse.status match {
       case OK =>
-        Future.successful(Ok)
+        Future.successful(NoContent)
       case BAD_REQUEST =>
         Future.successful(BadRequest(JsonConstructor.constructErrorResponse(emailResponse)))
       case NOT_FOUND =>
