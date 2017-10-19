@@ -24,13 +24,13 @@ import play.api.Play._
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import services.EmailService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import utils.JsonConstructor
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import uk.gov.hmrc.http.HeaderCarrier
 
 object EmailController extends EmailController {
   override val emailService = EmailService

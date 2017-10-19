@@ -31,6 +31,7 @@ import org.mockito.Matchers
 import org.scalatestplus.play.OneAppPerSuite
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import uk.gov.hmrc.http.{ BadGatewayException, HeaderCarrier, HttpResponse }
 
 class EmailServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterEach {
 

@@ -27,12 +27,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, _}
 import services.EmailService
 import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test._
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with OneAppPerSuite {
 
