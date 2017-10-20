@@ -19,16 +19,16 @@ package mongo
 import models.{ContactTypes, PushNotificationRequest}
 import org.scalatest.BeforeAndAfterEach
 import server.NotificationIntegrationISpec
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpDelete, HttpGet, HttpPost}
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.play.http.hooks.HttpHook
+import uk.gov.hmrc.http.hooks.HttpHook
 import uk.gov.hmrc.play.http.ws.{WSDelete, WSGet, WSPost}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationControllerISpec extends NotificationIntegrationISpec("NotificationServiceISpec") with UnitSpec with BeforeAndAfterEach with WSPost with WSGet with WSDelete {
+class NotificationControllerISpec extends NotificationIntegrationISpec("NotificationServiceISpec") with UnitSpec with BeforeAndAfterEach with WSPost with HttpPost with WSGet with HttpGet with WSDelete with HttpDelete{
 
-  override val hooks: Seq[HttpHook] = NoneRequired
+  override val hooks: Seq[HttpHook] = Seq()
 
   override protected def beforeEach {
     super.beforeAll()
@@ -55,7 +55,7 @@ class NotificationControllerISpec extends NotificationIntegrationISpec("Notifica
     "return a notification and view status after a successful email call stored a 'Minded to X' notification" in {
 
       val result = await(doPost(resource(emailUrl), notification(ContactTypes.MTRJ), contentHeaders))
-      result.status shouldBe 200
+      result.status shouldBe 204
 
       val notificationResult = await(doGet(resource(notificationUrl)))
       notificationResult.status shouldBe 200
@@ -72,7 +72,7 @@ class NotificationControllerISpec extends NotificationIntegrationISpec("Notifica
     "return a NOT FOUND notification but a view status after a successful email call stored a 'No Longer X' notification" in {
 
       val result = await(doPost(resource(emailUrl), notification(ContactTypes.NMRJ), contentHeaders))
-      result.status shouldBe 200
+      result.status shouldBe 204
 
       val notificationResult = await(doGet(resource(notificationUrl)))
       notificationResult.status shouldBe 404
@@ -85,7 +85,7 @@ class NotificationControllerISpec extends NotificationIntegrationISpec("Notifica
     "return a NOT FOUND notification but a view status after a successful email call for a normal, i.e. non 'Minded to' notification" in {
 
       val result = await(doPost(resource(emailUrl), notification(ContactTypes.REJR), contentHeaders))
-      result.status shouldBe 200
+      result.status shouldBe 204
 
       val notificationResult = await(doGet(resource(notificationUrl)))
       notificationResult.status shouldBe 404
