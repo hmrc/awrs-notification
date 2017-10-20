@@ -28,9 +28,19 @@ import repositories.{StatusNotification, ViewedStatus}
 import services.NotificationCacheService
 import uk.gov.hmrc.play.test._
 import org.scalatestplus.play.OneAppPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
+
 import scala.concurrent.Future
 
 class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with OneAppPerSuite {
+
+
+  implicit override lazy val app = new GuiceApplicationBuilder()
+    .configure(Map(
+      "metrics.enabled" -> false
+    )).build()
+
+
 
   val mockNotificiationCacheService = mock[NotificationCacheService]
 
