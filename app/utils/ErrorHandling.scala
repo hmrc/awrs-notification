@@ -20,7 +20,7 @@ import config.ErrorConfig
 import models.EmailResponse
 import play.api.data.validation.ValidationError
 import play.api.libs.json.JsPath
-import uk.gov.hmrc.play.http.HttpResponse
+import uk.gov.hmrc.http.HttpResponse
 
 object ErrorHandling {
 

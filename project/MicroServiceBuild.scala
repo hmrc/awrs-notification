@@ -27,12 +27,8 @@ private object AppDependencies {
   import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val playHealthVersion = "2.1.0"
-  private val microserviceBootstrapVersion = "5.15.0"
-  private val playConfigVersion = "4.2.0"
-  private val playAuthVersion = "4.3.0"
-  private val logbackJsonLoggerVersion = "3.1.0"
-  private val domainVersion = "4.1.0"
+  private val microserviceBootstrapVersion = "6.9.0"
+  private val domainVersion = "5.0.0"
   private val playUrlBindersVersion = "2.1.0"
   private val playReactivemongoVersion = "5.2.0"
   private val reactiveMongoTest = "2.0.0"
@@ -48,11 +44,7 @@ private object AppDependencies {
   val compile = Seq(
     "uk.gov.hmrc" %% "play-reactivemongo" % playReactivemongoVersion,
     ws,
-    "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
-    "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-    "uk.gov.hmrc" %% "play-authorisation" % playAuthVersion,
-    "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "emailaddress" % emailAddress

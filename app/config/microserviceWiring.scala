@@ -16,23 +16,28 @@
 
 package config
 
-import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
+import uk.gov.hmrc.http.{HttpDelete, HttpGet, HttpPost, HttpPut}
+import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.auth.microservice.connectors.AuthConnector
 import uk.gov.hmrc.play.config.{AppName, RunMode, ServicesConfig}
 import uk.gov.hmrc.play.http.ws._
+import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
 
-object WSHttp extends WSGet with WSPost with AppName with RunMode with HttpAuditing {
+trait Hooks extends HttpHooks with HttpAuditing {
   override val hooks = Seq(AuditingHook)
-  override val auditConnector = AwrsNotificationAuditConnector
+  override lazy val auditConnector: AuditConnector = AwrsNotificationAuditConnector
 }
+
+trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete with Hooks with AppName
+object WSHttp extends WSHttp
 
 object AwrsNotificationAuditConnector extends AuditConnector with AppName with RunMode {
   override lazy val auditingConfig = LoadAuditingConfig(s"$env.auditing")
 }
 
-object AwrsNotificationAuthConnector extends AuthConnector with ServicesConfig {
+object AwrsNotificationAuthConnector extends AuthConnector with ServicesConfig with WSHttp {
   override val authBaseUrl = baseUrl("auth")
   lazy val http = WSHttp
 }

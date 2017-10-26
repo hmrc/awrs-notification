@@ -21,10 +21,10 @@ import repositories.{NotificationRepository, NotificationViewedRepository, Statu
 import models.ContactTypes._
 import org.joda.time.{LocalDateTime}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 trait NotificationCacheService {
   val repository: NotificationRepository

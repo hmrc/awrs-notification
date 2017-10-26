@@ -31,6 +31,7 @@ import utils.ErrorHandling._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import uk.gov.hmrc.http.{ BadGatewayException, HeaderCarrier }
 
 trait EmailService extends Auditable {
 

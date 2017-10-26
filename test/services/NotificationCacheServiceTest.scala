@@ -29,6 +29,7 @@ import reactivemongo.api.commands.WriteResult
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import org.scalatestplus.play.OneAppPerSuite
+import uk.gov.hmrc.http.HeaderCarrier
 
 class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
