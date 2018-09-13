@@ -29,7 +29,6 @@ private object AppDependencies {
 
   private val microserviceBootstrapVersion = "6.18.0"
   private val domainVersion = "5.0.0"
-  private val playUrlBindersVersion = "2.1.0"
   private val playReactivemongoVersion = "5.2.0"
   private val reactiveMongoTest = "2.0.0"
   private val hmrcTestVersion = "2.3.0"
@@ -46,7 +45,6 @@ private object AppDependencies {
     ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
-    "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "emailaddress" % emailAddress
   )
 
