@@ -34,7 +34,7 @@ trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost wi
 object WSHttp extends WSHttp
 
 object AwrsNotificationAuditConnector extends AuditConnector with AppName with RunMode {
-  override lazy val auditingConfig = LoadAuditingConfig(s"$env.auditing")
+  override lazy val auditingConfig = LoadAuditingConfig(s"auditing")
 }
 
 object AwrsNotificationAuthConnector extends AuthConnector with ServicesConfig with WSHttp {
