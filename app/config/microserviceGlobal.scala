@@ -57,7 +57,7 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode {
 
   override val auditConnector = AwrsNotificationAuditConnector
 
-  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig(s"$env.microservice.metrics")
+  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig("microservice.metrics")
 
   override val loggingFilter = MicroserviceLoggingFilter
 
