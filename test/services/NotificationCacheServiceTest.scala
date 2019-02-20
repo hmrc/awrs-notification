@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,11 @@ import repositories.{NotificationRepository, NotificationViewedRepository, Statu
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 import reactivemongo.api.commands.WriteResult
+
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import org.scalatestplus.play.OneAppPerSuite
+import reactivemongo.api.commands.WriteResult.Message
 import uk.gov.hmrc.http.HeaderCarrier
 
 class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite {
@@ -136,7 +138,7 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAp
       val error = Some("Unexpected Error")
       when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(writeResult)
       when(writeResult.ok).thenReturn(false)
-      when(writeResult.errmsg).thenReturn(error)
+      when(Message.unapply(writeResult)).thenReturn(error)
       val result = Await.result(notificationCacheService.deleteNotification("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe ((false, error))
     }
@@ -173,7 +175,7 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAp
       val error = Some("Unexpected Error")
       when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(writeResult)
       when(writeResult.ok).thenReturn(false)
-      when(writeResult.errmsg).thenReturn(error)
+      when(Message.unapply(writeResult)).thenReturn(error)
       val result = Await.result(notificationCacheService.markAsViewed("XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe ((false, error))
     }

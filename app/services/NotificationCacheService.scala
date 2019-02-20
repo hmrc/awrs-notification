@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package services
 
-import models.{PushNotificationRequest}
+import models.PushNotificationRequest
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import models.ContactTypes._
-import org.joda.time.{LocalDateTime}
+import org.joda.time.LocalDateTime
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import reactivemongo.api.commands.WriteResult.Message
 
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -63,7 +64,7 @@ trait NotificationCacheService {
       result =>
         result.ok match {
           case true => (true, None)
-          case false => (false, result.errmsg)
+          case false => (false, Message.unapply(result))
         }
     }
 
@@ -83,7 +84,7 @@ trait NotificationCacheService {
       result =>
         result.ok match {
           case true => (true, None)
-          case false => (false, result.errmsg)
+          case false => (false, Message.unapply(result))
         }
     }
 
