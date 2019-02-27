@@ -21,7 +21,7 @@ import config.ErrorConfig
 import connectors.EmailConnector
 import models.{ApiTypes, AwrsValidator, EmailRequest, EmailResponse}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.http._

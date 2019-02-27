@@ -20,7 +20,7 @@ import models.ContactTypes
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -55,9 +55,6 @@ class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with Sc
   }
 
   "NotificationCacheController" should {
-    "use the correct Notification Cache Service" in {
-      NotificationCacheController.notificationService shouldBe NotificationCacheService
-    }
 
     "return 200 status when the notification is returned successfully" in {
       when(mockNotificiationCacheService.findNotification(any())(any())).thenReturn(Future.successful(Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"), Some(ContactTypes.MTRJ), Some("04"), Some("2017-04-01T0013:07:11")))))

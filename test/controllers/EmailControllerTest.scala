@@ -21,7 +21,7 @@ import models.EmailResponse
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, _}
@@ -53,9 +53,6 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   "EmailController for notification" should {
-    "use the correct Email Service" in {
-      EmailController.emailService shouldBe EmailService
-    }
 
     "return 204 status when the email is sent successfully" in {
       when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(200, None)))
