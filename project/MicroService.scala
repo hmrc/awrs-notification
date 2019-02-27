@@ -80,7 +80,8 @@ trait MicroService {
       resolvers := Seq(
         Resolver.bintrayRepo("hmrc", "releases"),
         Resolver.typesafeRepo("releases"),
-        Resolver.jcenterRepo
+        Resolver.jcenterRepo,
+        "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
       )
     )
     .enablePlugins(SbtDistributablesPlugin, SbtAutoBuildPlugin, SbtGitVersioning)

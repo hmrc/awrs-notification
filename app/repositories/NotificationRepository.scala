@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import reactivemongo.play.json.ImplicitBSONHandlers._
 
 case class StatusNotification(registrationNumber: Option[String],
                               contactNumber: Option[String],
@@ -84,7 +85,7 @@ class NotificationMongoRepository()(implicit mongo: () => DefaultDB)
     }
 
   override def deleteStatusNotification(registrationNumber: String): Future[WriteResult] =
-    collection.remove(query = Json.obj("registrationNumber" -> registrationNumber))
+    collection.remove(Json.obj("registrationNumber" -> registrationNumber))
 
 }
 

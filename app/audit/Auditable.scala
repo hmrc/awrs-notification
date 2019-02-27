@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package audit
 
 import config.AwrsNotificationAuditConnector
+import play.api.Play
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.audit.AuditExtensions
 import uk.gov.hmrc.play.audit.model.Audit
@@ -25,9 +26,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 trait Auditable {
 
-  lazy val appName: String = AppName.appName
+  lazy val appName: String = AppName(Play.current.configuration).appName
 
-  def audit: Audit = new Audit(AppName.appName, AwrsNotificationAuditConnector)
+  def audit: Audit = new Audit(appName, AwrsNotificationAuditConnector)
 
   def sendDataEvent(transactionName: String, path: String = "N/A",
                     tags: Map[String, String] = Map.empty[String, String],
