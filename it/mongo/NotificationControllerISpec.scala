@@ -16,8 +16,11 @@
 
 package mongo
 
+import akka.actor.ActorSystem
+import com.typesafe.config.Config
 import models.{ContactTypes, PushNotificationRequest}
 import org.scalatest.BeforeAndAfterEach
+import play.api.Play
 import server.NotificationIntegrationISpec
 import uk.gov.hmrc.http.{HeaderCarrier, HttpDelete, HttpGet, HttpPost}
 import uk.gov.hmrc.play.test.UnitSpec
@@ -26,7 +29,8 @@ import uk.gov.hmrc.play.http.ws.{WSDelete, WSGet, WSPost}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationControllerISpec extends NotificationIntegrationISpec("NotificationServiceISpec") with UnitSpec with BeforeAndAfterEach with WSPost with HttpPost with WSGet with HttpGet with WSDelete with HttpDelete{
+class NotificationControllerISpec extends NotificationIntegrationISpec("NotificationServiceISpec") with UnitSpec
+  with BeforeAndAfterEach with WSPost with HttpPost with WSGet with HttpGet with WSDelete with HttpDelete{
 
   override val hooks: Seq[HttpHook] = Seq()
 
@@ -124,4 +128,8 @@ class NotificationControllerISpec extends NotificationIntegrationISpec("Notifica
       }
     }
   }
+
+  override protected def actorSystem: ActorSystem = Play.current.actorSystem
+
+  override protected def configuration: Option[Config] = Some(Play.current.configuration.underlying)
 }
