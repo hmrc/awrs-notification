@@ -17,8 +17,10 @@
 package models
 
 import play.api.data.validation.ValidationError
-import play.api.libs.json.Reads
+import play.api.libs.json.{JsonValidationError, Reads}
 import play.api.libs.json.Reads._
+
+import scala.util.matching.Regex
 
 object AwrsValidator extends AwrsValidator
 
@@ -26,11 +28,11 @@ trait AwrsValidator {
 
   val registrationRegex = "^X[A-Z]AW00000[0-9]{6}$"
 
-  val statusRegex = "0[4-9]|10".r
+  val statusRegex: Regex = "0[4-9]|10".r
 
-  val contactNoRegex = "[0-9]{12}".r
+  val contactNoRegex: Regex = "[0-9]{12}".r
 
-  val emailRegex = """(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)""".r
+  val emailRegex: Regex = """(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)""".r
 
   val asciiChar32 = 32
   val asciiChar126 = 126
@@ -38,10 +40,10 @@ trait AwrsValidator {
   val asciiChar255 = 255
   val maxTextLength = 140
 
-  def verifyingWithError[A](cond: A => Boolean, error: String = "error.invalid")(implicit rds: Reads[A]) =
-    filter[A](ValidationError(error))(cond)(rds)
+  def verifyingWithError[A](cond: A => Boolean, error: String = "error.invalid")(implicit rds: Reads[A]): Reads[A] =
+    filter[A](JsonValidationError(error))(cond)(rds)
 
-  def validText(validationFunction: String => Boolean)(inputText: String) = exceedsMaxLength(inputText) match {
+  def validText(validationFunction: String => Boolean)(inputText: String): Boolean = exceedsMaxLength(inputText) match {
     case true => false
     case _ => validationFunction(inputText)
   }

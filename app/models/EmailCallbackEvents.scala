@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Json, JsResult, JsValue, Reads}
+import play.api.libs.json._
 
 case class CallBackEvent(eventType: String)
 
@@ -24,7 +24,7 @@ case class CallBackEventList(callBackEvents: List[CallBackEvent])
 
 object CallBackEvent {
 
-  val reader = new Reads[CallBackEvent] {
+  val reader: Reads[CallBackEvent] = new Reads[CallBackEvent] {
 
     def reads(js: JsValue): JsResult[CallBackEvent] =
       for {
@@ -35,13 +35,13 @@ object CallBackEvent {
 
   }
 
-  implicit val formats = Json.format[CallBackEvent]
+  implicit val formats: OFormat[CallBackEvent] = Json.format[CallBackEvent]
 }
 
 
 object CallBackEventList {
 
-  val reader = new Reads[CallBackEventList] {
+  val reader: Reads[CallBackEventList] = new Reads[CallBackEventList] {
 
     def reads(js: JsValue): JsResult[CallBackEventList] =
       for {
@@ -52,5 +52,5 @@ object CallBackEventList {
 
   }
 
-  implicit val formats = Json.format[CallBackEventList]
+  implicit val formats: OFormat[CallBackEventList] = Json.format[CallBackEventList]
 }

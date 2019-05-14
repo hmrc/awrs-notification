@@ -16,11 +16,11 @@
 
 package utils
 
-import config.ErrorConfig
 import models.EmailResponse
-import play.api.data.validation.ValidationError
-import play.api.libs.json.JsPath
+import play.api.libs.json.{JsPath, JsonValidationError}
 import uk.gov.hmrc.http.HttpResponse
+import play.api.http.Status._
+import ErrorNotifications._
 
 object ErrorHandling {
 
@@ -28,24 +28,24 @@ object ErrorHandling {
     response.header("Content-Type") match {
       case Some(headerType) if headerType.contains("application/json") =>
         if (response.json.toString().contains("message"))
-          (response.json \ "message" ).toString().replaceAll("\"", "")
+          (response.json \ "message").toString.replaceAll("\"", "")
         else
           response.json.toString()
       case _ =>
         response.body
     }
 
-   def getValidationError(err: Seq[(JsPath, Seq[ValidationError])]): EmailResponse =
+   def getValidationError(err: Seq[(JsPath, Seq[JsonValidationError])]): EmailResponse =
     err match {
       case head :: tail =>
         head._2.headOption.map(_.message) match {
           case Some(message) =>
-            EmailResponse(400, Some(ErrorConfig.getError(message)))
+            EmailResponse(BAD_REQUEST, Some(getError(message)))
           case _ =>
-            EmailResponse(500, Some(ErrorConfig.invalidWErrorBuilder))
+            EmailResponse(INTERNAL_SERVER_ERROR, Some(invalidWErrorBuilder))
         }
       case _ =>
-        EmailResponse(500, Some(ErrorConfig.invalidWErrorBuilder))
+        EmailResponse(INTERNAL_SERVER_ERROR, Some(invalidWErrorBuilder))
     }
 
 }

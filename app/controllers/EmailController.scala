@@ -17,32 +17,32 @@
 package controllers
 
 import audit.Auditable
-import config.ErrorConfig
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import javax.inject.{Inject, Named}
 import models.{CallBackEventList, EmailResponse}
 import play.api.Logger
-import play.api.Play._
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import services.EmailService
-import uk.gov.hmrc.play.microservice.controller.BaseController
 import utils.JsonConstructor
+import utils.ErrorNotifications._
+import utils.EmailHelper._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-object EmailController extends EmailController {
-  override val emailService = EmailService
-}
-
-trait EmailController extends BaseController with Auditable {
-
-  val emailService: EmailService
+class EmailController @Inject()(val auditConnector: AuditConnector,
+                                     val emailService: EmailService,
+                                     cc: ControllerComponents,
+                                     @Named("appName") val appName: String) extends BackendController(cc)
+                                      with Auditable {
 
   def sendNotificationEmail(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
-      def response(requestJson: JsValue) =
+      def response(requestJson: JsValue): Future[Result] =
         emailService.sendNotificationEmail(requestJson, registrationNumber, request.host) flatMap {
           emailResponse =>
             extractResponse(emailResponse)
@@ -60,11 +60,12 @@ trait EmailController extends BaseController with Auditable {
   }
 
   def sendConfirmationEmail: Action[AnyContent] = Action.async {
-    implicit request => sendEmail(request,emailService.sendConfirmationEmail)
+    implicit request => sendEmail(request, emailService.sendConfirmationEmail)
   }
 
-  private def sendEmail(request: Request[AnyContent], emailSender: (JsValue,String) => Future[EmailResponse])(implicit hc : HeaderCarrier) = {
-    def response(requestJson: JsValue) =
+  private def sendEmail(request: Request[AnyContent], emailSender: (JsValue, String) =>
+    Future[EmailResponse])(implicit hc: HeaderCarrier): Future[Result] = {
+    def response(requestJson: JsValue): Future[Result] =
       emailSender(requestJson, request.host) flatMap {
         emailResponse =>
           extractResponse(emailResponse)
@@ -89,52 +90,59 @@ trait EmailController extends BaseController with Auditable {
   }
 
 
-  private def getResponseJson(request: Request[AnyContent], responseFun: (JsValue) => Future[Result]): Future[Result] = {
+  private def getResponseJson(request: Request[AnyContent], responseFun: JsValue => Future[Result]): Future[Result] = {
     request.body match {
       case js: AnyContentAsJson =>
         responseFun.apply(js.json)
       case _ =>
         Logger.warn("[API12] Invalid request body type passed to microservice - just JSON accepted")
-        Future.successful(InternalServerError(JsonConstructor.constructErrorJson(ErrorConfig.invalidContentType)))
+        Future.successful(InternalServerError(JsonConstructor.constructErrorJson(invalidContentType)))
     }
   }
 
   def receiveEvent(name: String, registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
-      def response(requestJson: JsValue) = {
+      def response(requestJson: JsValue): Future[Result] = {
         val auditMap: Map[String, String] = Map("name" -> name, "registrationNumber" -> registrationNumber)
         val auditEventType: String = "awrs-notification"
-        getEmailEvent(requestJson, auditMap, auditEventType, "12")
+        getEmailEvent(requestJson, auditMap, auditEventType, apiType = "12")
       }
+
       getResponseJson(request, response)
   }
 
   def receiveEmailEvent(apiType: String, applicationReference: String, submissionDate: String): Action[AnyContent] = Action.async {
     implicit request =>
-      def response(requestJson: JsValue) = {
-        val auditMap: Map[String, String] = Map("apiType" -> apiType, "applicationReference" -> applicationReference, "submissionDate" -> submissionDate)
+      def response(requestJson: JsValue): Future[Result] = {
+        val auditMap: Map[String, String] = Map("apiType" -> apiType, "applicationReference" -> applicationReference,
+          "submissionDate" -> submissionDate)
         val auditEventType: String = s"awrs-api-${apiType.toLowerCase}"
         getEmailEvent(requestJson, auditMap, auditEventType, apiType)
       }
+
       getResponseJson(request, response)
   }
 
-  private def getEmailEvent(requestJson: JsValue, auditMap: Map[String, String], auditEventType: String, apiType: String)(implicit hc: HeaderCarrier) = {
+  private def getEmailEvent(requestJson: JsValue, auditMap: Map[String, String],
+                            auditEventType: String, apiType: String)(implicit hc: HeaderCarrier): Future[Result] = {
     Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
       case Success(callbackEventList) =>
         callbackEventList.foreach {
           event =>
-            configuration.getString(event.eventType.toLowerCase) match {
+            //configuration.getString(event.eventType.toLowerCase) match {
+            callBackEvents(event.eventType.toLowerCase) match {
               case Some(_) =>
-                Logger.warn(s"[API${apiType}] Email Callback Event Received: ${event.eventType}")
+                Logger.warn(s"[API$apiType] Email Callback Event Received: ${event.eventType}")
                 sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
               case None =>
-                Logger.warn(s"[API${apiType}] No need to audit the Event Received: ${event.eventType}")
+                Logger.warn(s"[API$apiType] No need to audit the Event Received: ${event.eventType}")
             }
         }
         Future.successful(Ok)
       case Failure(e) =>
-        Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(500, Some(e.getMessage)))))
+        Future.successful(InternalServerError(JsonConstructor.constructErrorResponse(EmailResponse(INTERNAL_SERVER_ERROR,
+          Some(e.getMessage)))))
     }
   }
 }
+

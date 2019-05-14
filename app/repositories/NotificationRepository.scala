@@ -18,18 +18,19 @@ package repositories
 
 import models.ContactTypes.ContactType
 import play.api.Logger
-import play.api.libs.json.Json
-import play.modules.reactivemongo.MongoDbConnection
-import reactivemongo.api.commands.WriteResult
+import play.api.libs.json.{JsString, Json, OFormat}
+import javax.inject.Inject
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.api.{DefaultDB, ReadPreference}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
+import uk.gov.hmrc.mongo.ReactiveRepository
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.ReadPreference
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
-import reactivemongo.play.json.ImplicitBSONHandlers._
 
 case class StatusNotification(registrationNumber: Option[String],
                               contactNumber: Option[String],
@@ -38,10 +39,10 @@ case class StatusNotification(registrationNumber: Option[String],
                               storageDatetime: Option[String])
 
 object StatusNotification {
-  implicit val formats = Json.format[StatusNotification]
+  implicit val formats: OFormat[StatusNotification] = Json.format[StatusNotification]
 }
 
-trait NotificationRepository extends Repository[StatusNotification, BSONObjectID] {
+trait NotificationRepository {
 
   def findByRegistrationNumber(registrationNumber: String): Future[Option[StatusNotification]]
 
@@ -49,29 +50,21 @@ trait NotificationRepository extends Repository[StatusNotification, BSONObjectID
 
   def deleteStatusNotification(registrationNumber: String): Future[WriteResult]
 
+  val maxRecords = 1000
+
 }
 
-class NotificationMongoRepository()(implicit mongo: () => DefaultDB)
-  extends ReactiveRepository[StatusNotification, BSONObjectID]("statusNotification", mongo, StatusNotification.formats)
-    with NotificationRepository {
+class NotificationMongoRepositoryImpl @Inject()(mongo: ReactiveMongoComponent) extends
+  ReactiveRepository[StatusNotification, BSONObjectID]("statusNotification", mongo.mongoConnector.db,
+    StatusNotification.formats, ReactiveMongoFormats.objectIdFormats) with NotificationRepository {
 
   collection.indexesManager.ensure(Index(Seq("registrationNumber" -> IndexType.Ascending), name = Some("registrationNumber"), unique = true))
 
   override def findByRegistrationNumber(registrationNumber: String): Future[Option[StatusNotification]] = {
-    val tryResult = Try {
-      collection.find(Json.obj("registrationNumber" -> registrationNumber)).cursor[StatusNotification](ReadPreference.primary).collect[List]()
-    }
 
-    tryResult match {
-      case Success(s) =>
-        s.map { x =>
-          Logger.debug(s"[NotificationMongoRepository][findByRegistrationNumber] : { registrationNumber : $registrationNumber, result: $x }")
-          x.headOption
-        }
-      case Failure(f) =>
-        Logger.debug(s"[NotificationMongoRepository][findByRegistrationNumber] : { registrationNumber : $registrationNumber, exception: ${f.getMessage} }")
-        Future.successful(None)
-    }
+    val query = Json.obj("registrationNumber" -> JsString(registrationNumber))
+
+    collection.find(query).one[StatusNotification](ReadPreference.primary)
   }
 
   override def insertStatusNotification(statusNotification: StatusNotification): Future[Boolean] =
@@ -80,18 +73,12 @@ class NotificationMongoRepository()(implicit mongo: () => DefaultDB)
       update = Json.obj("$set" -> Json.toJson(statusNotification)),
       upsert = true).map {
       lastError =>
-        Logger.debug(s"[NotificationMongoRepository][insertByRegistrationNumber] : { statusNotification: $statusNotification, result: ${lastError.ok}, errors: ${lastError.errmsg} }")
+        Logger.debug(s"[NotificationMongoRepository][insertByRegistrationNumber] : { statusNotification: $statusNotification," +
+          s" result: ${lastError.ok}, errors: ${lastError.errmsg} }")
         lastError.ok
     }
 
   override def deleteStatusNotification(registrationNumber: String): Future[WriteResult] =
     collection.remove(Json.obj("registrationNumber" -> registrationNumber))
 
-}
-
-object NotificationRepository extends MongoDbConnection {
-
-  private lazy val notificationRepository = new NotificationMongoRepository
-
-  def apply(): NotificationMongoRepository = notificationRepository
 }

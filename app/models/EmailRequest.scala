@@ -16,7 +16,7 @@
 
 package models
 
-import config.ErrorConfig
+import utils.ErrorNotifications._
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
@@ -34,31 +34,31 @@ object ApiTypes extends Enumeration {
 
   type ApiType = Value
 
-  val API4 = Value("api4")
-  val API6Pending = Value("api6.pending")
-  val API6Approved = Value("api6.approved")
-  val API10 = Value("api10")
-  val API8 = Value("api8")
+  val API4: ApiTypes.Value = Value("api4")
+  val API6Pending: ApiTypes.Value = Value("api6.pending")
+  val API6Approved: ApiTypes.Value = Value("api6.approved")
+  val API10: ApiTypes.Value = Value("api10")
+  val API8: ApiTypes.Value = Value("api8")
 
-  implicit val reader = new Reads[ApiTypes.Value] {
+  implicit val reader: Reads[ApiTypes.Value] = new Reads[ApiTypes.Value] {
 
     def reads(js: JsValue): JsResult[ApiTypes.Value] = js match {
       case JsString(s) =>
         Try(ApiTypes.withName(s)) match {
           case Success(value) => JsSuccess(value)
-          case Failure(e) => JsError(ErrorConfig.invalidApiType)
+          case Failure(e) => JsError(invalidApiType)
         }
-      case _ => JsError(ErrorConfig.errorExpectedString)
+      case _ => JsError(errorExpectedString)
     }
 
   }
 
-  implicit val writer = new Writes[ApiTypes.Value] {
+  implicit val writer: Writes[ApiTypes.Value] = new Writes[ApiTypes.Value] {
     def writes(apiType: ApiTypes.Value): JsValue = Json.toJson(apiType.toString)
   }
 
 }
 
 object EmailRequest {
-  implicit val formats = Json.format[EmailRequest]
+  implicit val formats: OFormat[EmailRequest] = Json.format[EmailRequest]
 }
