@@ -28,13 +28,14 @@ import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.Application
 import reactivemongo.api.commands.WriteResult.Message
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite {
+class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
   val mockNotificationRepository: NotificationRepository = mock[NotificationRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]

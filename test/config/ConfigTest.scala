@@ -19,9 +19,9 @@ package config
 import models.ApiTypes.ApiType
 import models._
 import uk.gov.hmrc.play.test.UnitSpec
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class ConfigTest extends UnitSpec with OneAppPerSuite {
+class ConfigTest extends UnitSpec with GuiceOneAppPerSuite {
 
   lazy val UpdateRegistrationTemplate = Some("awrs_notification_template_reg_change")
   lazy val UpdateApplicationTemplate = Some("awrs_notification_template_app_change")

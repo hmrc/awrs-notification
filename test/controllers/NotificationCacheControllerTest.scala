@@ -29,7 +29,7 @@ import play.api.test.Helpers._
 import repositories.{StatusNotification, ViewedStatus}
 import services.NotificationCacheService
 import uk.gov.hmrc.play.test._
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.ControllerComponents
@@ -37,8 +37,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.Future
 
-class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with OneAppPerSuite {
-
+class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(Map(

@@ -29,7 +29,7 @@ import services.EmailService
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.test._
 import org.jsoup.Jsoup
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.{ControllerComponents, Result}
 
 import scala.concurrent.duration._
@@ -37,7 +37,7 @@ import scala.concurrent.{Await, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with OneAppPerSuite {
+class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   val mockEmailService: EmailService = mock[EmailService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
