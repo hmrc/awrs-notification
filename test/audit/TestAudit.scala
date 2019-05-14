@@ -18,12 +18,12 @@ package audit
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import config.AwrsNotificationAuditConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit._
 import uk.gov.hmrc.play.audit.model.{Audit, AuditAsMagnet, DataEvent}
 import uk.gov.hmrc.http.HeaderCarrier
 
-class TestAudit() extends Audit("test", AwrsNotificationAuditConnector) {
+class TestAudit(auditConnector: AuditConnector) extends Audit(applicationName = "test", auditConnector = auditConnector) {
   var capturedTxName: String = ""
   var capturedInputs: Map[String, String] = Map.empty
   private val dataEvents = new ConcurrentLinkedQueue[DataEvent]
@@ -38,6 +38,6 @@ class TestAudit() extends Audit("test", AwrsNotificationAuditConnector) {
 
   def captureDataEvent(event: DataEvent) : Unit = this.dataEvents.add(event)
 
-  override def sendDataEvent: (DataEvent) => Unit = captureDataEvent
+  override def sendDataEvent: DataEvent => Unit = captureDataEvent
 
 }

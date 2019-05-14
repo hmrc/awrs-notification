@@ -16,18 +16,20 @@
 
 package models
 
+import scala.util.matching.Regex
+
 object RegularExpressions extends RegularExpressions
 
 trait RegularExpressions {
 
   val registrationRegex = "^X[A-Z]AW00000[0-9]{6}$"
 
-  val nameRegex = "^[A-Za-z0-9 ]{1,140}$".r
+  val nameRegex: Regex = "^[A-Za-z0-9 ]{1,140}$".r
 
-  val statusRegex = "0[4-9]|10".r
+  val statusRegex: Regex = "0[4-9]|10".r
 
-  val contactNoRegex = "[0-9]{12}".r
+  val contactNoRegex: Regex = "[0-9]{12}".r
 
-  val emailRegex = """(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)""".r
+  val emailRegex: Regex = """(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)""".r
   
 }

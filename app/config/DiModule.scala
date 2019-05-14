@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package utils
+package config
 
-import models.EmailResponse
-import play.api.libs.json.{JsValue, Json}
-import utils.ErrorNotifications._
+import com.google.inject.AbstractModule
+import repositories.{NotificationMongoRepositoryImpl, NotificationRepository, NotificationViewedMongoRepositoryImpl, NotificationViewedRepository}
 
-object JsonConstructor {
-
-   def constructErrorResponse(response: EmailResponse): JsValue =
-    response.errors match {
-      case Some(errors) if errors.nonEmpty =>
-        constructErrorJson(errors)
-      case _ =>
-        constructErrorJson(invalidUnknown)
-    }
-
-  def constructErrorJson(inputString: String) : JsValue =
-    Json.obj("reason" -> inputString)
-
+class DiModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[NotificationViewedRepository]).to(classOf[NotificationViewedMongoRepositoryImpl])
+    bind(classOf[NotificationRepository]).to(classOf[NotificationMongoRepositoryImpl])
+  }
 }

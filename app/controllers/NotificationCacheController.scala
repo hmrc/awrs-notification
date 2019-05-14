@@ -17,21 +17,22 @@
 package controllers
 
 import audit.Auditable
+import javax.inject.{Inject, Named}
 import models.ViewedStatusResponse
 import play.api.libs.json.Json
 import play.api.mvc._
 import services.NotificationCacheService
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object NotificationCacheController extends NotificationCacheController {
-  override val notificationService: NotificationCacheService = NotificationCacheService
-}
 
-trait NotificationCacheController extends BaseController with Auditable {
-
-  val notificationService: NotificationCacheService
+class NotificationCacheController @Inject()(val auditConnector: AuditConnector,
+                                              val notificationService: NotificationCacheService,
+                                              cc: ControllerComponents,
+                                              @Named("appName") val appName: String) extends BackendController(cc)
+                                               with Auditable {
 
   def getNotification(registrationNumber: String): Action[AnyContent] = Action.async {
     implicit request =>

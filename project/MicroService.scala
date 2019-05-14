@@ -17,13 +17,10 @@
 import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
 import sbt._
-import play.routes.compiler.StaticRoutesGenerator
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
-
-import uk.gov.hmrc.SbtArtifactory
 
 trait MicroService {
 
@@ -31,7 +28,6 @@ trait MicroService {
   import DefaultBuildSettings.{oneForkedJvmPerTest=> _ , _ }
   import TestPhases._
   import uk.gov.hmrc.SbtAutoBuildPlugin
-  import play.sbt.routes.RoutesKeys.routesGenerator
 
   val appName: String
 
@@ -59,13 +55,14 @@ trait MicroService {
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
-      scalaVersion := "2.11.11",
+      scalaVersion := "2.11.12",
       targetJvm := "jvm-1.8",
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
       retrieveManaged := true,
-      routesGenerator := StaticRoutesGenerator
+      evictionWarningOptions in update :=
+        EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
@@ -84,7 +81,7 @@ trait MicroService {
         "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
       )
     )
-    .enablePlugins(SbtDistributablesPlugin, SbtAutoBuildPlugin, SbtGitVersioning)
+    .enablePlugins(Seq(play.sbt.PlayScala,SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin) ++ plugins : _*)
 }
 
 private object TestPhases {
