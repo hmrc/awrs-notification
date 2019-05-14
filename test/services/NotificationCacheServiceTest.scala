@@ -23,27 +23,28 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
-import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
 import reactivemongo.api.commands.WriteResult.Message
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
-  val mockNotificationRepository = mock[NotificationRepository]
-  val mockNotificationViewedRepository = mock[NotificationViewedRepository]
-  val mockHeaderCarrier = mock[HeaderCarrier]
-  override implicit lazy val app = new GuiceApplicationBuilder().configure(Map("metrics.enabled" -> false)).build()
+  val mockNotificationRepository: NotificationRepository = mock[NotificationRepository]
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val mockNotificationViewedRepository: NotificationViewedRepository = mock[NotificationViewedRepository]
+  val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
+  override implicit lazy val app: Application = new GuiceApplicationBuilder().configure(Map("metrics.enabled" -> false)).build()
 
-  val notificationCacheService = new NotificationCacheService {
-    override val repository = mockNotificationRepository
-    override val viewedRepository = mockNotificationViewedRepository
-  }
+  val notificationCacheService: NotificationCacheService = new NotificationCacheService(mockAuditConnector, mockNotificationRepository,
+    mockNotificationViewedRepository,"awrs")
+
 
   "NotificationCacheService" should {
     "return StatusNotification object when the notification is found in mongo" in {
@@ -72,26 +73,30 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAp
     }
 
     "return false when the notification is not stored in mongo because it is not the correct contact type (CONA)" in {
-      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.CONA), contact_number = Some("123456789012"), variation = false)
+      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"),
+        contact_type = Some(ContactTypes.CONA), contact_number = Some("123456789012"), variation = false)
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe false
     }
 
     "return false when the notification is not stored in mongo because it is not the correct contact type (OTHR)" in {
-      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.OTHR), contact_number = Some("123456789012"), variation = false)
+      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.OTHR),
+        contact_number = Some("123456789012"), variation = false)
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe false
     }
 
     "return false when the notification is not stored in mongo because it is not the correct contact type (NMRJ)" in {
-      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.NMRJ), contact_number = Some("123456789012"), variation = false)
+      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.NMRJ),
+        contact_number = Some("123456789012"), variation = false)
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe false
     }
 
 
     "return true when the notification is stored in mongo (NMRJ)" in {
-      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.REJR), contact_number = Some("123456789012"), variation = false)
+      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.REJR),
+        contact_number = Some("123456789012"), variation = false)
       when(mockNotificationRepository.insertStatusNotification(any())).thenReturn(Future.successful(true))
       val result: Boolean = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe true
@@ -119,7 +124,8 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAp
     }
 
     "return true when the notification is stored in mongo (NMRV)" in {
-      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.NMRV), contact_number = Some("123456789012"), variation = false)
+      val push = PushNotificationRequest(name = "name", email = "exampe@example.com", status = Some("04"), contact_type = Some(ContactTypes.NMRV),
+        contact_number = Some("123456789012"), variation = false)
       when(mockNotificationRepository.insertStatusNotification(any())).thenReturn(Future.successful(true))
       val result = Await.result(notificationCacheService.storeNotification(push, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe true
@@ -157,8 +163,9 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with OneAp
     }
 
     "return true when the viewed status is stored in mongo" in {
-      when(mockNotificationViewedRepository.insertViewedStatus(any())).thenReturn(Future.successful(true))
-      val result = Await.result(notificationCacheService.storeNotificationViewedStatus(false, "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
+      when(mockNotificationViewedRepository.insertViewedStatus(any())).thenReturn(Future.successful(result = true))
+      val result = Await.result(notificationCacheService.storeNotificationViewedStatus(viewedStatus = false,
+        "XXAW00000123488")(hc = mockHeaderCarrier), 2.second)
       result shouldBe true
     }
 

@@ -17,26 +17,27 @@
 package repositories
 
 import play.api.Logger
-import play.api.libs.json.Json
-import play.modules.reactivemongo.MongoDbConnection
-import reactivemongo.api.commands.WriteResult
+import play.api.libs.json.{JsString, Json, OFormat}
+import javax.inject.Inject
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.api.{DefaultDB, ReadPreference}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
+import uk.gov.hmrc.mongo.ReactiveRepository
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.ReadPreference
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
-import reactivemongo.play.json.ImplicitBSONHandlers._
 
 case class ViewedStatus(registrationNumber: Option[String], viewed: Option[Boolean])
 
 object ViewedStatus {
-  implicit val formats = Json.format[ViewedStatus]
+  implicit val formats: OFormat[ViewedStatus] = Json.format[ViewedStatus]
 }
 
-trait NotificationViewedRepository extends Repository[ViewedStatus, BSONObjectID] {
+trait NotificationViewedRepository {
 
   def findViewedStatusByRegistrationNumber(registrationNumber: String): Future[Option[ViewedStatus]]
 
@@ -46,28 +47,16 @@ trait NotificationViewedRepository extends Repository[ViewedStatus, BSONObjectID
 
 }
 
-class NotificationViewedMongoRepository()(implicit mongo: () => DefaultDB)
-  extends ReactiveRepository[ViewedStatus, BSONObjectID]("viewedStatus", mongo, ViewedStatus.formats)
-    with NotificationViewedRepository {
+class NotificationViewedMongoRepositoryImpl @Inject()(mongo: ReactiveMongoComponent) extends
+  ReactiveRepository[ViewedStatus, BSONObjectID]("viewedStatus", mongo.mongoConnector.db,
+    ViewedStatus.formats, ReactiveMongoFormats.objectIdFormats) with NotificationViewedRepository {
 
   collection.indexesManager.ensure(Index(Seq("registrationNumber" -> IndexType.Ascending), name = Some("registrationNumber"), unique = true))
 
   override def findViewedStatusByRegistrationNumber(registrationNumber: String): Future[Option[ViewedStatus]] = {
-    val tryResult = Try {
-      collection.find(Json.obj("registrationNumber" -> registrationNumber)).cursor[ViewedStatus](ReadPreference.primary).collect[List]()
-    }
 
-    tryResult match {
-      case Success(s) =>
-        s.map { x =>
-          Logger.debug(s"[NotificationViewedRepository][findViewedStatusByRegistrationNumber] : { registrationNumber : $registrationNumber, result: $x }")
-          x.headOption
-        }
-      case Failure(f) =>
-        Logger.debug(s"[NotificationViewedRepository][findViewedStatusByRegistrationNumber] : { registrationNumber : $registrationNumber, exception: ${f.getMessage} }")
-        Future.successful(None)
-    }
-
+    val query = Json.obj("registrationNumber" -> JsString(registrationNumber))
+    collection.find(query).one[ViewedStatus](ReadPreference.primary)
   }
 
   // upsert set as true so that we either update the record if it already exists or insert a new one if not
@@ -79,7 +68,8 @@ class NotificationViewedMongoRepository()(implicit mongo: () => DefaultDB)
   override def insertViewedStatus(viewedStatus: ViewedStatus): Future[Boolean] =
     updateCore(viewedStatus).map {
       lastError =>
-        Logger.debug(s"[NotificationViewedRepository][insertViewedStatus] : { viewedStatus: $viewedStatus, result: ${lastError.ok}, errors: ${lastError.errmsg} }")
+        Logger.debug(s"[NotificationViewedRepository][insertViewedStatus] : { viewedStatus: $viewedStatus, " +
+          s"result: ${lastError.ok}, errors: ${lastError.errmsg} }")
         lastError.ok
     }
 
@@ -88,9 +78,3 @@ class NotificationViewedMongoRepository()(implicit mongo: () => DefaultDB)
 
 }
 
-object NotificationViewedRepository extends MongoDbConnection {
-
-  private lazy val viewedStatusRepository = new NotificationViewedMongoRepository
-
-  def apply(): NotificationViewedMongoRepository = viewedStatusRepository
-}

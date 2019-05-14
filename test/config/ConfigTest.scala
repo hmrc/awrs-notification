@@ -34,7 +34,7 @@ class ConfigTest extends UnitSpec with OneAppPerSuite {
   lazy val API10CancellationTemplate = Some("awrs_notification_template_cancellation_api10")
   lazy val API8WithdrawnTemplate = Some ("awrs_notification_template_withdrawn_api8")
 
-  def createNotificationRequest(status: Option[String] = None, contactType: Option[ContactTypes.ContactType] = None) =
+  def createNotificationRequest(status: Option[String] = None, contactType: Option[ContactTypes.ContactType] = None): PushNotificationRequest =
     PushNotificationRequest("name", "example@example.com", status, contactType, None, variation = false)
 
 

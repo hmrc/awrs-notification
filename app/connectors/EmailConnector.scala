@@ -16,37 +16,32 @@
 
 package connectors
 
-import config.WSHttp
+import javax.inject.{Inject, Named}
 import models.SendEmailRequest
-import play.api.Mode.Mode
-import play.api.{Configuration, Logger, Play}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import play.api.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-trait EmailConnector extends ServicesConfig with RawResponseReads {
 
-  lazy val serviceURL = baseUrl("email")
+
+class EmailConnector @Inject()(http: DefaultHttpClient,
+                                 val config: ServicesConfig,
+                                 @Named("appName") val appName: String) extends RawResponseReads {
+
+  lazy val serviceURL: String = config.baseUrl(serviceName = "email")
   val sendEmailURI = "/hmrc/email"
-  val http: HttpGet with HttpPost = WSHttp
 
-  def sendEmail(emailData: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse]= {
+  def sendEmail(emailData: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val postUrl = s"""$serviceURL$sendEmailURI"""
 
     http.POST(postUrl, emailData) map {
       response =>
-        Logger.warn("[API12] Send Email request sent to EMAIL microservice" +  response.body)
+        Logger.warn("[API12] Send Email request sent to EMAIL microservice" + response.body)
         response
     }
   }
-
-}
-
-object EmailConnector extends EmailConnector {
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

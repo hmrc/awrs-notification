@@ -16,6 +16,8 @@
 
 package services
 
+import audit.Auditable
+import javax.inject.{Inject, Named}
 import models.PushNotificationRequest
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import models.ContactTypes._
@@ -26,14 +28,19 @@ import reactivemongo.api.commands.WriteResult.Message
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-trait NotificationCacheService {
-  val repository: NotificationRepository
-  val viewedRepository: NotificationViewedRepository
+
+class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
+                                         val repository: NotificationRepository,
+                                         val viewedRepository: NotificationViewedRepository,
+                                         @Named("appName") val appName: String) extends Auditable  {
+
   val dateFormat: String = "yyyy-MM-dd'T'HH:mm:ss"
   val fmt: DateTimeFormatter= DateTimeFormat.forPattern(dateFormat)
 
-  def storeNotification(pushNotification: PushNotificationRequest, registrationNumber: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def storeNotification(pushNotification: PushNotificationRequest,
+                        registrationNumber: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
 
     val notification = StatusNotification(registrationNumber = Some(registrationNumber),
       contactNumber = pushNotification.contact_number,
@@ -88,9 +95,4 @@ trait NotificationCacheService {
         }
     }
 
-}
-
-object NotificationCacheService extends NotificationCacheService {
-  override val repository = NotificationRepository()
-  override val viewedRepository = NotificationViewedRepository()
 }

@@ -14,11 +14,26 @@
  * limitations under the License.
  */
 
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package config
 
 import models.{EmailRequest, PushNotificationRequest}
-import play.api.Play._
-
+import utils.EmailHelper._
 
 trait EmailConfig {
   lazy val ApprovedTemplate = "APPR"
@@ -31,7 +46,9 @@ trait EmailConfig {
       case (_, Some(Approved)) => ApprovedTemplate
       case (_, _) => DefaultTemplate
     }
-    configuration.getString(s"awrs.notification.$template")
+
+    notificationTemplate(s"awrs.notification.$template")
+
   }
 
   def getConfirmationTemplate(emailRequest: EmailRequest): Option[String] = {
@@ -42,17 +59,17 @@ trait EmailConfig {
         case _ => ""
       }
     }${emailRequest.apiType.toString}"
-    configuration.getString(templateName)
+    otherTemplates(templateName)
   }
 
   def getCancellationTemplate(emailRequest: EmailRequest): Option[String] = {
     val templateName = s"awrs.cancellation.${emailRequest.apiType.toString}"
-    configuration.getString(templateName)
+    otherTemplates(templateName)
   }
 
   def getWithdrawnTemplate(emailRequest: EmailRequest): Option[String] = {
     val templateName = s"awrs.withdrawn.${emailRequest.apiType.toString}"
-    configuration.getString(templateName)
+    otherTemplates(templateName)
   }
 
 }

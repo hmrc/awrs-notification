@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import repositories.ViewedStatus
 
 case class ViewedStatusResponse(viewed: Boolean)
@@ -25,6 +25,6 @@ object ViewedStatusResponse {
 
   implicit def convert(viewedStatus: ViewedStatus): ViewedStatusResponse = ViewedStatusResponse(viewedStatus.viewed.get)
 
-  implicit val format = Json.format[ViewedStatusResponse]
+  implicit val format: OFormat[ViewedStatusResponse] = Json.format[ViewedStatusResponse]
 
 }
