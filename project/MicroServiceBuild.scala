@@ -28,8 +28,8 @@ private object AppDependencies {
   import play.sbt.PlayImport._
   
   private val domainVersion = "5.6.0-play-26"
-  private val playReactivemongoVersion = "7.19.0-play-26"
-  private val hmrcTestVersion = "3.8.0-play-26"
+  private val playReactivemongoVersion = "7.20.0-play-26"
+  private val hmrcTestVersion = "3.9.0-play-26"
 
   private val emailAddress = "3.2.0"
   private val mockitoVersion = "2.27.0"
