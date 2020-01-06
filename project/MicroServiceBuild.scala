@@ -26,9 +26,9 @@ object MicroServiceBuild extends Build with MicroService {
 private object AppDependencies {
   import play.core.PlayVersion
   import play.sbt.PlayImport._
-  
+
   private val domainVersion = "5.6.0-play-26"
-  private val playReactivemongoVersion = "7.20.0-play-26"
+  private val playReactivemongoVersion = "7.22.0-play-26"
   private val hmrcTestVersion = "3.9.0-play-26"
 
   private val emailAddress = "3.2.0"
