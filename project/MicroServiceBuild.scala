@@ -31,8 +31,8 @@ private object AppDependencies {
   private val playReactivemongoVersion = "7.22.0-play-26"
   private val hmrcTestVersion = "3.9.0-play-26"
 
-  private val emailAddress = "3.2.0"
-  private val mockitoVersion = "2.27.0"
+  private val emailAddress = "3.4.0"
+  private val mockitoVersion = "3.2.4"
   private val scalatestPlusPlayVersion = "3.1.2"
   private val jSoupVersion = "1.12.1"
   private val pegdownVersion = "1.6.0"
@@ -40,7 +40,7 @@ private object AppDependencies {
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc" %% "simple-reactivemongo" % playReactivemongoVersion,
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-26" % "0.39.0",
+    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "uk.gov.hmrc" %% "emailaddress" % emailAddress
   )
