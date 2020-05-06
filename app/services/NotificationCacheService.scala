@@ -27,9 +27,7 @@ import reactivemongo.api.commands.WriteResult.Message
 
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-
 
 class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
                                          val repository: NotificationRepository,
@@ -40,7 +38,7 @@ class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
   val fmt: DateTimeFormatter= DateTimeFormat.forPattern(dateFormat)
 
   def storeNotification(pushNotification: PushNotificationRequest,
-                        registrationNumber: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+                        registrationNumber: String): Future[Boolean] = {
 
     val notification = StatusNotification(registrationNumber = Some(registrationNumber),
       contactNumber = pushNotification.contact_number,
@@ -55,7 +53,7 @@ class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
     }
   }
 
-  def findNotification(registrationNumber: String)(implicit hc: HeaderCarrier): Future[Option[StatusNotification]] = {
+  def findNotification(registrationNumber: String): Future[Option[StatusNotification]] = {
 
     repository.findByRegistrationNumber(registrationNumber) map {
       case notification@Some(x) => x.contactType match {
@@ -66,32 +64,34 @@ class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
     }
   }
 
-  def deleteNotification(registrationNumber: String)(implicit hc: HeaderCarrier): Future[(Boolean, Option[String])] =
+  def deleteNotification(registrationNumber: String): Future[(Boolean, Option[String])] =
     repository.deleteStatusNotification(registrationNumber) map {
       result =>
-        result.ok match {
-          case true => (true, None)
-          case false => (false, Message.unapply(result))
+        if (result.ok) {
+          (true, None)
+        } else {
+          (false, Message.unapply(result))
         }
     }
 
-  def storeNotificationViewedStatus(viewedStatus: Boolean, registrationNumber: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def storeNotificationViewedStatus(viewedStatus: Boolean, registrationNumber: String): Future[Boolean] = {
     val status = ViewedStatus(registrationNumber = Some(registrationNumber), viewed = Some(viewedStatus))
     viewedRepository.insertViewedStatus(status)
   }
 
-  def findNotificationViewedStatus(registrationNumber: String)(implicit hc: HeaderCarrier): Future[Option[ViewedStatus]] =
+  def findNotificationViewedStatus(registrationNumber: String): Future[Option[ViewedStatus]] =
     viewedRepository.findViewedStatusByRegistrationNumber(registrationNumber) map {
       case viewedStatus@Some(_) => viewedStatus
       case _ => None
     }
 
-  def markAsViewed(registrationNumber: String)(implicit hc: HeaderCarrier): Future[(Boolean, Option[String])] =
+  def markAsViewed(registrationNumber: String): Future[(Boolean, Option[String])] =
     viewedRepository.markAsViewed(registrationNumber) map {
       result =>
-        result.ok match {
-          case true => (true, None)
-          case false => (false, Message.unapply(result))
+        if (result.ok) {
+          (true, None)
+        } else {
+          (false, Message.unapply(result))
         }
     }
 

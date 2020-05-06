@@ -23,7 +23,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.ErrorNotifications._
+import play.api.http.Status._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -57,7 +58,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   def acceptedMock: OngoingStubbing[Future[HttpResponse]] =
-    when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(202)))
+    when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(ACCEPTED)))
 
   "EmailService for notification" should {
 
@@ -70,9 +71,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (140 char name)" in {
@@ -85,9 +87,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (REVR)" in {
@@ -98,9 +101,11 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
 
       acceptedMock
 
-      val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+      val result: EmailResponse = Await.result(
+        emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (CONA)" in {
@@ -112,9 +117,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (MTRJ)" in {
@@ -126,9 +132,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (NMRJ)" in {
@@ -140,9 +147,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (MTRV)" in {
@@ -154,9 +162,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (NMRV)" in {
@@ -167,9 +176,11 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
 
       acceptedMock
 
-      val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+      val result: EmailResponse = Await.result(
+        emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 200 status when the email is sent successfully (OTHR)" in {
@@ -181,9 +192,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return success when the contact Type is not provided in the request, as it is defaulted to REJR contact type" in {
@@ -192,9 +204,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return success when the status is not provided in the request, as it is an optional field" in {
@@ -206,9 +219,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return success when contact number is not provided in the request, as it is an optional field" in {
@@ -217,9 +231,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 500 status with the failure message when email connector returns Bad Request with content type JSON" in {
@@ -228,27 +243,32 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}
           |""".stripMargin
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400,
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
         responseHeaders = Map("Content-Type" -> Seq("application/json")),
         responseJson = Some(Json.parse("{\"statusCode\": 400, \"message\": \"Template test does not exist\"}")))))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
       result.errors.get should include("Template test does not exist")
     }
 
     "return 500 status with the failure message when email connector returns Bad Request with content type JSON (malformed json)" in {
-      val inputJson = """{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
+      val inputJson =
+        """{
+          |"name": "name", "email": "example@example.com", "status": "04",
+          |"contact_type": "REJR", "contact_number": "123456789012", "variation": false}""".stripMargin
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400,
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
         responseHeaders = Map("Content-Type" -> Seq("application/json")), responseJson = Some(Json.parse("{\"hmm\": false}")))))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
       result.errors.get shouldBe "{\"hmm\":false}"
     }
 
@@ -258,13 +278,14 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |{"name": "name", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}
           |""".stripMargin
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400,
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
         responseHeaders = Map("Content-Type" -> Seq("text/plain")), responseString = Some("Validation Error"))))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
       result.errors.get shouldBe "Validation Error"
     }
 
@@ -274,24 +295,30 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |{"name": "name", "email": "name@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}
           |""".stripMargin
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400,
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
         responseHeaders = Map("Content-Type" -> Seq("text/plain")), responseString = Some(""))))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
       result.errors.get shouldBe ""
     }
 
     "return 503 status with the failure message when email connector returns anything than 202 or 400 Status" in {
-      val inputJson = """{"name": "name", "email": "name@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
+      val inputJson =
+        """{
+          |"name": "name", "email": "name@example.com", "status": "04", "contact_type": "REJR",
+          |"contact_number": "123456789012", "variation": false}""".stripMargin
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(500)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
 
-      val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+      val result: EmailResponse = Await.result(
+        emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 503
+      result.status shouldBe SERVICE_UNAVAILABLE
     }
 
     "return 503 status with the failure message when the dependent email service is down" in {
@@ -304,9 +331,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
         Future.failed(new BadGatewayException("POST of 'http://localhost:8300/send-templated-email' failed")))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 503
+      result.status shouldBe SERVICE_UNAVAILABLE
     }
 
     "return 503 status with the failure message when unspecified exception occurred in the Email service" in {
@@ -318,9 +346,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.failed(new Exception("Exception Occurred")))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 400 status with the failure message when registration number does not mach regex" in {
@@ -330,9 +359,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "fds", "")(hc = mockHeaderCarrier), 2.second)
+        "fds", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidRegNumber
     }
 
@@ -343,9 +373,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidStatus
     }
 
@@ -356,30 +387,41 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe errorExpectedBoolean
     }
 
     "return 400 status with the failure message when invalid email address is passed" in {
-      val inputJson = """{"name": "name", "email": "exampleexample.com", "status": "06", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
+      val inputJson =
+        """{
+          |"name": "name", "email": "exampleexample.com", "status": "06", "contact_type": "REJR",
+          |"contact_number": "123456789012", "variation": false}""".stripMargin
 
-      val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+      val result: EmailResponse = Await.result(
+        emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidEmail
     }
 
     "return 400 status with the failure message when invalid name is passed (max length exceeded)" in {
       val longName = "a" * (AwrsValidator.maxTextLength + 1)
-      val inputJson = s"""{"name": "$longName", "email": "example@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}"""
+      val inputJson =
+        s"""{
+           |"name": "$longName", "email": "example@example.com", "status": "04", "contact_type": "REJR",
+           |"contact_number": "123456789012", "variation": false}""".stripMargin
 
       acceptedMock
 
-      val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+      val result: EmailResponse = Await.result(
+        emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidName
     }
 
@@ -390,9 +432,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidContactNumber
     }
 
@@ -403,9 +446,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidContactType
     }
 
@@ -416,9 +460,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |"status": "05", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe errorMaxLength
     }
 
@@ -431,9 +476,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidEmail
     }
 
@@ -446,9 +492,10 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       acceptedMock
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
-        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second)
+        "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
+      )
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
       result.errors.get shouldBe invalidName
     }
 
@@ -469,21 +516,21 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
 
       val result: EmailResponse = await(emailService.sendConfirmationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 500 status when calls to send the email is unsuccessful" in {
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
       val result: EmailResponse = await(emailService.sendConfirmationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return appropriate status when the input email json is corrupt" in {
       val result: EmailResponse = await(emailService.sendConfirmationEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
     }
   }
 
@@ -496,21 +543,21 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
 
       val result: EmailResponse = await(emailService.sendCancellationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 500 status when calls to send the email is unsuccessful" in {
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
       val result: EmailResponse = await(emailService.sendCancellationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return appropriate status when the input email json is corrupt" in {
       val result: EmailResponse = await(emailService.sendCancellationEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
     }
   }
 
@@ -522,23 +569,22 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
 
       val result: EmailResponse = await(emailService.sendWithdrawnEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 200
+      result.status shouldBe OK
     }
 
     "return 500 status when calls to send the email is unsuccessful" in {
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(400)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
       val result: EmailResponse = await(emailService.sendWithdrawnEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 500
+      result.status shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return appropriate status when the input email json is corrupt" in {
       val result: EmailResponse = await(emailService.sendWithdrawnEmail(Json.parse("{}"), host = "")(hc = mockHeaderCarrier))
 
-      result.status shouldBe 400
+      result.status shouldBe BAD_REQUEST
     }
   }
 
 }
-

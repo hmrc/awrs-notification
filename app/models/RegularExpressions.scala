@@ -31,5 +31,5 @@ trait RegularExpressions {
   val contactNoRegex: Regex = "[0-9]{12}".r
 
   val emailRegex: Regex = """(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)""".r
-  
+
 }

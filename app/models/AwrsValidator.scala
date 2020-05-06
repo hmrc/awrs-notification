@@ -16,9 +16,8 @@
 
 package models
 
-import play.api.data.validation.ValidationError
-import play.api.libs.json.{JsonValidationError, Reads}
 import play.api.libs.json.Reads._
+import play.api.libs.json.{JsonValidationError, Reads}
 
 import scala.util.matching.Regex
 
@@ -56,5 +55,5 @@ trait AwrsValidator {
       (c >= asciiChar32 && c <= asciiChar126) || (c >= asciiChar160 && c <= asciiChar255)
     }
   }
-  
+
 }

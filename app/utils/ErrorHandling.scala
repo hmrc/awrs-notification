@@ -27,17 +27,18 @@ object ErrorHandling {
    def extractResponseMessage(response: HttpResponse): String =
     response.header("Content-Type") match {
       case Some(headerType) if headerType.contains("application/json") =>
-        if (response.json.toString().contains("message"))
+        if (response.json.toString().contains("message")) {
           (response.json \ "message").toString.replaceAll("\"", "")
-        else
+        } else {
           response.json.toString()
+        }
       case _ =>
         response.body
     }
 
    def getValidationError(err: Seq[(JsPath, Seq[JsonValidationError])]): EmailResponse =
     err match {
-      case head :: tail =>
+      case head :: _ =>
         head._2.headOption.map(_.message) match {
           case Some(message) =>
             EmailResponse(BAD_REQUEST, Some(getError(message)))

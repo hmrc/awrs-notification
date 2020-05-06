@@ -64,7 +64,7 @@ class EmailController @Inject()(val auditConnector: AuditConnector,
   }
 
   private def sendEmail(request: Request[AnyContent], emailSender: (JsValue, String) =>
-    Future[EmailResponse])(implicit hc: HeaderCarrier): Future[Result] = {
+    Future[EmailResponse]): Future[Result] = {
     def response(requestJson: JsValue): Future[Result] =
       emailSender(requestJson, request.host) flatMap {
         emailResponse =>
