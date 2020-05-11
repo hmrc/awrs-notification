@@ -24,7 +24,9 @@ import utils.ErrorNotifications._
 
 import scala.util.{Failure, Success, Try}
 
-case class PushNotificationRequest(name: String, email: String, status: Option[String], contact_type: Option[ContactTypes.ContactType], contact_number: Option[String], variation: Boolean)
+case class PushNotificationRequest(name: String, email: String, status: Option[String],
+                                    contact_type: Option[ContactTypes.ContactType], contact_number: Option[String],
+                                    variation: Boolean)
 
 object ContactTypes extends Enumeration {
 
@@ -41,43 +43,35 @@ object ContactTypes extends Enumeration {
     val NMRV: ContactTypes.Value = Value("NMRV")//No longer minded to Revoke
     val OTHR: ContactTypes.Value = Value("OTHR")//Other
 
-  implicit val reader: Reads[ContactTypes.Value] = new Reads[ContactTypes.Value] {
-
-    def reads(js: JsValue): JsResult[ContactTypes.Value] = js match {
-      case JsString(s) =>
-        Try(ContactTypes.withName(s)) match {
-          case Success(value) => JsSuccess(value)
-          case Failure(e) => JsError(invalidContactType)
-        }
-      case _ => JsError(errorExpectedString)
-    }
-
+  implicit val reader: Reads[ContactTypes.Value] = {
+    case JsString(s) =>
+      Try(ContactTypes.withName(s)) match {
+        case Success(value) => JsSuccess(value)
+        case Failure(_) => JsError(invalidContactType)
+      }
+    case _ => JsError(errorExpectedString)
   }
 
-  implicit val writer: Writes[ContactTypes.Value] = new Writes[ContactTypes.Value] {
-    def writes(contactType: ContactTypes.Value): JsValue = Json.toJson(contactType.toString)
-  }
+  implicit val writer: Writes[ContactTypes.Value] =
+    (contactType: ContactTypes.Value) => Json.toJson(contactType.toString)
 
 }
 
 object PushNotificationRequest {
 
-  implicit val writer: Writes[PushNotificationRequest] = new Writes[PushNotificationRequest] {
+  val maxEmailLength: Int = 100
 
-    def writes(push: PushNotificationRequest): JsValue =
-      Json.obj(
-        "name" -> push.name,
-        "email" -> push.email,
-        "variation" -> push.variation)
-        .++(push.status.fold(Json.obj())(x => Json.obj("status" -> x)))
-        .++(push.contact_type.fold(Json.obj())(x => Json.obj("contact_type" -> x)))
-        .++(push.contact_number.fold(Json.obj())(x => Json.obj("contact_number" -> x)))
-
-  }
+  implicit val writer: Writes[PushNotificationRequest] = (push: PushNotificationRequest) => Json.obj(
+    "name" -> push.name,
+    "email" -> push.email,
+    "variation" -> push.variation)
+    .++(push.status.fold(Json.obj())(x => Json.obj("status" -> x)))
+    .++(push.contact_type.fold(Json.obj())(x => Json.obj("contact_type" -> x)))
+    .++(push.contact_number.fold(Json.obj())(x => Json.obj("contact_number" -> x)))
 
   implicit val pushNotificationRequestFormat: Reads[PushNotificationRequest] = (
     (JsPath \ "name").read[String](verifyingWithError[String](validText(validateISO88591), invalidName)) and
-      (JsPath \ "email").read[String](maxLength[String](100) keepAnd pattern(emailRegex, invalidEmail)) and
+      (JsPath \ "email").read[String](maxLength[String](maxEmailLength) keepAnd pattern(emailRegex, invalidEmail)) and
       (JsPath \ "status").readNullable[String](pattern(statusRegex, invalidStatus)) and
       (JsPath \ "contact_type").readNullable[ContactTypes.ContactType] and
       (JsPath \ "contact_number").readNullable[String](pattern(contactNoRegex, invalidContactNumber)) and

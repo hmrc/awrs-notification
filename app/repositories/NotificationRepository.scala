@@ -64,13 +64,13 @@ class NotificationMongoRepositoryImpl @Inject()(mongo: ReactiveMongoComponent) e
 
     val query = Json.obj("registrationNumber" -> JsString(registrationNumber))
 
-    collection.find(query).one[StatusNotification](ReadPreference.primary)
+    collection.find(query, None).one[StatusNotification](ReadPreference.primary)
   }
 
   override def insertStatusNotification(statusNotification: StatusNotification): Future[Boolean] =
   // upsert set as true so that we either update the record if it already exists or insert a new one if not
-    collection.update(selector = Json.obj("registrationNumber" -> statusNotification.registrationNumber),
-      update = Json.obj("$set" -> Json.toJson(statusNotification)),
+    collection.update(ordered = false).one(Json.obj("registrationNumber" -> statusNotification.registrationNumber),
+      Json.obj("$set" -> Json.toJson(statusNotification)),
       upsert = true).map {
       lastError =>
         Logger.debug(s"[NotificationMongoRepository][insertByRegistrationNumber] : { statusNotification: $statusNotification," +
@@ -79,6 +79,6 @@ class NotificationMongoRepositoryImpl @Inject()(mongo: ReactiveMongoComponent) e
     }
 
   override def deleteStatusNotification(registrationNumber: String): Future[WriteResult] =
-    collection.remove(Json.obj("registrationNumber" -> registrationNumber))
+    collection.delete().one(Json.obj("registrationNumber" -> registrationNumber))
 
 }

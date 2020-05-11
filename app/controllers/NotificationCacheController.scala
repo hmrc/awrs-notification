@@ -35,36 +35,32 @@ class NotificationCacheController @Inject()(val auditConnector: AuditConnector,
                                                with Auditable {
 
   def getNotification(registrationNumber: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      notificationService.findNotification(registrationNumber) map {
-        case Some(notification) => Ok(Json.toJson(notification))
-        case _ => NotFound
-      }
+    notificationService.findNotification(registrationNumber) map {
+      case Some(notification) => Ok(Json.toJson(notification))
+      case _ => NotFound
+    }
   }
 
   def deleteNotification(registrationNumber: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      notificationService.deleteNotification(registrationNumber) map {
-        case (true, _) => Ok
-        case (false, Some(error)) => InternalServerError(error)
-        case _ => InternalServerError
-      }
+    notificationService.deleteNotification(registrationNumber) map {
+      case (true, _) => Ok
+      case (false, Some(error)) => InternalServerError(error)
+      case _ => InternalServerError
+    }
   }
 
   def getNotificationViewedStatus(registrationNumber: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      notificationService.findNotificationViewedStatus(registrationNumber) map {
-        case Some(viewedStatus) => Ok(Json.toJson[ViewedStatusResponse](viewedStatus))
-        case _ => Ok(Json.toJson(ViewedStatusResponse(false)))
-      }
+    notificationService.findNotificationViewedStatus(registrationNumber) map {
+      case Some(viewedStatus) => Ok(Json.toJson[ViewedStatusResponse](viewedStatus))
+      case _ => Ok(Json.toJson(ViewedStatusResponse(false)))
+    }
   }
 
   def markAsViewed(registrationNumber: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      notificationService.markAsViewed(registrationNumber) map {
-        case (true, _) => Ok
-        case (false, Some(error)) => InternalServerError(error)
-        case _ => InternalServerError
-      }
+    notificationService.markAsViewed(registrationNumber) map {
+      case (true, _) => Ok
+      case (false, Some(error)) => InternalServerError(error)
+      case _ => InternalServerError
+    }
   }
 }

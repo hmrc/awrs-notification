@@ -12,6 +12,3 @@ POST        /email/withdrawn                       controllers.EmailController.s
 POST        /email/confirmation/event              controllers.EmailController.receiveEmailEvent(apiType : String, applicationReference: String, submissionDate : String)
 POST        /email/cancellation/event              controllers.EmailController.receiveEmailEvent(apiType : String, applicationReference: String, submissionDate : String)
 POST        /email/withdrawn/event                 controllers.EmailController.receiveEmailEvent(apiType : String, applicationReference: String, submissionDate : String)
-
-
-

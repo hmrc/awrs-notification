@@ -22,7 +22,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.Assertion
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -57,43 +57,49 @@ class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with Sc
   "NotificationCacheController" should {
 
     "return 200 status when the notification is returned successfully" in {
-      when(mockNotificationCacheService.findNotification(any())(any())).thenReturn(Future.successful(Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"), Some(ContactTypes.MTRJ), Some("04"), Some("2017-04-01T0013:07:11")))))
+      when(mockNotificationCacheService.findNotification(any())).thenReturn(
+        Future.successful(
+          Some(StatusNotification(Some("XXAW00000123488"), Some("123456789333"),
+          Some(ContactTypes.MTRJ), Some("04"), Some("2017-04-01T0013:07:11"))))
+      )
 
       val result = notificationCacheController.getNotification("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe OK
     }
 
     "return 404 status when the notification is not cached for valid contact types" in {
-      when(mockNotificationCacheService.findNotification(any())(any())).thenReturn(Future.successful(None))
+      when(mockNotificationCacheService.findNotification(any())).thenReturn(Future.successful(None))
 
       val result = notificationCacheController.getNotification("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe NOT_FOUND
     }
 
     "return 200 when the notification delete is called successfully " in {
-      when(mockNotificationCacheService.deleteNotification(any())(any())).thenReturn(Future.successful((true, None)))
+      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful((true, None)))
       val result = notificationCacheController.deleteNotification("XXAW00000123488").apply(FakeRequest())
       status(result) shouldBe OK
     }
 
     "return 500 when the notification delete fails unexpectedly " in {
-      when(mockNotificationCacheService.deleteNotification(any())(any())).thenReturn(Future.successful((false, None)))
+      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful((false, None)))
       val result = notificationCacheController.deleteNotification("XXAW00000123488").apply(FakeRequest())
-      status(result) shouldBe 500
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 500 when the notification delete fails unexpectedly with an error message" in {
       val errorMsg = "Error"
-      when(mockNotificationCacheService.deleteNotification(any())(any())).thenReturn(Future.successful((false, Some(errorMsg))))
+      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful((false, Some(errorMsg))))
       val result = notificationCacheController.deleteNotification("XXAW00000123488").apply(FakeRequest())
-      status(result) shouldBe 500
+      status(result) shouldBe INTERNAL_SERVER_ERROR
       val doc = contentAsString(result)
       doc.toString shouldBe errorMsg
     }
 
     "return 200 status and the stored status when the notification viewed status is returned successfully from mongo" in {
       def test(storedViewed: Boolean): Assertion = {
-        when(mockNotificationCacheService.findNotificationViewedStatus(any())(any())).thenReturn(Future.successful(Some(ViewedStatus(Some("XXAW00000123488"), Some(storedViewed)))))
+        when(mockNotificationCacheService.findNotificationViewedStatus(any())).thenReturn(
+          Future.successful(Some(ViewedStatus(Some("XXAW00000123488"), Some(storedViewed))))
+        )
 
         val result = notificationCacheController.getNotificationViewedStatus("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
         status(result) shouldBe OK
@@ -104,29 +110,29 @@ class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with Sc
 
     // false is returned because this can only occur on a first visited by a user before a notification was committed to the cache
     "return 200 status and false for viewed when the notification viewed status is not stored in mongo" in {
-      when(mockNotificationCacheService.findNotificationViewedStatus(any())(any())).thenReturn(Future.successful(None))
+      when(mockNotificationCacheService.findNotificationViewedStatus(any())).thenReturn(Future.successful(None))
 
       val result = notificationCacheController.getNotificationViewedStatus("XXAW00000123488").apply(FakeRequest().withJsonBody(Json.obj()))
       Json.parse(contentAsString(result)).as[ViewedStatus].viewed.get shouldBe false
     }
 
     "return 200 when the mark as viewed call is called successfully " in {
-      when(mockNotificationCacheService.markAsViewed(any())(any())).thenReturn(Future.successful(true, None))
+      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(Tuple2(true, None)))
       val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
       status(result) shouldBe OK
     }
 
     "return 500 when the mark as viewed call fails unexpectedly " in {
-      when(mockNotificationCacheService.markAsViewed(any())(any())).thenReturn(Future.successful(false, None))
+      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(Tuple2(false, None)))
       val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
-      status(result) shouldBe 500
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 500 when the mark as viewed call  fails unexpectedly with an error message" in {
       val errorMsg = "Error"
-      when(mockNotificationCacheService.markAsViewed(any())(any())).thenReturn(Future.successful(false, Some(errorMsg)))
+      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(Tuple2(false, Some(errorMsg))))
       val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
-      status(result) shouldBe 500
+      status(result) shouldBe INTERNAL_SERVER_ERROR
       val doc = contentAsString(result)
       doc.toString shouldBe errorMsg
     }
