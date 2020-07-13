@@ -20,15 +20,15 @@ import play.sbt.PlayImport._
 
 private object AppDependencies {
 
-  private val domainVersion = "5.6.0-play-26"
-  private val playReactivemongoVersion = "7.22.0-play-26"
+  private val domainVersion = "5.9.0-play-26"
+  private val playReactivemongoVersion = "7.30.0-play-26"
   private val hmrcTestVersion = "3.9.0-play-26"
   private val emailAddress = "3.4.0"
   private val mockitoVersion = "3.3.3"
   private val scalatestPlusPlayVersion = "3.1.3"
   private val jSoupVersion = "1.12.2"
   private val pegdownVersion = "1.6.0"
-  private val bootstrapPlayVersion = "1.3.0"
+  private val bootstrapPlayVersion = "1.13.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
