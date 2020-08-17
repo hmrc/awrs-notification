@@ -17,7 +17,6 @@
 package repositories
 
 import models.ContactTypes.ContactType
-import play.api.Logger
 import play.api.libs.json.{JsString, Json, OFormat}
 import javax.inject.Inject
 import play.modules.reactivemongo.ReactiveMongoComponent
@@ -73,7 +72,7 @@ class NotificationMongoRepositoryImpl @Inject()(mongo: ReactiveMongoComponent) e
       Json.obj("$set" -> Json.toJson(statusNotification)),
       upsert = true).map {
       lastError =>
-        Logger.debug(s"[NotificationMongoRepository][insertByRegistrationNumber] : { statusNotification: $statusNotification," +
+        logger.debug(s"[NotificationMongoRepository][insertByRegistrationNumber] : { statusNotification: $statusNotification," +
           s" result: ${lastError.ok}, errors: ${lastError.errmsg} }")
         lastError.ok
     }

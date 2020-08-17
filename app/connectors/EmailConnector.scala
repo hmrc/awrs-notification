@@ -19,7 +19,7 @@ package connectors
 import javax.inject.{Inject, Named}
 import models.SendEmailRequest
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import play.api.Logger
+import play.api.Logging
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class EmailConnector @Inject()(http: DefaultHttpClient,
                                  val config: ServicesConfig,
-                                 @Named("appName") val appName: String) extends RawResponseReads {
+                                 @Named("appName") val appName: String) extends RawResponseReads with Logging {
 
   lazy val serviceURL: String = config.baseUrl(serviceName = "email")
   val sendEmailURI = "/hmrc/email"
@@ -40,7 +40,7 @@ class EmailConnector @Inject()(http: DefaultHttpClient,
 
     http.POST(postUrl, emailData) map {
       response =>
-        Logger.warn("[API12] Send Email request sent to EMAIL microservice" + response.body)
+        logger.warn("[API12] Send Email request sent to EMAIL microservice" + response.body)
         response
     }
   }

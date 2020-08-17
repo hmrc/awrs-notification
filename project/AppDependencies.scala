@@ -20,22 +20,22 @@ import play.sbt.PlayImport._
 
 private object AppDependencies {
 
-  private val domainVersion = "5.9.0-play-26"
-  private val playReactivemongoVersion = "7.30.0-play-26"
+  private val domainVersion = "5.9.0-play-27"
+  private val playReactivemongoVersion = "7.30.0-play-27"
   private val hmrcTestVersion = "3.9.0-play-26"
   private val emailAddress = "3.5.0"
   private val mockitoVersion = "3.3.3"
-  private val scalatestPlusPlayVersion = "3.1.3"
-  private val jSoupVersion = "1.12.2"
+  private val scalatestPlusPlayVersion = "4.0.3"
+  private val jSoupVersion = "1.13.1"
   private val pegdownVersion = "1.6.0"
-  private val bootstrapPlayVersion = "1.14.0"
+  private val bootstrapPlayVersion = "2.24.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc" %% "simple-reactivemongo" % playReactivemongoVersion,
-    "uk.gov.hmrc" %% "bootstrap-play-26"    % bootstrapPlayVersion,
-    "uk.gov.hmrc" %% "domain"               % domainVersion,
-    "uk.gov.hmrc" %% "emailaddress"         % emailAddress
+    "uk.gov.hmrc" %% "simple-reactivemongo"         % playReactivemongoVersion,
+    "uk.gov.hmrc" %% "bootstrap-backend-play-27"    % bootstrapPlayVersion,
+    "uk.gov.hmrc" %% "domain"                       % domainVersion,
+    "uk.gov.hmrc" %% "emailaddress"                 % emailAddress
   )
 
   trait TestDependencies {

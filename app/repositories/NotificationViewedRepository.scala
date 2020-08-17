@@ -16,7 +16,6 @@
 
 package repositories
 
-import play.api.Logger
 import play.api.libs.json.{JsString, Json, OFormat}
 import javax.inject.Inject
 import play.modules.reactivemongo.ReactiveMongoComponent
@@ -68,7 +67,7 @@ class NotificationViewedMongoRepositoryImpl @Inject()(mongo: ReactiveMongoCompon
   override def insertViewedStatus(viewedStatus: ViewedStatus): Future[Boolean] =
     updateCore(viewedStatus).map {
       lastError =>
-        Logger.debug(s"[NotificationViewedRepository][insertViewedStatus] : { viewedStatus: $viewedStatus, " +
+        logger.debug(s"[NotificationViewedRepository][insertViewedStatus] : { viewedStatus: $viewedStatus, " +
           s"result: ${lastError.ok}, errors: ${lastError.errmsg} }")
         lastError.ok
     }

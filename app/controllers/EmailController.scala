@@ -17,10 +17,10 @@
 package controllers
 
 import audit.Auditable
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import javax.inject.{Inject, Named}
 import models.{CallBackEventList, EmailResponse}
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import services.EmailService
@@ -37,7 +37,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 class EmailController @Inject()(val auditConnector: AuditConnector,
                                      val emailService: EmailService,
                                      cc: ControllerComponents,
-                                     @Named("appName") val appName: String) extends BackendController(cc)
+                                     @Named("appName") val appName: String) extends BackendController(cc) with Logging
                                       with Auditable {
 
   def sendNotificationEmail(registrationNumber: String): Action[AnyContent] = Action.async {
@@ -95,7 +95,7 @@ class EmailController @Inject()(val auditConnector: AuditConnector,
       case js: AnyContentAsJson =>
         responseFun.apply(js.json)
       case _ =>
-        Logger.warn("[API12] Invalid request body type passed to microservice - just JSON accepted")
+        logger.warn("[API12] Invalid request body type passed to microservice - just JSON accepted")
         Future.successful(InternalServerError(JsonConstructor.constructErrorJson(invalidContentType)))
     }
   }
@@ -132,10 +132,10 @@ class EmailController @Inject()(val auditConnector: AuditConnector,
             //configuration.getString(event.eventType.toLowerCase) match {
             callBackEvents(event.eventType.toLowerCase) match {
               case Some(_) =>
-                Logger.warn(s"[API$apiType] Email Callback Event Received: ${event.eventType}")
+                logger.warn(s"[API$apiType] Email Callback Event Received: ${event.eventType}")
                 sendDataEvent(transactionName = "Email " + event.eventType, detail = auditMap, eventType = auditEventType)
               case None =>
-                Logger.warn(s"[API$apiType] No need to audit the Event Received: ${event.eventType}")
+                logger.warn(s"[API$apiType] No need to audit the Event Received: ${event.eventType}")
             }
         }
         Future.successful(Ok)
