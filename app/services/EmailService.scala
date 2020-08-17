@@ -26,7 +26,7 @@ import connectors.EmailConnector
 import models.AwrsValidator._
 import models.{EmailRequest, EmailResponse, PushNotificationRequest, SendEmailRequest}
 import org.joda.time.DateTime
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json._
 import uk.gov.hmrc.emailaddress.EmailAddress
 import utils.ErrorHandling._
@@ -42,7 +42,7 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
                              val emailConnector: EmailConnector,
                              val notificationService: NotificationCacheService,
                              val config: ServicesConfig,
-                             @Named("appName") val appName: String) extends Auditable {
+                             @Named("appName") val appName: String) extends Auditable with Logging {
 
   lazy val TransactionName = "Send Email Request"
 
@@ -53,11 +53,11 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
         matchTemplateAndRegNumber(notification, registrationNumber, host)
 
       case Failure(ex: JsResultException) =>
-        Logger.warn("[API12] Email service JsResultException: " + ex.errors)
+        logger.warn("[API12] Email service JsResultException: " + ex.errors)
         Future.successful(getValidationError(ex.errors))
 
       case Failure(e) =>
-        Logger.warn("[API12] Email service error: " + e.getMessage)
+        logger.warn("[API12] Email service error: " + e.getMessage)
         Future.successful(EmailResponse(INTERNAL_SERVER_ERROR, Some(e.getMessage)))
     }
 
@@ -109,15 +109,15 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
             sendEmailRequest(logName = s"API $action", emailRequest)
 
           case _ =>
-            Logger.warn(s"[API $action] Email service error: " + invalidTemplate)
+            logger.warn(s"[API $action] Email service error: " + invalidTemplate)
             Future.successful(EmailResponse(SERVICE_UNAVAILABLE, Some(invalidTemplate)))
         }
       case Failure(ex: JsResultException) =>
-        Logger.warn(s"[API $action] Email service JsResultException: " + ex.errors)
+        logger.warn(s"[API $action] Email service JsResultException: " + ex.errors)
         Future.successful(getValidationError(ex.errors))
 
       case Failure(e) =>
-        Logger.warn(s"[API $action] Email service error: " + e.getMessage)
+        logger.warn(s"[API $action] Email service error: " + e.getMessage)
         Future.successful(EmailResponse(INTERNAL_SERVER_ERROR, Some(e.getMessage)))
     }
   }
@@ -151,11 +151,11 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
 
         sendEmailRequest(logName = "API12", emailRequest)
       case (_, false) =>
-        Logger.warn("[API12] Email service error: " + invalidRegNumber)
+        logger.warn("[API12] Email service error: " + invalidRegNumber)
         Future.successful(EmailResponse(BAD_REQUEST, Some(invalidRegNumber)))
 
       case (_, _) =>
-        Logger.warn("[API12] Email service error: " + invalidTemplate)
+        logger.warn("[API12] Email service error: " + invalidTemplate)
         Future.successful(EmailResponse(SERVICE_UNAVAILABLE, Some(invalidTemplate)))
     }
 
@@ -164,21 +164,21 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
       response =>
         response.status match {
           case ACCEPTED =>
-            Logger.warn(s"[$logName] Email with template id: ${request.templateId} was sent successfully")
+            logger.warn(s"[$logName] Email with template id: ${request.templateId} was sent successfully")
             EmailResponse(OK, None)
           case BAD_REQUEST =>
-            Logger.warn(s"[$logName] Email connector returned Bad Request: " + extractResponseMessage(response))
+            logger.warn(s"[$logName] Email connector returned Bad Request: " + extractResponseMessage(response))
             EmailResponse(INTERNAL_SERVER_ERROR, Some(extractResponseMessage(response)))
           case _ =>
-            Logger.warn(s"[$logName] Email connector returned Error Response: " + extractResponseMessage(response))
+            logger.warn(s"[$logName] Email connector returned Error Response: " + extractResponseMessage(response))
             EmailResponse(SERVICE_UNAVAILABLE, Some(extractResponseMessage(response)))
         }
     } recover {
       case e: BadGatewayException =>
-        Logger.warn(s"[$logName] Email connector BadGatewayException: " + e.message)
+        logger.warn(s"[$logName] Email connector BadGatewayException: " + e.message)
         EmailResponse(SERVICE_UNAVAILABLE, Some(e.message))
       case e: Exception =>
-        Logger.warn(s"[$logName] Email connector Exception: " + e.getMessage)
+        logger.warn(s"[$logName] Email connector Exception: " + e.getMessage)
         EmailResponse(INTERNAL_SERVER_ERROR, Some(e.getMessage))
     }
 
