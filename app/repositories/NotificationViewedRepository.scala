@@ -16,16 +16,16 @@
 
 package repositories
 
-import play.api.libs.json.{JsString, Json, OFormat}
 import javax.inject.Inject
+import play.api.libs.json.{JsObject, JsString, Json, OFormat}
 import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.ReadPreference
+import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
+import reactivemongo.bson.{BSONDocument, BSONObjectID}
+import reactivemongo.play.json.ImplicitBSONHandlers._
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.ReadPreference
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,14 +54,15 @@ class NotificationViewedMongoRepositoryImpl @Inject()(mongo: ReactiveMongoCompon
 
   override def findViewedStatusByRegistrationNumber(registrationNumber: String): Future[Option[ViewedStatus]] = {
 
-    val query = Json.obj("registrationNumber" -> JsString(registrationNumber))
-    collection.find(query).one[ViewedStatus](ReadPreference.primary)
+    val query = BSONDocument("registrationNumber" -> JsString(registrationNumber))
+    collection.find(query, projection =
+      Option.empty[JsObject]).one[ViewedStatus](ReadPreference.primary)
   }
 
   // upsert set as true so that we either update the record if it already exists or insert a new one if not
   private def updateCore(viewedStatus: ViewedStatus) =
-  collection.update(selector = Json.obj("registrationNumber" -> viewedStatus.registrationNumber),
-    update = Json.obj("$set" -> Json.toJson(viewedStatus)),
+  collection.update(ordered = false).one(Json.obj("registrationNumber" -> viewedStatus.registrationNumber),
+    Json.obj("$set" -> Json.toJson(viewedStatus)),
     upsert = true)
 
   override def insertViewedStatus(viewedStatus: ViewedStatus): Future[Boolean] =
