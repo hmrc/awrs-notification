@@ -26,13 +26,13 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.ErrorNotifications._
 import play.api.http.Status._
+import uk.gov.hmrc.http._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -58,7 +58,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   def acceptedMock: OngoingStubbing[Future[HttpResponse]] =
-    when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(ACCEPTED)))
+    when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(ACCEPTED, "")))
 
   "EmailService for notification" should {
 
@@ -244,8 +244,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |""".stripMargin
 
       when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
-        responseHeaders = Map("Content-Type" -> Seq("application/json")),
-        responseJson = Some(Json.parse("{\"statusCode\": 400, \"message\": \"Template test does not exist\"}")))))
+        "{\"statusCode\": 400, \"message\": \"Template test does not exist\"}", Map.empty[String, Seq[String]])))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
         "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
@@ -262,14 +261,14 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |"contact_type": "REJR", "contact_number": "123456789012", "variation": false}""".stripMargin
 
       when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
-        responseHeaders = Map("Content-Type" -> Seq("application/json")), responseJson = Some(Json.parse("{\"hmm\": false}")))))
+        "{\"hmm\": false}", Map.empty[String, Seq[String]])))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
         "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
       )
 
       result.status shouldBe INTERNAL_SERVER_ERROR
-      result.errors.get shouldBe "{\"hmm\":false}"
+      result.errors.get shouldBe "{\"hmm\": false}"
     }
 
     "return 500 status with the failure message when email connector returns Bad Request with plain text body" in {
@@ -279,7 +278,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |""".stripMargin
 
       when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
-        responseHeaders = Map("Content-Type" -> Seq("text/plain")), responseString = Some("Validation Error"))))
+        "Validation Error", Map.empty[String, Seq[String]])))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
         "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
@@ -295,8 +294,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |{"name": "name", "email": "name@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": false}
           |""".stripMargin
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,
-        responseHeaders = Map("Content-Type" -> Seq("text/plain")), responseString = Some(""))))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "", Map.empty[String, Seq[String]])))
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
         "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
@@ -312,7 +310,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
           |"name": "name", "email": "name@example.com", "status": "04", "contact_type": "REJR",
           |"contact_number": "123456789012", "variation": false}""".stripMargin
 
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
       val result: EmailResponse = Await.result(
         emailService.sendNotificationEmail(Json.parse(inputJson), "XFAW00000123456", "")(hc = mockHeaderCarrier), 2.second
@@ -520,7 +518,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
     }
 
     "return 500 status when calls to send the email is unsuccessful" in {
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
       val result: EmailResponse = await(emailService.sendConfirmationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
@@ -547,7 +545,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
     }
 
     "return 500 status when calls to send the email is unsuccessful" in {
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
       val result: EmailResponse = await(emailService.sendCancellationEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
@@ -573,7 +571,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
     }
 
     "return 500 status when calls to send the email is unsuccessful" in {
-      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+      when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
       val result: EmailResponse = await(emailService.sendWithdrawnEmail(testEmailRequest, host = "")(hc = mockHeaderCarrier))
 
