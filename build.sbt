@@ -30,7 +30,7 @@ lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;app.*;config.*;Reverse.*;uk.gov.hmrc.*;prod.*;" +
-      "testOnlyDoNotUseInAppConf.*;connectors.*;models.*;repositories.*;",
+      "testOnlyDoNotUseInAppConf.*;connectors.*;repositories.*;",
     ScoverageKeys.coverageMinimum := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true,

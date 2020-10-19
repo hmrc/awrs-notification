@@ -40,22 +40,16 @@ object ApiTypes extends Enumeration {
   val API10: ApiTypes.Value = Value("api10")
   val API8: ApiTypes.Value = Value("api8")
 
-  implicit val reader: Reads[ApiTypes.Value] = new Reads[ApiTypes.Value] {
-
-    def reads(js: JsValue): JsResult[ApiTypes.Value] = js match {
-      case JsString(s) =>
-        Try(ApiTypes.withName(s)) match {
-          case Success(value) => JsSuccess(value)
-          case Failure(e) => JsError(invalidApiType)
-        }
-      case _ => JsError(errorExpectedString)
-    }
-
+  implicit val reader: Reads[ApiTypes.Value] = {
+    case JsString(s) =>
+      Try(ApiTypes.withName(s)) match {
+        case Success(value) => JsSuccess(value)
+        case Failure(_) => JsError(invalidApiType)
+      }
+    case _ => JsError(errorExpectedString)
   }
 
-  implicit val writer: Writes[ApiTypes.Value] = new Writes[ApiTypes.Value] {
-    def writes(apiType: ApiTypes.Value): JsValue = Json.toJson(apiType.toString)
-  }
+  implicit val writer: Writes[ApiTypes.Value] = (apiType: ApiTypes.Value) => Json.toJson(apiType.toString)
 
 }
 
