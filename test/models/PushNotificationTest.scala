@@ -23,6 +23,18 @@ import uk.gov.hmrc.play.test.UnitSpec
 class PushNotificationTest extends UnitSpec with GuiceOneAppPerSuite {
 
   "Push Notification" should {
+    "transform a PushNotification model into JSON" in {
+      val pushNotification: PushNotificationRequest = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), Some("123456789012"), false)
+
+      Json.toJson(pushNotification)
+    }
+
+    "transform a PushNotification model into JSON with missing data" in {
+      val pushNotification: PushNotificationRequest = PushNotificationRequest("name", "some@some.com", None, None, None, variation = false)
+
+      Json.toJson(pushNotification)
+    }
+
     "transform a valid JSON to PushNotification model object" in {
       val inputJson = Json.parse( """{"name":"name","email":"some@some.com","status":"04","contact_type":"REJR","contact_number":"123456789012","variation":false}""")
       val pushNotification = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), Some("123456789012"), false)
