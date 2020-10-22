@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
+import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import play.sbt.routes.RoutesKeys
 
@@ -30,7 +30,7 @@ lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;app.*;config.*;Reverse.*;uk.gov.hmrc.*;prod.*;" +
-      "testOnlyDoNotUseInAppConf.*;connectors.*;repositories.*;",
+      "testOnlyDoNotUseInAppConf.*;connectors.*;",
     ScoverageKeys.coverageMinimum := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true,
@@ -45,6 +45,14 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
+  .configs(IntegrationTest)
+  .settings(
+    addTestReportOption(IntegrationTest, "int-test-reports"),
+    inConfig(IntegrationTest)(Defaults.itSettings),
+    Keys.fork in IntegrationTest :=  false,
+    unmanagedSourceDirectories in IntegrationTest :=  (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
+    parallelExecution in IntegrationTest := false,
+  )
   .settings(
     Keys.fork in Test := true,
     scalaVersion := "2.12.11",

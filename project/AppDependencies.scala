@@ -39,7 +39,7 @@ private object AppDependencies {
   )
 
   trait TestDependencies {
-    lazy val scope: String = "test"
+    lazy val scope: String = "it,test"
     lazy val test : Seq[ModuleID] = Nil
   }
 
@@ -56,5 +56,16 @@ private object AppDependencies {
     }.test
   }
 
-  def apply(): Seq[ModuleID] = compile ++ Test()
+  object ITTest {
+    def apply(): Seq[ModuleID] = new TestDependencies {
+      override lazy val test: Seq[ModuleID] = Seq(
+        "org.pegdown" % "pegdown" % pegdownVersion % scope,
+        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalatestPlusPlayVersion % scope,
+        "com.github.tomakehurst" % "wiremock-jre8" % "2.27.2" % scope
+      )
+    }.test
+  }
+
+  def apply(): Seq[ModuleID] = compile ++ Test() ++ ITTest()
 }
