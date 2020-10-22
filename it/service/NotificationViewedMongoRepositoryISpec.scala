@@ -3,7 +3,7 @@ package service
 
 import helpers.{AssertionHelpers, IntegrationSpec}
 import play.api.test.FutureAwaits
-import repositories.{NotificationViewedMongoRepositoryImpl, StatusNotification, ViewedStatus}
+import repositories.{NotificationViewedMongoRepositoryImpl, ViewedStatus}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
