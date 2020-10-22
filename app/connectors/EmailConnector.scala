@@ -20,13 +20,10 @@ import javax.inject.{Inject, Named}
 import models.SendEmailRequest
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import play.api.Logging
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
-
 
 class EmailConnector @Inject()(http: DefaultHttpClient,
                                  val config: ServicesConfig,
