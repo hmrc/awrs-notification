@@ -27,6 +27,8 @@ trait Auditable {
 
   def appName: String
 
+
+
   def audit: Audit = new Audit(appName, auditConnector)
 
   def sendDataEvent(transactionName: String, path: String = "N/A",
