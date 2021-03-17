@@ -25,14 +25,13 @@ import org.joda.time.LocalDateTime
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import reactivemongo.api.commands.WriteResult.Message
 
-import concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
                                          val repository: NotificationRepository,
                                          val viewedRepository: NotificationViewedRepository,
-                                         @Named("appName") val appName: String) extends Auditable  {
+                                         @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends Auditable  {
 
   val dateFormat: String = "yyyy-MM-dd'T'HH:mm:ss"
   val fmt: DateTimeFormatter= DateTimeFormat.forPattern(dateFormat)

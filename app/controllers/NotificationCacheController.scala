@@ -24,14 +24,12 @@ import play.api.mvc._
 import services.NotificationCacheService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-
-import scala.concurrent.ExecutionContext.Implicits.global
-
+import scala.concurrent.ExecutionContext
 
 class NotificationCacheController @Inject()(val auditConnector: AuditConnector,
                                               val notificationService: NotificationCacheService,
                                               cc: ControllerComponents,
-                                              @Named("appName") val appName: String) extends BackendController(cc)
+                                              @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc)
                                                with Auditable {
 
   def getNotification(registrationNumber: String): Action[AnyContent] = Action.async {

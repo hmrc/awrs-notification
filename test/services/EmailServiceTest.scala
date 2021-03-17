@@ -35,10 +35,11 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockEmailConnector: EmailConnector = mock[EmailConnector]
   val mockNotificiationCacheService: NotificationCacheService = mock[NotificationCacheService]
 

@@ -30,9 +30,7 @@ import play.api.Logging
 import play.api.libs.json._
 import uk.gov.hmrc.emailaddress.EmailAddress
 import utils.ErrorHandling._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -42,7 +40,7 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
                              val emailConnector: EmailConnector,
                              val notificationService: NotificationCacheService,
                              val config: ServicesConfig,
-                             @Named("appName") val appName: String) extends Auditable with Logging {
+                             @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends Auditable with Logging {
 
   lazy val TransactionName = "Send Email Request"
 
