@@ -20,14 +20,13 @@ import javax.inject.{Inject, Named}
 import models.SendEmailRequest
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import play.api.Logging
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class EmailConnector @Inject()(http: DefaultHttpClient,
                                  val config: ServicesConfig,
-                                 @Named("appName") val appName: String) extends RawResponseReads with Logging {
+                                 @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends RawResponseReads with Logging {
 
   lazy val serviceURL: String = config.baseUrl(serviceName = "email")
   val sendEmailURI = "/hmrc/email"

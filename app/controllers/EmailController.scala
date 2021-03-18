@@ -28,8 +28,7 @@ import utils.JsonConstructor
 import utils.ErrorNotifications._
 import utils.EmailHelper._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -37,7 +36,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 class EmailController @Inject()(val auditConnector: AuditConnector,
                                      val emailService: EmailService,
                                      cc: ControllerComponents,
-                                     @Named("appName") val appName: String) extends BackendController(cc) with Logging
+                                     @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with Logging
                                       with Auditable {
 
   def sendNotificationEmail(registrationNumber: String): Action[AnyContent] = Action.async {

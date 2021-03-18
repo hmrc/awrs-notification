@@ -35,10 +35,11 @@ import services.NotificationCacheService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.test._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   implicit override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(Map(
       "metrics.enabled" -> false

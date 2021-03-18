@@ -29,9 +29,11 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.test._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EmailConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   val mockDefaultHttpClient: DefaultHttpClient = mock[DefaultHttpClient]
   val mockServicesConfig: ServicesConfig = mock[ServicesConfig]

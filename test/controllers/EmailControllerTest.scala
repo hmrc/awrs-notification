@@ -35,10 +35,11 @@ import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.test._
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockEmailService: EmailService = mock[EmailService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]

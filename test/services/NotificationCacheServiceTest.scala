@@ -31,10 +31,11 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockNotificationRepository: NotificationRepository = mock[NotificationRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val mockNotificationViewedRepository: NotificationViewedRepository = mock[NotificationViewedRepository]
