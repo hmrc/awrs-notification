@@ -21,7 +21,7 @@ import play.sbt.routes.RoutesKeys
 val appName: String = "awrs-notification"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
-lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
 lazy val playSettings : Seq[Setting[_]] = Seq.empty
 
 RoutesKeys.routesImport := Seq.empty
