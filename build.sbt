@@ -21,7 +21,7 @@ import play.sbt.routes.RoutesKeys
 val appName: String = "awrs-notification"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
-lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
 lazy val playSettings : Seq[Setting[_]] = Seq.empty
 
 RoutesKeys.routesImport := Seq.empty
@@ -63,7 +63,6 @@ lazy val microservice = Project(appName, file("."))
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
   )
   .settings(
-    resolvers += Resolver.bintrayRepo("hmrc", "releases"),
     resolvers += Resolver.jcenterRepo
   )
   .disablePlugins(JUnitXmlReportPlugin)
