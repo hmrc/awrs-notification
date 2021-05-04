@@ -25,9 +25,9 @@ addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.1.0")
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.5")
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.6.1")
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.7.3")
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.10")
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.13")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.8.0")
 
