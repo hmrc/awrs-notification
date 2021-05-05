@@ -40,7 +40,7 @@ class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with Guice
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val mockNotificationViewedRepository: NotificationViewedRepository = mock[NotificationViewedRepository]
   val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
-  override implicit lazy val app: Application = new GuiceApplicationBuilder().configure(Map("metrics.enabled" -> false)).build()
+  override implicit lazy val app: Application = new GuiceApplicationBuilder().build()
 
   val notificationCacheService: NotificationCacheService = new NotificationCacheService(mockAuditConnector, mockNotificationRepository,
     mockNotificationViewedRepository,"awrs")
