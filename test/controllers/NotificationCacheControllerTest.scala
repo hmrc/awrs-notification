@@ -40,7 +40,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  implicit override lazy val app: Application = new GuiceApplicationBuilder().build()
+  implicit override lazy val app: Application = new GuiceApplicationBuilder()
+    .configure(Map(
+      "metrics.enabled" -> false
+    )).build()
 
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val mockEmailConnector: EmailConnector = mock[EmailConnector]
