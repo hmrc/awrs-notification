@@ -35,7 +35,7 @@ import services.NotificationCacheService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import base.BaseSpec
 import scala.concurrent.{ExecutionContext, Future}
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+
 
 class NotificationCacheControllerTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 

@@ -19,7 +19,7 @@ package models
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json._
 import base.BaseSpec
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+
 
 class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 

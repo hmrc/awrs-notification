@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import base.BaseSpec
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class EmailConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {

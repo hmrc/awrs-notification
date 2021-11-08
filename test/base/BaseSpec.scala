@@ -16,7 +16,7 @@
 
 package base
 
-import org.scalatestplus.play.PlaySpec
+import org.scalatest._
 import akka.stream.Materializer
 import akka.util.ByteString
 import play.api.libs.json.{JsValue, Json}
@@ -24,8 +24,11 @@ import play.api.mvc.Result
 import java.nio.charset.Charset
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-trait BaseSpec extends PlaySpec {
+
+trait BaseSpec extends AnyWordSpec with Matchers with OptionValues {
   import scala.concurrent.duration._
   import scala.concurrent.{Await, Future}
 

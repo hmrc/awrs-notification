@@ -19,7 +19,7 @@ package config
 import models.ApiTypes.ApiType
 import models._
 import base.BaseSpec
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ConfigTest extends BaseSpec with GuiceOneAppPerSuite {
