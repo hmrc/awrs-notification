@@ -34,7 +34,6 @@ private object AppDependencies {
         "org.mockito"            %    "mockito-core"               % mockitoVersion           % scope,
         "org.scalatestplus.play" %%   "scalatestplus-play"         % scalatestPlusPlayVersion % scope,
         "org.scalatestplus"      %%   "scalatestplus-mockito"      % "1.0.0-M2"               % scope,
-        "com.typesafe.play"      %%   "play-test"                  % PlayVersion.current      % scope,
         "org.jsoup"              %    "jsoup"                      % jSoupVersion             % scope,
         "uk.gov.hmrc"            %%   "bootstrap-test-play-28"     % bootstrapPlayVersion     % scope
       )
@@ -45,8 +44,6 @@ private object AppDependencies {
     def apply(): Seq[ModuleID] = new TestDependencies {
       override lazy val test: Seq[ModuleID] = Seq(
         "org.pegdown"                  % "pegdown"                  % pegdownVersion % scope,
-        "com.typesafe.play"            %% "play-test"               % PlayVersion.current % scope,
-        "org.scalatestplus.play"       %% "scalatestplus-play"      % scalatestPlusPlayVersion % scope,
         "com.github.tomakehurst"       %  "wiremock-jre8"           % "2.31.0" % scope,
         "com.fasterxml.jackson.module" %% "jackson-module-scala"    % "2.13.0" % scope
       )
