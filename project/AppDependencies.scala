@@ -9,7 +9,7 @@ private object AppDependencies {
   private val emailAddress = "3.5.0"
   private val mockitoVersion = "4.0.0"
   private val scalatestPlusPlayVersion = "5.1.0"
-  private val jSoupVersion = "1.13.1"
+  private val jSoupVersion = "1.14.3"
   private val pegdownVersion = "1.6.0"
   private val bootstrapPlayVersion = "5.16.0"
 
@@ -36,7 +36,7 @@ private object AppDependencies {
         "org.scalatestplus"      %%   "scalatestplus-mockito"      % "1.0.0-M2"               % scope,
         "com.typesafe.play"      %%   "play-test"                  % PlayVersion.current      % scope,
         "org.jsoup"              %    "jsoup"                      % jSoupVersion             % scope,
-        "uk.gov.hmrc"            %% "bootstrap-test-play-28"  % "5.16.0" % scope
+        "uk.gov.hmrc"            %%   "bootstrap-test-play-28"     % bootstrapPlayVersion     % scope
       )
     }.test
   }
@@ -44,9 +44,9 @@ private object AppDependencies {
   object ITTest {
     def apply(): Seq[ModuleID] = new TestDependencies {
       override lazy val test: Seq[ModuleID] = Seq(
-        "org.pegdown" % "pegdown" % pegdownVersion % scope,
-        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % scalatestPlusPlayVersion % scope,
+        "org.pegdown"                  % "pegdown"                  % pegdownVersion % scope,
+        "com.typesafe.play"            %% "play-test"               % PlayVersion.current % scope,
+        "org.scalatestplus.play"       %% "scalatestplus-play"      % scalatestPlusPlayVersion % scope,
         "com.github.tomakehurst"       %  "wiremock-jre8"           % "2.31.0" % scope,
         "com.fasterxml.jackson.module" %% "jackson-module-scala"    % "2.13.0" % scope
       )

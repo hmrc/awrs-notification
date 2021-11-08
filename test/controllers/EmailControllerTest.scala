@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import base.BaseSpec
+import play.api.test.Helpers._
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
