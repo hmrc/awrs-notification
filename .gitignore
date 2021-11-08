@@ -31,3 +31,7 @@ test-result
 tmp
 .idea_modules
 bin
+.bloop
+.metals
+project/.bloop
+project/metals.sbt
