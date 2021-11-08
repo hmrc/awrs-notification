@@ -60,7 +60,7 @@ class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSui
   def acceptedMock: OngoingStubbing[Future[HttpResponse]] =
     when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(ACCEPTED, "")))
 
-  "EmailService for notification" must {
+  "EmailService for notification" should {
 
     "return 200 status when the email is sent successfully" in {
       val inputJson =
@@ -499,7 +499,7 @@ class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSui
 
   }
 
-  "EmailService for confirmation" must {
+  "EmailService for confirmation" should {
 
     "check format for now" in {
       val re = "^(([0-9])|([0-2][0-9])|([3][0-1])) (January|February|March|April|May|June|July|August|September|October|November|December) \\d{4}$".r
@@ -532,7 +532,7 @@ class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSui
     }
   }
 
-  "EmailService for cancellation" must {
+  "EmailService for cancellation" should {
     val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API10, businessName = "businessName",
       email = "example@example.com", deregistrationDateStr = Some("12-07-2019")))
 
@@ -559,7 +559,7 @@ class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSui
     }
   }
 
-  "EmailService for withdrawal" must {
+  "EmailService for withdrawal" should {
     val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API8, businessName = "businessName", email = "example@example.com"))
 
     "return 200 status when the email is sent successfully" in {

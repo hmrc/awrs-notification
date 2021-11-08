@@ -23,7 +23,7 @@ import base.BaseSpec
 
 class SendEmailRequestSpec extends BaseSpec with GuiceOneAppPerSuite {
 
-  "SendEmailRequest" must {
+  "SendEmailRequest" should {
     "transform a PushNotification model into JSON" in {
       val sendEmailRequest = SendEmailRequest(List(), "templateId", Map.empty[String, String], true, None)
 

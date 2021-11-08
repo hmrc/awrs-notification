@@ -44,7 +44,7 @@ class EmailConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures wi
 
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
-  "sendEmail" must {
+  "sendEmail" should {
     "return 204 status when an email is sent successfully" in {
       when(mockDefaultHttpClient.POST[Any, Any](any(), any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))

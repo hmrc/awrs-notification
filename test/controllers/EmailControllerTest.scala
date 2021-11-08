@@ -54,7 +54,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
 
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
-  "EmailController for notification" must {
+  "EmailController for notification" should {
 
     "return 204 status when the email is sent successfully" in {
       when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
@@ -206,7 +206,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
   }
 
-  "EmailController for withdrawn" must {
+  "EmailController for withdrawn" should {
     "return 204 status when the email is sent succesfully" in {
       when(mockEmailService.sendWithdrawnEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
@@ -258,7 +258,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
   }
 
-  "EmailController for cancellation" must {
+  "EmailController for cancellation" should {
     "return 204 status when the email is sent succesfully" in {
       when(mockEmailService.sendCancellationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
@@ -310,7 +310,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
   }
 
-  "EmailController for confirmation" must {
+  "EmailController for confirmation" should {
 
     "return 204 status when the email is sent successfully" in {
       when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))

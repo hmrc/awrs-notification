@@ -50,7 +50,7 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
     mockNotificationViewedRepository,"awrs")
 
 
-  "NotificationCacheService" must {
+  "NotificationCacheService" should {
     "return StatusNotification object when the notification is found in mongo" in {
       val notification = Some(StatusNotification(
         Some("XXAW00000123488"), Some("123456789333"),

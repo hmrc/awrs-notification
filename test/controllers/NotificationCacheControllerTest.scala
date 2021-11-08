@@ -55,7 +55,7 @@ class NotificationCacheControllerTest extends BaseSpec with MockitoSugar with Sc
     val notificationCacheController = new NotificationCacheController(mockAuditConnector, mockNotificationCacheService, cc, "awrs-notification")
   }
 
-  "NotificationCacheController" must {
+  "NotificationCacheController" should {
 
     "return 200 status when the notification is returned successfully" in {
       when(mockNotificationCacheService.findNotification(any())).thenReturn(

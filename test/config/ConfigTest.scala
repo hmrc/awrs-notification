@@ -42,7 +42,7 @@ class ConfigTest extends BaseSpec with GuiceOneAppPerSuite {
   def createConfirmationRequest(apiTypes: ApiType, isNewBusiness: Boolean) =
     EmailRequest(apiTypes, "my business",  "example@example.com", Some("010101"),isNewBusiness = Some(isNewBusiness))
 
-  "Config Test" must {
+  "Config Test" should {
     "load existing template from config (REJR)" in {
       val result = EmailConfig.getNotificationTemplate(createNotificationRequest(contactType = Some(ContactTypes.REJR)))
       result shouldBe UpdateApplicationTemplate

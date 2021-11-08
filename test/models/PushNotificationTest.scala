@@ -23,7 +23,7 @@ import base.BaseSpec
 
 class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 
-  "Push Notification" must {
+  "Push Notification" should {
     "transform a PushNotification model into JSON" in {
       val pushNotification: PushNotificationRequest = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), Some("123456789012"), false)
 
