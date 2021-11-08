@@ -27,17 +27,16 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.{ControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, _}
 import services.EmailService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.test._
-
+import base.BaseSpec
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockEmailService: EmailService = mock[EmailService]
@@ -54,7 +53,7 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
 
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
-  "EmailController for notification" should {
+  "EmailController for notification" must {
 
     "return 204 status when the email is sent successfully" in {
       when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
@@ -206,7 +205,7 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
     }
   }
 
-  "EmailController for withdrawn" should {
+  "EmailController for withdrawn" must {
     "return 204 status when the email is sent succesfully" in {
       when(mockEmailService.sendWithdrawnEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
@@ -258,7 +257,7 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
     }
   }
 
-  "EmailController for cancellation" should {
+  "EmailController for cancellation" must {
     "return 204 status when the email is sent succesfully" in {
       when(mockEmailService.sendCancellationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
@@ -310,7 +309,7 @@ class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures w
     }
   }
 
-  "EmailController for confirmation" should {
+  "EmailController for confirmation" must {
 
     "return 204 status when the email is sent successfully" in {
       when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))

@@ -18,11 +18,12 @@ package models
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json._
-import uk.gov.hmrc.play.test.UnitSpec
+import base.BaseSpec
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
-class PushNotificationTest extends UnitSpec with GuiceOneAppPerSuite {
+class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 
-  "Push Notification" should {
+  "Push Notification" must {
     "transform a PushNotification model into JSON" in {
       val pushNotification: PushNotificationRequest = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), Some("123456789012"), false)
 

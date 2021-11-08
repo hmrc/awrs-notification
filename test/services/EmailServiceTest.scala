@@ -29,15 +29,15 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.test.UnitSpec
+import base.BaseSpec
 import utils.ErrorNotifications._
 import play.api.http.Status._
 import uk.gov.hmrc.http._
-
+import org.scalatest.matchers.should.Matchers._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterEach {
+class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockEmailConnector: EmailConnector = mock[EmailConnector]
@@ -61,7 +61,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
   def acceptedMock: OngoingStubbing[Future[HttpResponse]] =
     when(emailService.emailConnector.sendEmail(any())(any())).thenReturn(Future.successful(HttpResponse(ACCEPTED, "")))
 
-  "EmailService for notification" should {
+  "EmailService for notification" must {
 
     "return 200 status when the email is sent successfully" in {
       val inputJson =
@@ -500,7 +500,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
 
   }
 
-  "EmailService for confirmation" should {
+  "EmailService for confirmation" must {
 
     "check format for now" in {
       val re = "^(([0-9])|([0-2][0-9])|([3][0-1])) (January|February|March|April|May|June|July|August|September|October|November|December) \\d{4}$".r
@@ -533,7 +533,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
     }
   }
 
-  "EmailService for cancellation" should {
+  "EmailService for cancellation" must {
     val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API10, businessName = "businessName",
       email = "example@example.com", deregistrationDateStr = Some("12-07-2019")))
 
@@ -560,7 +560,7 @@ class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
     }
   }
 
-  "EmailService for withdrawal" should {
+  "EmailService for withdrawal" must {
     val testEmailRequest: JsValue = Json.toJson(EmailRequest(ApiTypes.API8, businessName = "businessName", email = "example@example.com"))
 
     "return 200 status when the email is sent successfully" in {

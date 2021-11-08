@@ -27,11 +27,11 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.play.test._
-
+import base.BaseSpec
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+class EmailConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
@@ -44,7 +44,7 @@ class EmailConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures wi
 
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
-  "sendEmail" should {
+  "sendEmail" must {
     "return 204 status when an email is sent successfully" in {
       when(mockDefaultHttpClient.POST[Any, Any](any(), any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))

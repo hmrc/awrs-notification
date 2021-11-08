@@ -33,11 +33,11 @@ import play.api.test.Helpers._
 import repositories.{StatusNotification, ViewedStatus}
 import services.NotificationCacheService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.test._
-
+import base.BaseSpec
 import scala.concurrent.{ExecutionContext, Future}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
-class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+class NotificationCacheControllerTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   implicit override lazy val app: Application = new GuiceApplicationBuilder()
@@ -55,7 +55,7 @@ class NotificationCacheControllerTest extends UnitSpec with MockitoSugar with Sc
     val notificationCacheController = new NotificationCacheController(mockAuditConnector, mockNotificationCacheService, cc, "awrs-notification")
   }
 
-  "NotificationCacheController" should {
+  "NotificationCacheController" must {
 
     "return 200 status when the notification is returned successfully" in {
       when(mockNotificationCacheService.findNotification(any())).thenReturn(

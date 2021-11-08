@@ -18,10 +18,11 @@ package config
 
 import models.ApiTypes.ApiType
 import models._
-import uk.gov.hmrc.play.test.UnitSpec
+import base.BaseSpec
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class ConfigTest extends UnitSpec with GuiceOneAppPerSuite {
+class ConfigTest extends BaseSpec with GuiceOneAppPerSuite {
 
   lazy val UpdateRegistrationTemplate = Some("awrs_notification_template_reg_change")
   lazy val UpdateApplicationTemplate = Some("awrs_notification_template_app_change")
@@ -41,7 +42,7 @@ class ConfigTest extends UnitSpec with GuiceOneAppPerSuite {
   def createConfirmationRequest(apiTypes: ApiType, isNewBusiness: Boolean) =
     EmailRequest(apiTypes, "my business",  "example@example.com", Some("010101"),isNewBusiness = Some(isNewBusiness))
 
-  "Config Test" should {
+  "Config Test" must {
     "load existing template from config (REJR)" in {
       val result = EmailConfig.getNotificationTemplate(createNotificationRequest(contactType = Some(ContactTypes.REJR)))
       result shouldBe UpdateApplicationTemplate
