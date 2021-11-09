@@ -18,9 +18,10 @@ package models
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json._
-import uk.gov.hmrc.play.test.UnitSpec
+import base.BaseSpec
 
-class PushNotificationTest extends UnitSpec with GuiceOneAppPerSuite {
+
+class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 
   "Push Notification" should {
     "transform a PushNotification model into JSON" in {

@@ -27,17 +27,17 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.{ControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, _}
 import services.EmailService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.test._
+import base.BaseSpec
+import play.api.test.Helpers._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-class EmailControllerTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockEmailService: EmailService = mock[EmailService]

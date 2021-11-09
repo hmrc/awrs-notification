@@ -27,11 +27,11 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.play.test._
+import base.BaseSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+class EmailConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 

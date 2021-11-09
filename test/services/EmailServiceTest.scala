@@ -29,15 +29,14 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.test.UnitSpec
+import base.BaseSpec
 import utils.ErrorNotifications._
 import play.api.http.Status._
 import uk.gov.hmrc.http._
-
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-class EmailServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterEach {
+class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockEmailConnector: EmailConnector = mock[EmailConnector]

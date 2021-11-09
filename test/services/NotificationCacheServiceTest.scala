@@ -28,12 +28,12 @@ import reactivemongo.api.commands.WriteResult.Message
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.test.UnitSpec
+import base.BaseSpec
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-class NotificationCacheServiceTest extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
+class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockNotificationRepository: NotificationRepository = mock[NotificationRepository]
