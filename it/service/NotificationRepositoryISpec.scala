@@ -6,13 +6,16 @@ import play.api.test.FutureAwaits
 import repositories.{NotificationMongoRepositoryImpl, StatusNotification}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class NotificationRepositoryISpec extends IntegrationSpec with AssertionHelpers with FutureAwaits {
   class Setup {
     val repo: NotificationMongoRepositoryImpl = app.injector.instanceOf[NotificationMongoRepositoryImpl]
 
-    await(repo.drop)
+    await(repo.collection.drop().head())
     await(repo.ensureIndexes)
+
+    def getRepoCollectionCount: Future[Long] = repo.collection.countDocuments().toFuture()
   }
 
   override def additionalConfig(a: Map[String, Any]): Map[String, Any] = Map()
@@ -22,9 +25,9 @@ class NotificationRepositoryISpec extends IntegrationSpec with AssertionHelpers 
       "insert a status notification" in new Setup {
         val statusNotification: StatusNotification = StatusNotification(Some("regNumber"), None, None, None, None)
 
-        val res: Int = await {
+        val res: Long = await {
           repo.insertStatusNotification(statusNotification).flatMap {
-            _ => repo.count
+            _ => getRepoCollectionCount
           }
         }
 
@@ -54,7 +57,7 @@ class NotificationRepositoryISpec extends IntegrationSpec with AssertionHelpers 
 
         await {
           repo.insertStatusNotification(statusNotification).flatMap {
-            _ => repo.count
+            _ => getRepoCollectionCount
               .map {_ mustBe 1}
               .flatMap { _ =>
                 repo.deleteStatusNotification(regNumber)
@@ -63,7 +66,7 @@ class NotificationRepositoryISpec extends IntegrationSpec with AssertionHelpers 
         }
 
         await {
-          repo.count map {_ mustBe 0}
+          getRepoCollectionCount map {_ mustBe 0}
         }
       }
     }

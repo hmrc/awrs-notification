@@ -17,16 +17,15 @@
 package services
 
 import audit.Auditable
-import javax.inject.{Inject, Named}
-import models.PushNotificationRequest
-import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import models.ContactTypes._
+import models.PushNotificationRequest
 import org.joda.time.LocalDateTime
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
-import reactivemongo.api.commands.WriteResult.Message
-
-import scala.concurrent.{ExecutionContext, Future}
+import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+
+import javax.inject.{Inject, Named}
+import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
                                          val repository: NotificationRepository,
@@ -63,14 +62,10 @@ class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
     }
   }
 
-  def deleteNotification(registrationNumber: String): Future[(Boolean, Option[String])] =
+  def deleteNotification(registrationNumber: String): Future[Boolean] =
     repository.deleteStatusNotification(registrationNumber) map {
       result =>
-        if (result.ok) {
-          (true, None)
-        } else {
-          (false, Message.unapply(result))
-        }
+        result.wasAcknowledged()
     }
 
   def storeNotificationViewedStatus(viewedStatus: Boolean, registrationNumber: String): Future[Boolean] = {
@@ -84,14 +79,10 @@ class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
       case _ => None
     }
 
-  def markAsViewed(registrationNumber: String): Future[(Boolean, Option[String])] =
+  def markAsViewed(registrationNumber: String): Future[Boolean] =
     viewedRepository.markAsViewed(registrationNumber) map {
       result =>
-        if (result.ok) {
-          (true, None)
-        } else {
-          (false, Message.unapply(result))
-        }
+        result.wasAcknowledged()
     }
 
 }

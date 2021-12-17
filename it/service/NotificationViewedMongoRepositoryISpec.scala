@@ -6,13 +6,16 @@ import play.api.test.FutureAwaits
 import repositories.{NotificationViewedMongoRepositoryImpl, ViewedStatus}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class NotificationViewedMongoRepositoryISpec extends IntegrationSpec with AssertionHelpers with FutureAwaits {
   class Setup {
     val repo: NotificationViewedMongoRepositoryImpl = app.injector.instanceOf[NotificationViewedMongoRepositoryImpl]
 
-    await(repo.drop)
+    await(repo.collection.drop().head())
     await(repo.ensureIndexes)
+
+    def getRepoCollectionCount: Future[Long] = repo.collection.countDocuments().toFuture()
   }
 
   override def additionalConfig(a: Map[String, Any]): Map[String, Any] = Map()
@@ -22,9 +25,9 @@ class NotificationViewedMongoRepositoryISpec extends IntegrationSpec with Assert
       "insert a viewed status" in new Setup {
         val viewedStatus: ViewedStatus = ViewedStatus(Some("regNumber"), Some(true))
 
-        val res: Int = await {
+        val res: Long = await {
           repo.insertViewedStatus(viewedStatus).flatMap {
-            _ => repo.count
+            _ => getRepoCollectionCount
           }
         }
 
@@ -54,7 +57,7 @@ class NotificationViewedMongoRepositoryISpec extends IntegrationSpec with Assert
 
         await {
           repo.insertViewedStatus(viewedStatus).flatMap {
-            _ => repo.count
+            _ => getRepoCollectionCount
               .map {_ mustBe 1}
               .flatMap { _ =>
                 repo.markAsViewed(regNumber)

@@ -16,17 +16,16 @@
 
 package repositories
 
-import javax.inject.Inject
-import play.api.libs.json.{JsObject, JsString, Json, OFormat}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.ReadPreference
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
-import reactivemongo.play.json.ImplicitBSONHandlers._
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import org.mongodb.scala.bson.collection.Document
+import org.mongodb.scala.model._
+import org.mongodb.scala.result.UpdateResult
+import play.api.Logging
+import play.api.libs.json._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.play.http.logging.Mdc
+
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 case class ViewedStatus(registrationNumber: Option[String], viewed: Option[Boolean])
@@ -41,39 +40,54 @@ trait NotificationViewedRepository {
 
   def insertViewedStatus(viewedStatus: ViewedStatus): Future[Boolean]
 
-  def markAsViewed(registrationNumber: String): Future[WriteResult]
+  def markAsViewed(registrationNumber: String): Future[UpdateResult]
 
 }
 
-class NotificationViewedMongoRepositoryImpl @Inject()(mongo: ReactiveMongoComponent)(implicit ec: ExecutionContext) extends
-  ReactiveRepository[ViewedStatus, BSONObjectID]("viewedStatus", mongo.mongoConnector.db,
-    ViewedStatus.formats, ReactiveMongoFormats.objectIdFormats) with NotificationViewedRepository {
-
-  Mdc.preservingMdc(collection.indexesManager.ensure(Index(Seq("registrationNumber" -> IndexType.Ascending), name = Some("registrationNumber"), unique = true)))
+class NotificationViewedMongoRepositoryImpl @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends
+  PlayMongoRepository[ViewedStatus](
+    mongoComponent = mongoComponent,
+    collectionName = "viewedStatus",
+    domainFormat = ViewedStatus.formats,
+    indexes = Seq(
+      IndexModel(Indexes.ascending("registrationNumber"), IndexOptions().name("registrationNumber").unique(true))
+    )
+  ) with NotificationViewedRepository with Logging {
 
   override def findViewedStatusByRegistrationNumber(registrationNumber: String): Future[Option[ViewedStatus]] = {
 
-    val query = BSONDocument("registrationNumber" -> JsString(registrationNumber))
-    Mdc.preservingMdc(collection.find(query, projection =
-      Option.empty[JsObject]).one[ViewedStatus](ReadPreference.primary))
+    val query = Filters.equal("registrationNumber", registrationNumber)
+    Mdc.preservingMdc(
+      collection
+        .find(query)
+        .first()
+        .toFutureOption())
   }
 
   // upsert set as true so that we either update the record if it already exists or insert a new one if not
-  private def updateCore(viewedStatus: ViewedStatus) =
-    Mdc.preservingMdc(collection.update(ordered = false).one(Json.obj("registrationNumber" -> viewedStatus.registrationNumber),
-    Json.obj("$set" -> Json.toJson(viewedStatus)),
-    upsert = true))
+  private def updateCore(viewedStatus: ViewedStatus): Future[UpdateResult] = {
+
+    val viewedStatusBson = Document("$set" -> Document(Json.toJson(viewedStatus).toString()))
+
+    collection
+      .updateOne(
+        filter = Filters.equal("registrationNumber", Codecs.toBson(viewedStatus.registrationNumber)),
+        update = viewedStatusBson,
+        options = UpdateOptions().upsert(true)
+      )
+      .toFuture()
+  }
 
   override def insertViewedStatus(viewedStatus: ViewedStatus): Future[Boolean] =
     Mdc.preservingMdc {
       updateCore(viewedStatus)}.map {
         lastError =>
           logger.debug(s"[NotificationViewedRepository][insertViewedStatus] : { viewedStatus: $viewedStatus, " +
-            s"result: ${lastError.ok}, errors: ${lastError.errmsg} }")
-          lastError.ok
+            s"result: ${lastError.wasAcknowledged()}")
+          lastError.wasAcknowledged()
       }
 
-  override def markAsViewed(registrationNumber: String): Future[WriteResult] =
+  override def markAsViewed(registrationNumber: String): Future[UpdateResult] =
     Mdc.preservingMdc(updateCore(ViewedStatus(Some(registrationNumber), Some(true))))
 
 }

@@ -381,7 +381,7 @@ class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSui
     "return 400 status with the failure message when invalid variation is passed" in {
       val inputJson =
         """
-          |{"name": "name", "email": "name@example.com", "status": "0sad", "contact_type": "REJR", "contact_number": "123456789012", "variation": "false"}
+          |{"name": "name", "email": "name@example.com", "status": "04", "contact_type": "REJR", "contact_number": "123456789012", "variation": "false"}
           |""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),
