@@ -16,18 +16,17 @@
 
 package repositories
 
-import models.ContactTypes.ContactType
-import play.api.libs.json.{JsString, Json, OFormat}
 import javax.inject.Inject
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.ReadPreference
+import models.ContactTypes.ContactType
+import org.mongodb.scala.bson.collection.Document
+import org.mongodb.scala.model._
+import org.mongodb.scala.result.DeleteResult
+import play.api.Logging
+import play.api.libs.json._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.play.http.logging.Mdc
+
 import scala.concurrent.{ExecutionContext, Future}
 
 case class StatusNotification(registrationNumber: Option[String],
@@ -46,38 +45,59 @@ trait NotificationRepository {
 
   def insertStatusNotification(statusNotification: StatusNotification): Future[Boolean]
 
-  def deleteStatusNotification(registrationNumber: String): Future[WriteResult]
+  def deleteStatusNotification(registrationNumber: String): Future[DeleteResult]
 
   val maxRecords = 1000
 
 }
 
-class NotificationMongoRepositoryImpl @Inject()(mongo: ReactiveMongoComponent)(implicit ec: ExecutionContext) extends
-  ReactiveRepository[StatusNotification, BSONObjectID]("statusNotification", mongo.mongoConnector.db,
-    StatusNotification.formats, ReactiveMongoFormats.objectIdFormats) with NotificationRepository {
-
-  Mdc.preservingMdc(collection.indexesManager.ensure(Index(Seq("registrationNumber" -> IndexType.Ascending), name = Some("registrationNumber"), unique = true)))
+class NotificationMongoRepositoryImpl @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends
+  PlayMongoRepository[StatusNotification](
+    mongoComponent = mongoComponent,
+    collectionName = "statusNotification",
+    domainFormat = StatusNotification.formats,
+    indexes = Seq(
+      IndexModel(Indexes.ascending("registrationNumber"), IndexOptions().name("registrationNumber").unique(true))
+    )
+  ) with NotificationRepository with Logging {
 
   override def findByRegistrationNumber(registrationNumber: String): Future[Option[StatusNotification]] = {
 
-    val query = Json.obj("registrationNumber" -> JsString(registrationNumber))
-
-    Mdc.preservingMdc(collection.find(query, None).one[StatusNotification](ReadPreference.primary))
+    val query = Filters.equal("registrationNumber", registrationNumber)
+    Mdc.preservingMdc(
+      collection
+        .find(query)
+        .first()
+        .toFutureOption())
   }
 
-  override def insertStatusNotification(statusNotification: StatusNotification): Future[Boolean] =
+  override def insertStatusNotification(statusNotification: StatusNotification): Future[Boolean] = {
   // upsert set as true so that we either update the record if it already exists or insert a new one if not
+
+    val statusNotificationBson = Document("$set" -> Codecs.toBson(statusNotification))
     Mdc.preservingMdc {
-      collection.update(ordered = false).one(Json.obj("registrationNumber" -> statusNotification.registrationNumber),
-        Json.obj("$set" -> Json.toJson(statusNotification)),
-        upsert = true)}.map {
+      collection
+        .updateOne(
+          filter = Filters.equal("registrationNumber", Codecs.toBson(statusNotification.registrationNumber)),
+          update = statusNotificationBson,
+          options = UpdateOptions().upsert(true)
+        )
+        .toFuture()
+    }.map {
         lastError =>
           logger.debug(s"[NotificationMongoRepository][insertByRegistrationNumber] : { statusNotification: $statusNotification," +
-            s" result: ${lastError.ok}, errors: ${lastError.errmsg} }")
-          lastError.ok
+            s" result: ${lastError.wasAcknowledged()}")
+          lastError.wasAcknowledged()
       }
+  }
 
-  override def deleteStatusNotification(registrationNumber: String): Future[WriteResult] =
-    Mdc.preservingMdc(collection.delete().one(Json.obj("registrationNumber" -> registrationNumber)))
+  override def deleteStatusNotification(registrationNumber: String): Future[DeleteResult] =
+    Mdc.preservingMdc(
+      collection
+        .deleteOne(
+          filter = Filters.equal("registrationNumber", Codecs.toBson(registrationNumber))
+        )
+        .toFuture()
+    )
 
 }

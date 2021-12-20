@@ -41,8 +41,7 @@ class NotificationCacheController @Inject()(val auditConnector: AuditConnector,
 
   def deleteNotification(registrationNumber: String): Action[AnyContent] = Action.async {
     notificationService.deleteNotification(registrationNumber) map {
-      case (true, _) => Ok
-      case (false, Some(error)) => InternalServerError(error)
+      case true => Ok
       case _ => InternalServerError
     }
   }
@@ -56,8 +55,7 @@ class NotificationCacheController @Inject()(val auditConnector: AuditConnector,
 
   def markAsViewed(registrationNumber: String): Action[AnyContent] = Action.async {
     notificationService.markAsViewed(registrationNumber) map {
-      case (true, _) => Ok
-      case (false, Some(error)) => InternalServerError(error)
+      case true => Ok
       case _ => InternalServerError
     }
   }

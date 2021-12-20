@@ -16,6 +16,7 @@
 
 package controllers
 
+import base.BaseSpec
 import connectors.EmailConnector
 import models.ContactTypes
 import org.mockito.ArgumentMatchers.any
@@ -33,7 +34,7 @@ import play.api.test.Helpers._
 import repositories.{StatusNotification, ViewedStatus}
 import services.NotificationCacheService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import base.BaseSpec
+
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -76,24 +77,15 @@ class NotificationCacheControllerTest extends BaseSpec with MockitoSugar with Sc
     }
 
     "return 200 when the notification delete is called successfully " in {
-      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful((true, None)))
+      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful(true))
       val result = notificationCacheController.deleteNotification("XXAW00000123488").apply(FakeRequest())
       status(result) shouldBe OK
     }
 
     "return 500 when the notification delete fails unexpectedly " in {
-      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful((false, None)))
+      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful(false))
       val result = notificationCacheController.deleteNotification("XXAW00000123488").apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "return 500 when the notification delete fails unexpectedly with an error message" in {
-      val errorMsg = "Error"
-      when(mockNotificationCacheService.deleteNotification(any())).thenReturn(Future.successful((false, Some(errorMsg))))
-      val result = notificationCacheController.deleteNotification("XXAW00000123488").apply(FakeRequest())
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-      val doc = contentAsString(result)
-      doc.toString shouldBe errorMsg
     }
 
     "return 200 status and the stored status when the notification viewed status is returned successfully from mongo" in {
@@ -118,24 +110,15 @@ class NotificationCacheControllerTest extends BaseSpec with MockitoSugar with Sc
     }
 
     "return 200 when the mark as viewed call is called successfully " in {
-      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(Tuple2(true, None)))
+      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(true))
       val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
       status(result) shouldBe OK
     }
 
     "return 500 when the mark as viewed call fails unexpectedly " in {
-      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(Tuple2(false, None)))
+      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful((false)))
       val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "return 500 when the mark as viewed call  fails unexpectedly with an error message" in {
-      val errorMsg = "Error"
-      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(Tuple2(false, Some(errorMsg))))
-      val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-      val doc = contentAsString(result)
-      doc.toString shouldBe errorMsg
     }
 
   }
