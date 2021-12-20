@@ -16,6 +16,7 @@
 
 package repositories
 
+import javax.inject.Inject
 import org.mongodb.scala.bson.collection.Document
 import org.mongodb.scala.model._
 import org.mongodb.scala.result.UpdateResult
@@ -25,7 +26,6 @@ import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.play.http.logging.Mdc
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 case class ViewedStatus(registrationNumber: Option[String], viewed: Option[Boolean])
@@ -67,7 +67,7 @@ class NotificationViewedMongoRepositoryImpl @Inject()(mongoComponent: MongoCompo
   // upsert set as true so that we either update the record if it already exists or insert a new one if not
   private def updateCore(viewedStatus: ViewedStatus): Future[UpdateResult] = {
 
-    val viewedStatusBson = Document("$set" -> Document(Json.toJson(viewedStatus).toString()))
+    val viewedStatusBson = Document("$set" -> Codecs.toBson(viewedStatus))
 
     collection
       .updateOne(

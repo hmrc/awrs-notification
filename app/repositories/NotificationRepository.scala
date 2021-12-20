@@ -16,6 +16,7 @@
 
 package repositories
 
+import javax.inject.Inject
 import models.ContactTypes.ContactType
 import org.mongodb.scala.bson.collection.Document
 import org.mongodb.scala.model._
@@ -26,7 +27,6 @@ import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.play.http.logging.Mdc
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 case class StatusNotification(registrationNumber: Option[String],
@@ -74,7 +74,7 @@ class NotificationMongoRepositoryImpl @Inject()(mongoComponent: MongoComponent)(
   override def insertStatusNotification(statusNotification: StatusNotification): Future[Boolean] = {
   // upsert set as true so that we either update the record if it already exists or insert a new one if not
 
-    val statusNotificationBson = Document("$set" -> Document(Json.toJson(statusNotification).toString()))
+    val statusNotificationBson = Document("$set" -> Codecs.toBson(statusNotification))
     Mdc.preservingMdc {
       collection
         .updateOne(
