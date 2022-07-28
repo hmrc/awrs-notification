@@ -165,7 +165,6 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
 
     "return false when an unexpected error occurs" in {
       val writeResult = mock[DeleteResult]
-      val error = Some("Unexpected Error")
       when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(writeResult)
       when(writeResult.wasAcknowledged()).thenReturn(false)
       val result = Await.result(notificationCacheService.deleteNotification("XXAW00000123488"), 2.second)

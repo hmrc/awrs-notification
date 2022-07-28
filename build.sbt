@@ -37,6 +37,7 @@ lazy val microservice = Project(appName, file("."))
     Keys.fork in IntegrationTest :=  false,
     unmanagedSourceDirectories in IntegrationTest :=  (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
     parallelExecution in IntegrationTest := false,
+    scalacOptions ++= Seq("-feature")
   )
   .settings(
     Keys.fork in Test := true,
