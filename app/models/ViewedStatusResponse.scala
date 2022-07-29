@@ -18,6 +18,7 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 import repositories.ViewedStatus
+import scala.language.implicitConversions
 
 case class ViewedStatusResponse(viewed: Boolean)
 

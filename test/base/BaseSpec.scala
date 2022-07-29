@@ -31,6 +31,7 @@ import org.scalatest.wordspec.AnyWordSpec
 trait BaseSpec extends AnyWordSpec with Matchers with OptionValues {
   import scala.concurrent.duration._
   import scala.concurrent.{Await, Future}
+  import scala.language.postfixOps
 
   implicit val defaultTimeout: FiniteDuration = 5 seconds
 

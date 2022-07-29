@@ -4,12 +4,12 @@ import play.sbt.PlayImport._
 
 private object AppDependencies {
 
-  private val domainVersion = "6.2.0-play-28"
-  private val hmrcMongoVersion = "0.58.0"
-  private val emailAddress = "3.5.0"
-  private val mockitoVersion = "4.1.0"
+  private val domainVersion = "8.1.0-play-28"
+  private val hmrcMongoVersion = "0.68.0"
+  private val emailAddress = "3.6.0"
+  private val mockitoVersion = "4.6.1"
   private val scalatestPlusPlayVersion = "5.1.0"
-  private val jSoupVersion = "1.14.3"
+  private val jSoupVersion = "1.15.2"
   private val pegdownVersion = "1.6.0"
   private val bootstrapPlayVersion = "5.17.0"
 
@@ -44,8 +44,8 @@ private object AppDependencies {
     def apply(): Seq[ModuleID] = new TestDependencies {
       override lazy val test: Seq[ModuleID] = Seq(
         "org.pegdown"                  % "pegdown"                  % pegdownVersion % scope,
-        "com.github.tomakehurst"       %  "wiremock-jre8"           % "2.32.0" % scope,
-        "com.fasterxml.jackson.module" %% "jackson-module-scala"    % "2.13.0" % scope
+        "com.github.tomakehurst"       %  "wiremock-jre8"           % "2.33.2" % scope,
+        "com.fasterxml.jackson.module" %% "jackson-module-scala"    % "2.13.3" % scope
       )
     }.test
   }

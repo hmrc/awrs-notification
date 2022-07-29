@@ -18,6 +18,7 @@ package models
 
 import utils.ErrorNotifications._
 import play.api.libs.json._
+import scala.language.implicitConversions
 
 import scala.util.{Failure, Success, Try}
 

@@ -21,6 +21,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 import utils.ErrorNotifications._
+import scala.language.implicitConversions
 
 import scala.util.{Failure, Success, Try}
 
