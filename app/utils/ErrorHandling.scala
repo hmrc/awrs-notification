@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ object ErrorHandling {
         response.body
     }
 
-   def getValidationError(err: Seq[(JsPath, Seq[JsonValidationError])]): EmailResponse =
+   def getValidationError(err: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]): EmailResponse =
     err match {
       case head :: _ =>
         head._2.headOption.map(_.message) match {

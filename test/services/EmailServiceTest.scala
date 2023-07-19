@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -440,7 +440,7 @@ class EmailServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSui
     "return 400 status with the failure message when invalid contact type is passed" in {
       val inputJson =
         """
-          |{"name": "name", "email": "example@example.com", "status": "05", "contact_type": "XXXXASDADJSA:OJD", "contact_number": "1234567890125", "variation": false}
+          |{"name": "name", "email": "example@example.com", "status": "05", "contact_type": "XXXXASDADJSA:OJD", "contact_number": "123456789012", "variation": false}
           |""".stripMargin
 
       val result: EmailResponse = Await.result(emailService.sendNotificationEmail(Json.parse(inputJson),

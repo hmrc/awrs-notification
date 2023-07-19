@@ -41,7 +41,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     Keys.fork in Test := true,
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.8",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true
   )
