@@ -11,8 +11,5 @@ addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.9.3")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.13")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.13.0")
-
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-git-stamp" % "6.2.0")
