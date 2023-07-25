@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ object EmailHelper {
   )
 
   def notificationTemplate(key: String): Option[String] =
-    notificationTemplateMap.filterKeys(_ == key).values.headOption
+    notificationTemplateMap.view.filterKeys(_ == key).values.headOption
 
   private val otherTemplatesMap: Map[String, String] = Map(
     "awrs.confirmation.api4" -> "awrs_notification_template_comfirmation_api4",
@@ -45,7 +45,7 @@ object EmailHelper {
   )
 
   def otherTemplates(key: String): Option[String] = {
-    otherTemplatesMap.filterKeys(_ == key).values.headOption
+    otherTemplatesMap.view.filterKeys(_ == key).values.headOption
   }
 
   private val callBackEventsMap: Map[String, String] = Map(
@@ -56,5 +56,5 @@ object EmailHelper {
   )
 
   def callBackEvents(key: String): Option[String] =
-    callBackEventsMap.filterKeys(_ == key).values.headOption
+    callBackEventsMap.view.filterKeys(_ == key).values.headOption
 }

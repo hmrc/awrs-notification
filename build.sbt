@@ -1,5 +1,4 @@
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import play.sbt.routes.RoutesKeys
 
 val appName: String = "awrs-notification"
@@ -28,7 +27,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(playSettings ++ scoverageSettings : _*)
   .settings( majorVersion := 3 )
   .settings(scalaSettings: _*)
-  .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .configs(IntegrationTest)
   .settings(
@@ -41,7 +39,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     Keys.fork in Test := true,
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.8",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true
   )
