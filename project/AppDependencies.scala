@@ -2,7 +2,7 @@ import sbt._
 import play.core.PlayVersion
 import play.sbt.PlayImport._
 
-private object AppDependencies {
+object AppDependencies {
 
   private val domainVersion = "8.3.0-play-28"
   private val hmrcMongoVersion = "0.70.0"

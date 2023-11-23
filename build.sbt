@@ -18,7 +18,7 @@ lazy val scoverageSettings = {
     ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true,
-    parallelExecution in Test := false
+    Test / parallelExecution := false
   )
 }
 
@@ -32,13 +32,13 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     addTestReportOption(IntegrationTest, "int-test-reports"),
     inConfig(IntegrationTest)(Defaults.itSettings),
-    Keys.fork in IntegrationTest :=  false,
-    unmanagedSourceDirectories in IntegrationTest :=  (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
-    parallelExecution in IntegrationTest := false,
+    IntegrationTest / Keys.fork :=  false,
+    IntegrationTest / unmanagedSourceDirectories :=  (IntegrationTest / baseDirectory)(base => Seq(base / "it")).value,
+    IntegrationTest / parallelExecution := false,
     scalacOptions ++= Seq("-feature")
   )
   .settings(
-    Keys.fork in Test := true,
+    Test / Keys.fork := true,
     scalaVersion := "2.13.8",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true
