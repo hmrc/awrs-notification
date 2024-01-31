@@ -1,10 +1,24 @@
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package service
 
 import helpers.{AssertionHelpers, IntegrationSpec}
 import play.api.test.FutureAwaits
 import repositories.{NotificationViewedMongoRepositoryImpl, ViewedStatus}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -13,7 +27,7 @@ class NotificationViewedMongoRepositoryISpec extends IntegrationSpec with Assert
     val repo: NotificationViewedMongoRepositoryImpl = app.injector.instanceOf[NotificationViewedMongoRepositoryImpl]
 
     await(repo.collection.drop().head())
-    await(repo.ensureIndexes)
+    await(repo.ensureIndexes())
 
     def getRepoCollectionCount: Future[Long] = repo.collection.countDocuments().toFuture()
   }
@@ -30,7 +44,6 @@ class NotificationViewedMongoRepositoryISpec extends IntegrationSpec with Assert
             _ => getRepoCollectionCount
           }
         }
-
         res mustBe 1
       }
     }
@@ -45,7 +58,6 @@ class NotificationViewedMongoRepositoryISpec extends IntegrationSpec with Assert
             _ => repo.findViewedStatusByRegistrationNumber(regNumber)
           }
         }
-
         res.get.registrationNumber mustBe Some(regNumber)
       }
     }
@@ -68,7 +80,6 @@ class NotificationViewedMongoRepositoryISpec extends IntegrationSpec with Assert
         val res: Option[ViewedStatus] = await {
           repo.findViewedStatusByRegistrationNumber(regNumber)
         }
-
         res.get.viewed mustBe Some(true)
       }
     }

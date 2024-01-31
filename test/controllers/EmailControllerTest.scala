@@ -33,7 +33,6 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import base.BaseSpec
 import play.api.test.Helpers._
-
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
@@ -43,7 +42,6 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
   val mockEmailService: EmailService = mock[EmailService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-
   val emailController = new EmailController(mockAuditConnector, mockEmailService, cc, "awrs-notification")
 
   trait EmailControllerFixture {
@@ -163,7 +161,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
       val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+        this.emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe OK
     }
@@ -171,7 +169,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 200 status when a valid json is received with eventType as permanentBounce" in new EmailControllerFixture {
       val callBackResponseJson = """{"events": [ {"event": "permanentBounce", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+        this.emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe OK
     }
@@ -179,7 +177,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 200 status when a valid json is received with eventType as Sent" in new EmailControllerFixture {
       val callBackResponseJson = """{"events": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+        this.emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe OK
     }
@@ -187,14 +185,14 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
       val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
+        this.emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
       val result: Future[Result] =
-        emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withTextBody("You naughty!"))
+        this.emailController.receiveEvent("firstName", "XFS00000123456").apply(FakeRequest().withTextBody("You naughty!"))
 
       whenReady(result) {
         result =>
@@ -228,7 +226,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
       val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API8", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API8", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
       status(result) shouldBe OK
 
@@ -237,7 +235,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
       val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API8", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API8", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
@@ -245,7 +243,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
 
     "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API8", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API8", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withTextBody("Error"))
 
       whenReady(result) {
@@ -280,16 +278,15 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
       val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API8", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API8", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
       status(result) shouldBe OK
     }
 
-
     "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
       val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API8", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API8", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
@@ -297,7 +294,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
 
     "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API8", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API8", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withTextBody("Error"))
 
       whenReady(result) {
@@ -333,7 +330,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 200 status when a valid json is received with eventType as delivered " in new EmailControllerFixture {
       val callBackResponseJson = """{"events": [ {"event": "delivered", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API4", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API4", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe OK
@@ -342,7 +339,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     "receive event - return 500 status when a invalid json is received" in new EmailControllerFixture {
       val callBackResponseJson = """{"eventInvalid": [ {"event": "Sent", "detected": "2015-07-02T08:26:39.035Z" }]}"""
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API4", "XFS00000123456",
+        this.emailController.receiveEmailEvent("API4", "XFS00000123456",
           "10 September 2016").apply(FakeRequest().withJsonBody(Json.parse(callBackResponseJson)))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
@@ -350,7 +347,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
 
     "receive event - return 500 status when invalid content Type is received" in new EmailControllerFixture {
       val result: Future[Result] =
-        emailController.receiveEmailEvent("API4", "XFS00000123456", "10 September 2016").apply(FakeRequest().withTextBody("You naughty!"))
+        this.emailController.receiveEmailEvent("API4", "XFS00000123456", "10 September 2016").apply(FakeRequest().withTextBody("You naughty!"))
 
       whenReady(result) {
         result =>
