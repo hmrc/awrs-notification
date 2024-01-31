@@ -28,7 +28,7 @@ object AppDependencies {
   )
 
   val itDependencies: Seq[ModuleID] = Seq(
-    "com.github.tomakehurst"       %  "wiremock-jre8"        % "3.0.1"  % Test,
+    "com.github.tomakehurst"       %  "wiremock-jre8"        % "3.0.1"  % Test pomOnly(),
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1" % Test
   )
 
