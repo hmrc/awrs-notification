@@ -21,11 +21,10 @@ import config.EmailConfig
 import javax.inject.{Inject, Named}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.ErrorNotifications._
-
 import connectors.EmailConnector
 import models.AwrsValidator._
 import models.{EmailRequest, EmailResponse, PushNotificationRequest, SendEmailRequest}
-import org.joda.time.DateTime
+import java.time.LocalDate
 import play.api.Logging
 import play.api.libs.json._
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -35,6 +34,7 @@ import scala.util.{Failure, Success, Try}
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import play.api.http.Status._
+import java.time.format.DateTimeFormatter
 
 class EmailService @Inject()(val auditConnector: AuditConnector,
                              val emailConnector: EmailConnector,
@@ -59,7 +59,7 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
         Future.successful(EmailResponse(INTERNAL_SERVER_ERROR, Some(e.getMessage)))
     }
 
-  private[services] def now(): String = DateTime.now.toString("dd MMMM yyyy")
+  private[services] def now(): String = LocalDate.now.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
 
   def sendWithdrawnEmail(withdrawnEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
     sendEmail(withdrawnEmailJson, host, EmailConfig.getWithdrawnTemplate, "Withdrawl")

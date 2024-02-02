@@ -19,11 +19,10 @@ package services
 import audit.Auditable
 import models.ContactTypes._
 import models.PushNotificationRequest
-import org.joda.time.LocalDateTime
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import java.time.LocalDateTime
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,7 +32,7 @@ class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
                                          @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends Auditable  {
 
   val dateFormat: String = "yyyy-MM-dd'T'HH:mm:ss"
-  val fmt: DateTimeFormatter= DateTimeFormat.forPattern(dateFormat)
+  val fmt: DateTimeFormatter= DateTimeFormatter.ofPattern(dateFormat)
 
   def storeNotification(pushNotification: PushNotificationRequest,
                         registrationNumber: String): Future[Boolean] = {
@@ -42,7 +41,7 @@ class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
       contactNumber = pushNotification.contact_number,
       contactType = pushNotification.contact_type,
       status = pushNotification.status,
-      storageDatetime =  Some(fmt.print(new LocalDateTime()))
+      storageDatetime = Some(LocalDateTime.now().format(fmt))
     )
     // only store for the 'minded to' and 'not minded to' contact types
     pushNotification.contact_type match {

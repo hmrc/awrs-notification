@@ -1,7 +1,11 @@
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import play.sbt.routes.RoutesKeys
+import uk.gov.hmrc.DefaultBuildSettings
 
 val appName: String = "awrs-notification"
+
+ThisBuild / majorVersion := 3
+ThisBuild / scalaVersion := "2.13.12"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
 lazy val playSettings : Seq[Setting[_]] = Seq.empty
@@ -25,25 +29,23 @@ lazy val scoverageSettings = {
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(playSettings ++ scoverageSettings : _*)
-  .settings( majorVersion := 3 )
   .settings(scalaSettings: _*)
   .settings(defaultSettings(): _*)
-  .configs(IntegrationTest)
   .settings(
-    addTestReportOption(IntegrationTest, "int-test-reports"),
-    inConfig(IntegrationTest)(Defaults.itSettings),
-    IntegrationTest / Keys.fork :=  false,
-    IntegrationTest / unmanagedSourceDirectories :=  (IntegrationTest / baseDirectory)(base => Seq(base / "it")).value,
-    IntegrationTest / parallelExecution := false,
-    scalacOptions ++= Seq("-feature")
+    scalacOptions ++= Seq("-feature", "-Wconf:src=routes/.*:s"),
+    libraryDependencies ++= appDependencies,
+    retrieveManaged := true
   )
   .settings(
     Test / Keys.fork := true,
-    scalaVersion := "2.13.8",
-    libraryDependencies ++= appDependencies,
-    retrieveManaged := true
   )
   .settings(
     resolvers += Resolver.jcenterRepo
   )
   .disablePlugins(JUnitXmlReportPlugin)
+
+lazy val it = project
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
+  .settings(DefaultBuildSettings.itSettings())
+  .settings(libraryDependencies ++= AppDependencies.itDependencies)
