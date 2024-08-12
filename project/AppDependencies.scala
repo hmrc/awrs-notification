@@ -1,15 +1,15 @@
-import sbt._
-import play.sbt.PlayImport._
+import sbt.*
+import play.sbt.PlayImport.*
 
 object AppDependencies {
 
-  private val domainVersion = "9.0.0"
+  private val domainVersion = "10.0.0"
   private val hmrcMongoVersion = "1.7.0"
   private val emailAddress = "4.0.0"
-  private val mockitoVersion = "5.10.0"
+  private val mockitoVersion = "5.11.0"
   private val scalatestPlusPlayVersion = "7.0.1"
-  private val jSoupVersion = "1.17.2"
-  private val bootstrapPlayVersion = "8.4.0"
+  private val jSoupVersion = "1.18.1"
+  private val bootstrapPlayVersion = "9.2.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -28,7 +28,7 @@ object AppDependencies {
   )
 
   val itDependencies: Seq[ModuleID] = Seq(
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1" % Test
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2" % Test
   )
 
   def apply(): Seq[ModuleID] = compile ++ test

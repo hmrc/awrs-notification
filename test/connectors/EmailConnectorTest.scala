@@ -16,42 +16,42 @@
 
 package connectors
 
+import base.BaseSpec
 import models.SendEmailRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.test.Helpers._
+import play.api.http.Status.NO_CONTENT
+import uk.gov.hmrc.connectors.ConnectorTest
 import uk.gov.hmrc.emailaddress.EmailAddress
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import base.BaseSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+class EmailConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite with ConnectorTest {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
-  val mockDefaultHttpClient: DefaultHttpClient = mock[DefaultHttpClient]
+  val mockHttpClientV2: HttpClientV2 = mock[HttpClientV2]
   val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
 
-  val emailConnector = new EmailConnector(mockDefaultHttpClient, mockServicesConfig, "awrs-notification")
+  val emailConnector = new EmailConnector(mockHttpClientV2, mockServicesConfig, "awrs-notification")
 
-  val emailRequest = SendEmailRequest(List(EmailAddress("test@email.com")), "fakeTemplateId", Map("key" -> "value"), force = true, None)
+  val emailRequest: SendEmailRequest = SendEmailRequest(List(EmailAddress("test@email.com")), "fakeTemplateId", Map("key" -> "value"), force = true, None)
 
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   "sendEmail" should {
     "return 204 status when an email is sent successfully" in {
-      when(mockDefaultHttpClient.POST[Any, Any](any(), any(), any())(any(), any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
 
-      val result = await(emailConnector.sendEmail(emailRequest))
-
-      result.status shouldBe NO_CONTENT
+      when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
+      val result = emailConnector.sendEmail(emailRequest)
+      result must be(HttpResponse.apply(NO_CONTENT, ""))
     }
   }
 }
