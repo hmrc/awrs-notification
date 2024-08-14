@@ -37,7 +37,7 @@ class EmailConnector @Inject()(http: HttpClientV2,
 
   def sendEmail(emailData: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val postUrl = s"""$serviceURL$sendEmailURI"""
-    http.post(url"$postUrl").withBody(emailData.toString).execute[HttpResponse]. map {
+    http.post(url"$postUrl").withBody(Json.toJson(emailData)).execute[HttpResponse]. map {
       response =>
         logger.warn("[API12] Send Email request sent to EMAIL microservice" + response.body)
         response
