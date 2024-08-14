@@ -39,7 +39,12 @@ class NotificationRepositoryISpec extends IntegrationSpec with AssertionHelpers 
   "notificationRepository" should {
     "insertStatusNotification" should {
       "insert a status notification" in new Setup {
-        val statusNotification: StatusNotification = StatusNotification(Some("regNumber"), Some("098765432"), Some(ContactTypes.CONA), Some("04"), Some("2017-04-01T0013:07:11"))
+        val statusNotification: StatusNotification = StatusNotification(
+          Some("regNumber"),
+          Some("098765432"),
+          Some(ContactTypes.CONA),
+          Some("04"),
+          Some("2017-04-01T0013:07:11"))
 
         val res: Long = await {
           repo.insertStatusNotification(statusNotification).flatMap {
@@ -54,7 +59,12 @@ class NotificationRepositoryISpec extends IntegrationSpec with AssertionHelpers 
     "findByRegistrationNumber" should {
       "find a status notification" in new Setup {
         val regNumber = "regNumber"
-        val statusNotification: StatusNotification = StatusNotification(Some("regNumber"), Some("098765432"), Some(ContactTypes.CONA), Some("04"), Some("2017-04-01T0013:07:11"))
+        val statusNotification: StatusNotification = StatusNotification(
+          Some("regNumber"),
+          Some("098765432"),
+          Some(ContactTypes.CONA),
+          Some("04"),
+          Some("2017-04-01T0013:07:11"))
 
         val res: Option[StatusNotification] = await {
           repo.insertStatusNotification(statusNotification).flatMap {

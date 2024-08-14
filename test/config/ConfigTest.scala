@@ -24,16 +24,16 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ConfigTest extends BaseSpec with GuiceOneAppPerSuite {
 
-  lazy val UpdateRegistrationTemplate = Some("awrs_notification_template_reg_change")
-  lazy val UpdateApplicationTemplate = Some("awrs_notification_template_app_change")
-  lazy val API4ApplicationTemplate = Some("awrs_notification_template_comfirmation_api4")
-  lazy val API4NewBusApplicationTemplate = Some("awrs_notification_template_comfirmation_api4_new_business")
-  lazy val API6ApprovedApplicationTemplate = Some("awrs_notification_template_comfirmation_api6")
-  lazy val API6PendingApplicationTemplate = Some("awrs_notification_template_comfirmation_api6_pending")
-  lazy val API6NewBusApprovedApplicationTemplate = Some("awrs_notification_template_comfirmation_api6_new_business")
-  lazy val API6NewBusPendingApplicationTemplate = Some("awrs_notification_template_comfirmation_api6_new_business_pending")
-  lazy val API10CancellationTemplate = Some("awrs_notification_template_cancellation_api10")
-  lazy val API8WithdrawnTemplate = Some ("awrs_notification_template_withdrawn_api8")
+  lazy val UpdateRegistrationTemplate: Some[String] = Some("awrs_notification_template_reg_change")
+  lazy val UpdateApplicationTemplate: Some[String] = Some("awrs_notification_template_app_change")
+  lazy val API4ApplicationTemplate: Some[String] = Some("awrs_notification_template_comfirmation_api4")
+  lazy val API4NewBusApplicationTemplate: Some[String] = Some("awrs_notification_template_comfirmation_api4_new_business")
+  lazy val API6ApprovedApplicationTemplate: Some[String] = Some("awrs_notification_template_comfirmation_api6")
+  lazy val API6PendingApplicationTemplate: Some[String] = Some("awrs_notification_template_comfirmation_api6_pending")
+  lazy val API6NewBusApprovedApplicationTemplate: Some[String] = Some("awrs_notification_template_comfirmation_api6_new_business")
+  lazy val API6NewBusPendingApplicationTemplate: Some[String] = Some("awrs_notification_template_comfirmation_api6_new_business_pending")
+  lazy val API10CancellationTemplate: Some[String] = Some("awrs_notification_template_cancellation_api10")
+  lazy val API8WithdrawnTemplate: Some[String] = Some ("awrs_notification_template_withdrawn_api8")
 
   def createNotificationRequest(status: Option[String] = None, contactType: Option[ContactTypes.ContactType] = None): PushNotificationRequest =
     PushNotificationRequest("name", "example@example.com", status, contactType, None, variation = false)

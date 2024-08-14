@@ -48,7 +48,7 @@ trait IntegrationApplication extends GuiceOneServerPerSuite with WireMockConfig 
     "metrics.showSamples"                                 -> true,
     "metrics.jvm"                                         -> true,
     "metrics.enabled"                                     -> false,
-    "auditing.enabled" 																		-> false
+    "auditing.enabled"                                    -> false
   )
 
   def additionalConfig(a: Map[String, Any] = Map()): Map[String, Any] = appConfig ++ a

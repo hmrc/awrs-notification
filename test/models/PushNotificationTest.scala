@@ -25,8 +25,11 @@ class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 
   "Push Notification" should {
     "transform a PushNotification model into JSON" in {
-      val pushNotification: PushNotificationRequest = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), Some("123456789012"), false)
-
+      val pushNotification: PushNotificationRequest = PushNotificationRequest(
+        "name", "some@some.com",
+        Some("04"),
+        Some(ContactTypes.REJR),
+        Some("123456789012"), variation = false)
       Json.toJson(pushNotification)
     }
 
@@ -37,8 +40,15 @@ class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
     }
 
     "transform a valid JSON to PushNotification model object" in {
-      val inputJson = Json.parse( """{"name":"name","email":"some@some.com","status":"04","contact_type":"REJR","contact_number":"123456789012","variation":false}""")
-      val pushNotification = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), Some("123456789012"), false)
+      val inputJson = Json.parse(
+       """{
+          |"name":"name",
+          |"email":"some@some.com",
+          |"status":"04",
+          |"contact_type":"REJR",
+          |"contact_number":"123456789012",
+          |"variation":false}""".stripMargin)
+      val pushNotification = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), Some("123456789012"), variation = false)
 
       val result = inputJson.as[PushNotificationRequest]
 
@@ -47,7 +57,7 @@ class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 
     "transform a valid JSON to PushNotification model object without contact number" in {
       val inputJson = Json.parse( """{"name":"name","email":"some@some.com","status":"04","contact_type":"REJR","variation":false}""")
-      val pushNotification = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), None, false)
+      val pushNotification = PushNotificationRequest("name", "some@some.com", Some("04"), Some(ContactTypes.REJR), None, variation = false)
 
       val result = inputJson.as[PushNotificationRequest]
 
@@ -56,7 +66,7 @@ class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 
     "transform a valid JSON to PushNotification model object without status" in {
       val inputJson = Json.parse( """{"name":"name","email":"some@some.com","contact_type":"REJR","contact_number":"123456789012","variation":false}""")
-      val pushNotification = PushNotificationRequest("name", "some@some.com", None, Some(ContactTypes.REJR), Some("123456789012"), false)
+      val pushNotification = PushNotificationRequest("name", "some@some.com", None, Some(ContactTypes.REJR), Some("123456789012"), variation = false)
 
       val result = inputJson.as[PushNotificationRequest]
 
@@ -65,7 +75,7 @@ class PushNotificationTest extends BaseSpec with GuiceOneAppPerSuite {
 
     "transform a valid JSON to PushNotification model object without contact type" in {
       val inputJson = Json.parse( """{"name":"name","email":"some@some.com","status":"04","contact_number":"123456789012","variation":false}""")
-      val pushNotification = PushNotificationRequest("name", "some@some.com", Some("04"), None, Some("123456789012"), false)
+      val pushNotification = PushNotificationRequest("name", "some@some.com", Some("04"), None, Some("123456789012"), variation = false)
 
       val result = inputJson.as[PushNotificationRequest]
 

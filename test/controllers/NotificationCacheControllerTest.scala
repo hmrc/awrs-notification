@@ -116,7 +116,7 @@ class NotificationCacheControllerTest extends BaseSpec with MockitoSugar with Sc
     }
 
     "return 500 when the mark as viewed call fails unexpectedly " in {
-      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful((false)))
+      when(mockNotificationCacheService.markAsViewed(any())).thenReturn(Future.successful(false))
       val result = notificationCacheController.markAsViewed("XXAW00000123488").apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
