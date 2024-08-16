@@ -16,25 +16,28 @@
 
 package connectors
 
-import javax.inject.{Inject, Named}
 import models.SendEmailRequest
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import play.api.Logging
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import play.api.libs.json.{Json, OWrites}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class EmailConnector @Inject()(http: DefaultHttpClient,
-                                 val config: ServicesConfig,
-                                 @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends RawResponseReads with Logging {
+import javax.inject.{Inject, Named}
+import scala.concurrent.{ExecutionContext, Future}
 
-  lazy val serviceURL: String = config.baseUrl(serviceName = "email")
-  val sendEmailURI = "/hmrc/email"
+class EmailConnector @Inject()(http: HttpClientV2,
+                                 val config: ServicesConfig,
+                                 @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends Logging {
+
+  private lazy val serviceURL: String = config.baseUrl(serviceName = "email")
+  implicit val sendEmailRequestWrites: OWrites[SendEmailRequest] = Json.writes[SendEmailRequest]
+  private val sendEmailURI = "/hmrc/email"
 
   def sendEmail(emailData: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val postUrl = s"""$serviceURL$sendEmailURI"""
-
-    http.POST(postUrl, emailData) map {
+    http.post(url"$postUrl").withBody(Json.toJson(emailData)).execute[HttpResponse]. map {
       response =>
         logger.warn("[API12] Send Email request sent to EMAIL microservice" + response.body)
         response

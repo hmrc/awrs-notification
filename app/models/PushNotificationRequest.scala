@@ -55,12 +55,11 @@ object ContactTypes extends Enumeration {
 
   implicit val writer: Writes[ContactTypes.Value] =
     (contactType: ContactTypes.Value) => Json.toJson(contactType.toString)
-
 }
 
 object PushNotificationRequest {
 
-  val maxEmailLength: Int = 100
+  private val maxEmailLength: Int = 100
 
   implicit val writer: Writes[PushNotificationRequest] = (push: PushNotificationRequest) => Json.obj(
     "name" -> push.name,
