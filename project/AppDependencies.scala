@@ -4,9 +4,9 @@ import play.sbt.PlayImport.*
 object AppDependencies {
 
   private val domainVersion = "10.0.0"
-  private val hmrcMongoVersion = "1.7.0"
-  private val emailAddress = "4.0.0"
-  private val bootstrapPlayVersion = "9.3.0"
+  private val hmrcMongoVersion = "2.6.0"
+  private val emailAddress = "4.1.0"
+  private val bootstrapPlayVersion = "9.11.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
