@@ -5,7 +5,7 @@ import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 val appName: String = "awrs-notification"
 
 ThisBuild / majorVersion := 3
-ThisBuild / scalaVersion := "2.13.14"
+ThisBuild / scalaVersion := "2.13.16"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
 lazy val playSettings : Seq[Setting[_]] = Seq.empty
