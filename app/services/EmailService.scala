@@ -27,7 +27,7 @@ import models.{EmailRequest, EmailResponse, PushNotificationRequest, SendEmailRe
 import java.time.LocalDate
 import play.api.Logging
 import play.api.libs.json._
-import uk.gov.hmrc.emailaddress.EmailAddress
+import emailaddress.EmailAddress
 import utils.ErrorHandling._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
