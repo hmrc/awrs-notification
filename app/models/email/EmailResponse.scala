@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package models
+package models.email
 
 case class EmailResponse(status: Int, errors: Option[String])

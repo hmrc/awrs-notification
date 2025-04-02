@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.email
 
-import utils.ErrorNotifications._
 import play.api.libs.json._
-import scala.language.implicitConversions
+import utils.ErrorNotifications._
 
+import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 case class EmailRequest(apiType: ApiTypes.ApiType,

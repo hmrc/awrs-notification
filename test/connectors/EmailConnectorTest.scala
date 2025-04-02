@@ -16,7 +16,7 @@
 
 package connectors
 
-import models.SendEmailRequest
+import models.email.{EmailAddress, SendEmailRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
@@ -26,7 +26,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT}
 import play.api.libs.json.JsValue
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import emailaddress.EmailAddress
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig

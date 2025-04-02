@@ -16,6 +16,7 @@
 
 package models.email
 
+import models.email.{Domain, EmailAddress}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks

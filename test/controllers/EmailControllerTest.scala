@@ -17,7 +17,6 @@
 package controllers
 
 import audit.TestAudit
-import models.EmailResponse
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -32,6 +31,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import base.BaseSpec
+import models.email.EmailResponse
 import play.api.test.Helpers._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}

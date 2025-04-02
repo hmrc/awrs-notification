@@ -16,12 +16,13 @@
 
 package models.email
 
+import models.email.EmailAddress
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsError, JsString, JsSuccess, Json}
-import PlayJsonFormats._
+import models.email.EmailAddressFormats._
 
-class PlayJsonFormatsSpec extends AnyWordSpec with Matchers {
+class EmailAddressFormatsSpec extends AnyWordSpec with Matchers {
 
   "Reading an EmailAddress from JSON" should {
     "work for a valid email address" in {

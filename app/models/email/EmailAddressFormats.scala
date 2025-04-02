@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package emailaddress
+package models.email
 
 import play.api.libs.json._
 
-object PlayJsonFormats {
+object EmailAddressFormats {
 
   implicit val domainFormats: Format[Domain] = Json.format[Domain]
   implicit val emailAddressReads: Reads[EmailAddress] = new Reads[EmailAddress] {

@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package models
+package models.email
 
-import emailaddress.EmailAddress
-import emailaddress.PlayJsonFormats._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import EmailAddressFormats._
