@@ -16,8 +16,6 @@
 
 package models.email
 
-import com.google.inject.ImplementedBy
-
 import javax.naming.Context.{INITIAL_CONTEXT_FACTORY => ICF}
 import javax.inject.Singleton
 import javax.naming.directory.InitialDirContext
@@ -36,19 +34,16 @@ case class EmailAddress(value: String) {
 case class Mailbox(value: String)
 
 case class Domain(value: String){
-  value match {
-    case EmailAddressValidation.validDomain(_) => //
-    case invalidDomain => throw new IllegalArgumentException(s"'$invalidDomain' is not a valid email domain")
+   if (!EmailAddressValidation.validDomain.matches(value)){
+   throw new IllegalArgumentException(s"'$value' is not a valid email domain")
   }
 }
-
 
 object EmailAddressValidation {
   val validEmail = """^([a-zA-Z0-9.!#$%&’'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
   val validDomain = """^([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
 }
 
-@ImplementedBy(classOf[EmailAddressValidation])
 trait EmailValidation {
   def isValid(email: String): Boolean
 }
