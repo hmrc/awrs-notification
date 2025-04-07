@@ -3,7 +3,7 @@ import play.sbt.PlayImport.*
 
 object AppDependencies {
 
-  private val domainVersion = "10.0.0"
+  private val domainVersion = "11.0.0"
   private val hmrcMongoVersion = "2.6.0"
   private val emailAddress = "4.1.0"
   private val bootstrapPlayVersion = "9.11.0"
