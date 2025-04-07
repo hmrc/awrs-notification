@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package models.email
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
 import play.api.libs.json._
-import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.emailaddress.PlayJsonFormats.emailAddressReads
-import uk.gov.hmrc.emailaddress.PlayJsonFormats.emailAddressWrites
+import EmailAddressFormats._
+import play.api.libs.json.Reads._
+import play.api.libs.json.Writes._
+
 
 case class SendEmailRequest(to: List[EmailAddress], templateId: String, parameters: Map[String, String], force: Boolean, eventUrl: Option[String] = None)
 

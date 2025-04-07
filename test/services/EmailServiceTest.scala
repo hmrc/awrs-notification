@@ -18,7 +18,7 @@ package services
 
 import audit.TestAudit
 import connectors.EmailConnector
-import models.{ApiTypes, AwrsValidator, EmailRequest, EmailResponse}
+import models.AwrsValidator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import base.BaseSpec
+import models.email.{ApiTypes, EmailRequest, EmailResponse}
 import utils.ErrorNotifications._
 import play.api.http.Status._
 import uk.gov.hmrc.http._

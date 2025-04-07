@@ -19,7 +19,7 @@ package controllers
 import audit.Auditable
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import javax.inject.{Inject, Named}
-import models.{CallBackEventList, EmailResponse}
+import models.email.{CallBackEventList, EmailResponse}
 import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc._

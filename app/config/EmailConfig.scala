@@ -16,7 +16,8 @@
 
 package config
 
-import models.{EmailRequest, PushNotificationRequest}
+import models.PushNotificationRequest
+import models.email.EmailRequest
 import utils.EmailHelper._
 
 trait EmailConfig {

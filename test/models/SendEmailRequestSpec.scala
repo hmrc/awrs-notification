@@ -19,6 +19,7 @@ package models
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json._
 import base.BaseSpec
+import models.email.SendEmailRequest
 
 
 class SendEmailRequestSpec extends BaseSpec with GuiceOneAppPerSuite {

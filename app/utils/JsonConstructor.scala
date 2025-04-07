@@ -16,7 +16,7 @@
 
 package utils
 
-import models.EmailResponse
+import models.email.EmailResponse
 import play.api.libs.json.{JsValue, Json}
 import utils.ErrorNotifications._
 

@@ -16,17 +16,16 @@
 
 package connectors
 
-import models.SendEmailRequest
+import models.email.{EmailAddress, SendEmailRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status.NO_CONTENT
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT}
 import play.api.libs.json.JsValue
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -34,31 +33,55 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailConnectorTest extends PlaySpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite{
+class EmailConnectorTest extends PlaySpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   val mockHttpClientV2: HttpClientV2 = mock[HttpClientV2]
   val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
   val emailRequest: SendEmailRequest = SendEmailRequest(List(EmailAddress("test@email.com")), "fakeTemplateId", Map("key" -> "value"), force = true, None)
-  val emailConnector =new  EmailConnector(mockHttpClientV2, mockServicesConfig, "awrs-notification")
+  val emailConnector = new EmailConnector(mockHttpClientV2, mockServicesConfig, "awrs-notification")
   implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   trait ConnectorTest {
-      val requestBuilder: RequestBuilder = mock[RequestBuilder]
-      when(requestBuilder.withBody(any[JsValue])(any(), any(), any())).thenReturn(requestBuilder)
-      def requestBuilderExecute[A]: Future[A] = requestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
-  }
+    val requestBuilder: RequestBuilder = mock[RequestBuilder]
+    when(requestBuilder.withBody(any[JsValue])(any(), any(), any())).thenReturn(requestBuilder)
 
- "sendEmail" should {
+    def requestBuilderExecute[A]: Future[A] = requestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
 
-    "return 204 status when an email is sent successfully" in new ConnectorTest {
+    def setup(response: HttpResponse): Unit = {
       when(mockServicesConfig.baseUrl(any())).thenReturn("http://")
       when(mockHttpClientV2.post(any[URL])(any[HeaderCarrier])).thenReturn(requestBuilder)
-      when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
+      when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(response))
+    }
+  }
+
+  "sendEmail" should {
+
+    "return 204 status when an email is sent successfully" in new ConnectorTest {
+      setup(HttpResponse.apply(NO_CONTENT, ""))
 
       val result: Future[HttpResponse] = emailConnector.sendEmail(emailRequest)
       await(result).status must be(NO_CONTENT)
     }
+
+    "return 404 status when an email is not sent successfully" in new ConnectorTest {
+      setup(HttpResponse.apply(NOT_FOUND, ""))
+
+      val result: Future[HttpResponse] = emailConnector.sendEmail(emailRequest)
+      await(result).status must be(NOT_FOUND)
+    }
+
+    "return 400 status when there is a bad request" in new ConnectorTest {
+      setup(HttpResponse.apply(BAD_REQUEST, ""))
+      val result: Future[HttpResponse] = emailConnector.sendEmail(emailRequest)
+      await(result).status must be(BAD_REQUEST)
+    }
+
+    "handle unexpected status codes" in new ConnectorTest {
+      setup(HttpResponse.apply(500, ""))
+      val result: Future[HttpResponse] = emailConnector.sendEmail(emailRequest)
+      await(result).status must be(500)
     }
   }
+}

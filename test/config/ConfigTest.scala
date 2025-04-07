@@ -16,10 +16,10 @@
 
 package config
 
-import models.ApiTypes.ApiType
+import models.email.ApiTypes.ApiType
 import models._
 import base.BaseSpec
-
+import models.email.{ApiTypes, EmailRequest}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ConfigTest extends BaseSpec with GuiceOneAppPerSuite {

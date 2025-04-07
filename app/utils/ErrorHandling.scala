@@ -16,11 +16,11 @@
 
 package utils
 
-import models.EmailResponse
 import play.api.libs.json.{JsPath, JsonValidationError}
 import uk.gov.hmrc.http.HttpResponse
 import play.api.http.Status._
 import ErrorNotifications._
+import models.email.EmailResponse
 
 object ErrorHandling {
 

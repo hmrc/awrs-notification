@@ -23,11 +23,11 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.ErrorNotifications._
 import connectors.EmailConnector
 import models.AwrsValidator._
-import models.{EmailRequest, EmailResponse, PushNotificationRequest, SendEmailRequest}
+import models.email.{EmailAddress, EmailRequest, EmailResponse, SendEmailRequest}
+import models.PushNotificationRequest
 import java.time.LocalDate
 import play.api.Logging
 import play.api.libs.json._
-import uk.gov.hmrc.emailaddress.EmailAddress
 import utils.ErrorHandling._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
