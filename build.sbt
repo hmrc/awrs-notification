@@ -49,3 +49,6 @@ lazy val it = project
   .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
   .settings(DefaultBuildSettings.itSettings())
   .settings(libraryDependencies ++= AppDependencies.itDependencies)
+
+addCommandAlias("runAllChecks", ";clean;compile;coverage;it/test;test;coverageReport")
+
