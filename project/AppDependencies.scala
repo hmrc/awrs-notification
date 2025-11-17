@@ -4,9 +4,9 @@ import play.sbt.PlayImport.*
 object AppDependencies {
 
   private val domainVersion = "11.0.0"
-  private val hmrcMongoVersion = "2.7.0"
-  private val bootstrapPlayVersion = "10.1.0"
-  private val scalaCheckVersion = "1.18.1"
+  private val hmrcMongoVersion = "2.10.0"
+  private val bootstrapPlayVersion = "10.4.0"
+  private val scalaCheckVersion = "1.19.0"
   private val scalaTestVersion = "3.2.19"
   private val scalaTestPlusVersion = "3.2.18.0"
 
