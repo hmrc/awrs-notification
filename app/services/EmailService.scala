@@ -20,32 +20,32 @@ import audit.Auditable
 import config.EmailConfig
 import javax.inject.{Inject, Named}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.ErrorNotifications._
+import utils.ErrorNotifications.*
 import connectors.EmailConnector
-import models.AwrsValidator._
+import models.AwrsValidator.*
 import models.email.{EmailAddress, EmailRequest, EmailResponse, SendEmailRequest}
 import models.PushNotificationRequest
 import java.time.LocalDate
 import play.api.Logging
-import play.api.libs.json._
-import utils.ErrorHandling._
+import play.api.libs.json.*
+import utils.ErrorHandling.*
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import play.api.http.Status._
+import play.api.http.Status.*
 import java.time.format.DateTimeFormatter
 
 class EmailService @Inject()(val auditConnector: AuditConnector,
                              val emailConnector: EmailConnector,
                              val notificationService: NotificationCacheService,
                              val config: ServicesConfig,
-                             @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends Auditable with Logging {
+                             @Named("appName") val appName: String)(using ec: ExecutionContext) extends Auditable with Logging {
 
   lazy val TransactionName = "Send Email Request"
 
   def sendNotificationEmail(pushNotificationJson: JsValue,
-                            registrationNumber: String, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] =
+                            registrationNumber: String, host: String)(using hc: HeaderCarrier): Future[EmailResponse] =
     Try(pushNotificationJson.as[PushNotificationRequest]) match {
       case Success(notification) =>
         matchTemplateAndRegNumber(notification, registrationNumber, host)
@@ -61,21 +61,21 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
 
   private[services] def now(): String = LocalDate.now.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
 
-  def sendWithdrawnEmail(withdrawnEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
+  def sendWithdrawnEmail(withdrawnEmailJson: JsValue, host: String)(using hc: HeaderCarrier): Future[EmailResponse] = {
     sendEmail(withdrawnEmailJson, host, EmailConfig.getWithdrawnTemplate, "Withdrawl")
   }
 
-  def sendCancellationEmail(cancellationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
+  def sendCancellationEmail(cancellationEmailJson: JsValue, host: String)(using hc: HeaderCarrier): Future[EmailResponse] = {
     sendEmail(cancellationEmailJson, host, EmailConfig.getCancellationTemplate, "Cancellation")
   }
 
-  def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
+  def sendConfirmationEmail(confirmationEmailJson: JsValue, host: String)(using hc: HeaderCarrier): Future[EmailResponse] = {
     sendEmail(confirmationEmailJson, host, EmailConfig.getConfirmationTemplate, "Confirmation")
   }
 
   private def sendEmail(email: JsValue, host: String,
                         getEmailTemplate: EmailRequest => Option[String],
-                        action: String)(implicit hc: HeaderCarrier): Future[EmailResponse] = {
+                        action: String)(using hc: HeaderCarrier): Future[EmailResponse] = {
     Try(email.as[EmailRequest]) match {
       case Success(request) =>
         val submissionDate = now()
@@ -122,7 +122,7 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
 
   private def matchTemplateAndRegNumber(notificationRequest: PushNotificationRequest,
                                         registrationNumber: String, host: String)
-                                       (implicit hc: HeaderCarrier): Future[EmailResponse] =
+                                       (using hc: HeaderCarrier): Future[EmailResponse] =
     (EmailConfig.getNotificationTemplate(notificationRequest), registrationNumber.matches(registrationRegex)) match {
       case (Some(templateId), true) =>
         // store the notification details in Mongo if the template and reference number are valid
@@ -157,7 +157,7 @@ class EmailService @Inject()(val auditConnector: AuditConnector,
         Future.successful(EmailResponse(SERVICE_UNAVAILABLE, Some(invalidTemplate)))
     }
 
-  private def sendEmailRequest(logName: String, request: SendEmailRequest)(implicit headerCarrier: HeaderCarrier): Future[EmailResponse] =
+  private def sendEmailRequest(logName: String, request: SendEmailRequest)(using headerCarrier: HeaderCarrier): Future[EmailResponse] =
     emailConnector.sendEmail(request) map {
       response =>
         response.status match {

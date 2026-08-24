@@ -16,11 +16,11 @@
 
 package connectors
 
-import models.email.EmailAddressFormats._
 import models.email.SendEmailRequest
 import play.api.Logging
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.libs.ws.writeableOf_JsValue
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -30,12 +30,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EmailConnector @Inject()(http: HttpClientV2,
                                  val config: ServicesConfig,
-                                 @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends Logging {
+                                 @Named("appName") val appName: String)(using ec: ExecutionContext) extends Logging {
 
   private lazy val serviceURL: String = config.baseUrl(serviceName = "email")
   private val sendEmailURI = "/hmrc/email"
 
-  def sendEmail(emailData: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def sendEmail(emailData: SendEmailRequest)(using hc: HeaderCarrier): Future[HttpResponse] = {
     val postUrl = s"""$serviceURL$sendEmailURI"""
     http.post(url"$postUrl").withBody(Json.toJson(emailData)).execute[HttpResponse]. map {
       response =>

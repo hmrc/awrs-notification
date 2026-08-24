@@ -17,7 +17,7 @@
 package config
 
 import models.email.ApiTypes.ApiType
-import models._
+import models.*
 import base.BaseSpec
 import models.email.{ApiTypes, EmailRequest}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite

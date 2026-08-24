@@ -17,7 +17,7 @@
 package models
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json._
+import play.api.libs.json.*
 import base.BaseSpec
 
 

@@ -22,11 +22,11 @@ import javax.inject.{Inject, Named}
 import models.email.{CallBackEventList, EmailResponse}
 import play.api.Logging
 import play.api.libs.json.JsValue
-import play.api.mvc._
+import play.api.mvc.*
 import services.EmailService
 import utils.JsonConstructor
-import utils.ErrorNotifications._
-import utils.EmailHelper._
+import utils.ErrorNotifications.*
+import utils.EmailHelper.*
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -36,7 +36,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 class EmailController @Inject()(val auditConnector: AuditConnector,
                                      val emailService: EmailService,
                                      cc: ControllerComponents,
-                                     @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with Logging
+                                     @Named("appName") val appName: String)(using ec: ExecutionContext) extends BackendController(cc) with Logging
                                       with Auditable {
 
   def sendNotificationEmail(registrationNumber: String): Action[AnyContent] = Action.async {
@@ -123,7 +123,7 @@ class EmailController @Inject()(val auditConnector: AuditConnector,
   }
 
   private def getEmailEvent(requestJson: JsValue, auditMap: Map[String, String],
-                            auditEventType: String, apiType: String)(implicit hc: HeaderCarrier): Future[Result] = {
+                            auditEventType: String, apiType: String)(using hc: HeaderCarrier): Future[Result] = {
     Try(requestJson.as[CallBackEventList](CallBackEventList.reader).callBackEvents) match {
       case Success(callbackEventList) =>
         callbackEventList.foreach {

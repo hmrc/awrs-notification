@@ -18,14 +18,14 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 import repositories.ViewedStatus
-import scala.language.implicitConversions
 
 case class ViewedStatusResponse(viewed: Boolean)
 
 object ViewedStatusResponse {
 
-  implicit def convert(viewedStatus: ViewedStatus): ViewedStatusResponse = ViewedStatusResponse(viewedStatus.viewed.get)
+  given convert: Conversion[ViewedStatus, ViewedStatusResponse] with
+    def apply(viewedStatus: ViewedStatus) = ViewedStatusResponse(viewedStatus.viewed.get)
 
-  implicit val format: OFormat[ViewedStatusResponse] = Json.format[ViewedStatusResponse]
+  given format: OFormat[ViewedStatusResponse] = Json.format[ViewedStatusResponse]
 
 }

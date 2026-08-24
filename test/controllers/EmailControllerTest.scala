@@ -19,7 +19,7 @@ package controllers
 import audit.TestAudit
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -32,13 +32,13 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import base.BaseSpec
 import models.email.EmailResponse
-import play.api.test.Helpers._
-import scala.concurrent.duration._
+import play.api.test.Helpers.*
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
-  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  given ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockEmailService: EmailService = mock[EmailService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
@@ -50,19 +50,19 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
   }
 
-  implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
+  given mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   "EmailController for notification" should {
 
     "return 204 status when the email is sent successfully" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
       val result = emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(
         Future.successful(EmailResponse(BAD_REQUEST, Some("Bad Thing Happened")))
       )
 
@@ -75,7 +75,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
 
     "return 400 status when the input json fails validation (empty response body)" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some(""))))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some(""))))
 
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
@@ -86,7 +86,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
 
     "return 400 status when the input json fails validation (no errors)" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, None)))
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, None)))
 
       val result = Await.result(emailController.sendNotificationEmail("").apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
@@ -97,7 +97,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
 
     "return 404 status when the email template is not found" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(
         Future.successful(EmailResponse(NOT_FOUND, Some("Invalid template")))
       )
 
@@ -110,7 +110,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
 
     "return 500 status when the email connector fails for external reasons (template not found or validation error occurred in external Email service)" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(
         Future.successful(EmailResponse(INTERNAL_SERVER_ERROR, Some("Invalid template")))
       )
 
@@ -132,7 +132,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
 
     "return 503 status when email connector fails for external reasons" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(
         Future.successful(EmailResponse(SERVICE_UNAVAILABLE, Some("Something Bad Happened")))
       )
 
@@ -146,7 +146,7 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
     }
 
     "return 503 status when email connector fails for external reasons (empty response)" in {
-      when(mockEmailService.sendNotificationEmail(any(), any(), any())(any())).thenReturn(
+      when(mockEmailService.sendNotificationEmail(any(), any(), any())(using any())).thenReturn(
         Future.successful(EmailResponse(SERVICE_UNAVAILABLE, Some("")))
       )
 
@@ -206,16 +206,16 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
 
   "EmailController for withdrawn" should {
     "return 204 status when the email is sent succesfully" in {
-      when(mockEmailService.sendWithdrawnEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
+      when(mockEmailService.sendWithdrawnEmail(any(), any())(using any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
       val result = emailController.sendWithdrawnEmail.apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {
-      when(mockEmailService.sendWithdrawnEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some("Error"))))
+      when(mockEmailService.sendWithdrawnEmail(any(), any())(using any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some("Error"))))
 
-      val result = Await.result(emailController.sendWithdrawnEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendWithdrawnEmail.apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
       val document = Jsoup.parse(contentAsString(result))
@@ -258,16 +258,16 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
 
   "EmailController for cancellation" should {
     "return 204 status when the email is sent succesfully" in {
-      when(mockEmailService.sendCancellationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
+      when(mockEmailService.sendCancellationEmail(any(), any())(using any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
       val result = emailController.sendCancellationEmail.apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {
-      when(mockEmailService.sendCancellationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some("Error"))))
+      when(mockEmailService.sendCancellationEmail(any(), any())(using any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some("Error"))))
 
-      val result = Await.result(emailController.sendCancellationEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendCancellationEmail.apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
       val document = Jsoup.parse(contentAsString(result))
@@ -310,16 +310,16 @@ class EmailControllerTest extends BaseSpec with MockitoSugar with ScalaFutures w
   "EmailController for confirmation" should {
 
     "return 204 status when the email is sent successfully" in {
-      when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(OK, None)))
+      when(mockEmailService.sendConfirmationEmail(any(), any())(using any())).thenReturn(Future.successful(EmailResponse(OK, None)))
 
       val result = emailController.sendConfirmationEmail.apply(FakeRequest().withJsonBody(Json.obj()))
       status(result) shouldBe NO_CONTENT
     }
 
     "return 400 status when the input json fails validation" in {
-      when(mockEmailService.sendConfirmationEmail(any(), any())(any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some("Bad Thing Happened"))))
+      when(mockEmailService.sendConfirmationEmail(any(), any())(using any())).thenReturn(Future.successful(EmailResponse(BAD_REQUEST, Some("Bad Thing Happened"))))
 
-      val result = Await.result(emailController.sendConfirmationEmail().apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
+      val result = Await.result(emailController.sendConfirmationEmail.apply(FakeRequest().withJsonBody(Json.obj())), 2.second)
 
       status(result) shouldBe BAD_REQUEST
       val document = Jsoup.parse(contentAsString(result))

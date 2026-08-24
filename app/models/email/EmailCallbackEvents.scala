@@ -16,7 +16,7 @@
 
 package models.email
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 case class CallBackEvent(eventType: String)
 
@@ -35,7 +35,7 @@ object CallBackEvent {
 
   }
 
-  implicit val formats: OFormat[CallBackEvent] = Json.format[CallBackEvent]
+  given formats: OFormat[CallBackEvent] = Json.format[CallBackEvent]
 }
 
 
@@ -52,5 +52,5 @@ object CallBackEventList {
 
   }
 
-  implicit val formats: OFormat[CallBackEventList] = Json.format[CallBackEventList]
+  given formats: OFormat[CallBackEventList] = Json.format[CallBackEventList]
 }

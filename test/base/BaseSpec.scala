@@ -16,44 +16,46 @@
 
 package base
 
-import org.scalatest._
+import org.scalatest.*
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.ByteString
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import java.nio.charset.Charset
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.language.implicitConversions
+
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 trait BaseSpec extends AnyWordSpec with Matchers with OptionValues {
-  import scala.concurrent.duration._
+  import scala.concurrent.duration.*
   import scala.concurrent.{Await, Future}
   import scala.language.postfixOps
 
-  implicit val defaultTimeout: FiniteDuration = 5 seconds
+  given defaultTimeout: FiniteDuration = 5 seconds
 
-  implicit def extractAwait[A](future: Future[A]): A = await[A](future)
+  given [A]: Conversion[Future[A], A] with
+    def apply(future: Future[A]): A = await[A](future)
 
-  def await[A](future: Future[A])(implicit timeout: Duration): A = Await.result(future, timeout)
+  def await[A](future: Future[A])(using timeout: Duration): A = Await.result(future, timeout)
 
   // Convenience to avoid having to wrap andThen() parameters in Future.successful
-  implicit def liftFuture[A](v: A): Future[A] = Future.successful(v)
+  given [A]: Conversion[A, Future[A]] with
+    def apply(v: A): Future[A] = Future.successful(v)
 
   def status(of: Result): Int = of.header.status
 
-  def status(of: Future[Result])(implicit timeout: Duration): Int = status(Await.result(of, timeout))
+  def status(of: Future[Result])(using timeout: Duration): Int = status(Await.result(of, timeout))
 
-  def jsonBodyOf(result: Result)(implicit mat: Materializer): JsValue = {
+  def jsonBodyOf(result: Result)(using mat: Materializer): JsValue = {
     Json.parse(bodyOf(result))
   }
 
-  def jsonBodyOf(resultF: Future[Result])(implicit mat: Materializer): Future[JsValue] = {
+  def jsonBodyOf(resultF: Future[Result])(using mat: Materializer): Future[JsValue] = {
     resultF.map(jsonBodyOf)
   }
 
-  def bodyOf(result: Result)(implicit mat: Materializer): String = {
+  def bodyOf(result: Result)(using mat: Materializer): String = {
     val bodyBytes: ByteString = await(result.body.consumeData)
     // We use the default charset to preserve the behaviour of a previous
     // version of this code, which used new String(Array[Byte]).
@@ -63,7 +65,7 @@ trait BaseSpec extends AnyWordSpec with Matchers with OptionValues {
     bodyBytes.decodeString(Charset.defaultCharset().name)
   }
 
-  def bodyOf(resultF: Future[Result])(implicit mat: Materializer): Future[String] = {
+  def bodyOf(resultF: Future[Result])(using mat: Materializer): Future[String] = {
     resultF.map(bodyOf)
   }
 

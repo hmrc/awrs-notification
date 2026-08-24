@@ -17,6 +17,7 @@
 package service
 
 import helpers.{AssertionHelpers, IntegrationSpec}
+import org.mongodb.scala.SingleObservableFuture
 import models.ContactTypes
 import play.api.test.FutureAwaits
 import repositories.{NotificationMongoRepositoryImpl, StatusNotification}

@@ -19,10 +19,10 @@ package repositories
 import javax.inject.Inject
 import models.ContactTypes.ContactType
 import org.mongodb.scala.bson.collection.Document
-import org.mongodb.scala.model._
+import org.mongodb.scala.model.*
 import org.mongodb.scala.result.DeleteResult
 import play.api.Logging
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mdc.Mdc
@@ -36,7 +36,7 @@ case class StatusNotification(registrationNumber: Option[String],
                               storageDatetime: Option[String])
 
 object StatusNotification {
-  implicit val formats: OFormat[StatusNotification] = Json.format[StatusNotification]
+  given formats: OFormat[StatusNotification] = Json.format[StatusNotification]
 }
 
 trait NotificationRepository {
@@ -51,7 +51,7 @@ trait NotificationRepository {
 
 }
 
-class NotificationMongoRepositoryImpl @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends
+class NotificationMongoRepositoryImpl @Inject()(mongoComponent: MongoComponent)(using ec: ExecutionContext) extends
   PlayMongoRepository[StatusNotification](
     mongoComponent = mongoComponent,
     collectionName = "statusNotification",
