@@ -18,7 +18,7 @@ package config
 
 import models.PushNotificationRequest
 import models.email.EmailRequest
-import utils.EmailHelper._
+import utils.EmailHelper.*
 
 trait EmailConfig {
   lazy val ApprovedTemplate = "APPR"

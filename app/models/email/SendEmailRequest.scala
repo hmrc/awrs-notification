@@ -16,23 +16,23 @@
 
 package models.email
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import EmailAddressFormats._
-import play.api.libs.json.Reads._
-import play.api.libs.json.Writes._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
+import EmailAddressFormats.given
+import play.api.libs.json.Reads.*
+import play.api.libs.json.Writes.*
 
 
 case class SendEmailRequest(to: List[EmailAddress], templateId: String, parameters: Map[String, String], force: Boolean, eventUrl: Option[String] = None)
 
 object SendEmailRequest {
 
-  implicit val sendEmailRequestFormat: Format[SendEmailRequest] = (
+  given sendEmailRequestFormat: Format[SendEmailRequest] = (
     (JsPath \ "to").format[List[EmailAddress]] and
       (JsPath \ "templateId").format[String] and
       (JsPath \ "parameters").format[Map[String, String]] and
       (JsPath \ "force").format[Boolean] and
       (JsPath \ "eventUrl").formatNullable[String]
-    ) (SendEmailRequest.apply, unlift(SendEmailRequest.unapply))
+    ) (SendEmailRequest.apply, Tuple.fromProductTyped(_))
 
 }

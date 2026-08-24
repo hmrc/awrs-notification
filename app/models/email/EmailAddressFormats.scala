@@ -16,21 +16,21 @@
 
 package models.email
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 object EmailAddressFormats {
 
-  implicit val domainFormats: Format[Domain] = Json.format[Domain]
-  implicit val emailAddressReads: Reads[EmailAddress] = new Reads[EmailAddress] {
+  given domainFormats: Format[Domain] = Json.format[Domain]
+  given emailAddressReads: Reads[EmailAddress] = new Reads[EmailAddress] {
     def reads(js: JsValue): JsResult[EmailAddress] = js.validate[String].flatMap {
       case s if EmailAddressValidation.validEmail.findFirstIn(s).isDefined => JsSuccess(EmailAddress(s))
       case _ => JsError("not a valid email address")
     }
   }
-  implicit val emailAddressWrites: Writes[EmailAddress] = new Writes[EmailAddress] {
+  given emailAddressWrites: Writes[EmailAddress] = new Writes[EmailAddress] {
     def writes(e: EmailAddress): JsValue = JsString(e.value)
   }
 
-  implicit val sendEmailRequestFormat: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
+  given sendEmailRequestFormat: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 
 }

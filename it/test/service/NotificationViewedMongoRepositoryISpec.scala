@@ -17,6 +17,7 @@
 package service
 
 import helpers.{AssertionHelpers, IntegrationSpec}
+import org.mongodb.scala.SingleObservableFuture
 import play.api.test.FutureAwaits
 import repositories.{NotificationViewedMongoRepositoryImpl, ViewedStatus}
 import scala.concurrent.ExecutionContext.Implicits.global

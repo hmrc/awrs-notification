@@ -17,7 +17,7 @@
 package services
 
 import audit.Auditable
-import models.ContactTypes._
+import models.ContactTypes.*
 import models.PushNotificationRequest
 import java.time.LocalDateTime
 import repositories.{NotificationRepository, NotificationViewedRepository, StatusNotification, ViewedStatus}
@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NotificationCacheService @Inject()(val auditConnector: AuditConnector,
                                          val repository: NotificationRepository,
                                          val viewedRepository: NotificationViewedRepository,
-                                         @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends Auditable  {
+                                         @Named("appName") val appName: String)(using ec: ExecutionContext) extends Auditable  {
 
   val dateFormat: String = "yyyy-MM-dd'T'HH:mm:ss"
   val fmt: DateTimeFormatter= DateTimeFormatter.ofPattern(dateFormat)

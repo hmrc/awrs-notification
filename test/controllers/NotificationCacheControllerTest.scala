@@ -20,7 +20,7 @@ import base.BaseSpec
 import connectors.EmailConnector
 import models.ContactTypes
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.Assertion
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
@@ -30,7 +30,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.{StatusNotification, ViewedStatus}
 import services.NotificationCacheService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -40,8 +40,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationCacheControllerTest extends BaseSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
-  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  implicit override lazy val app: Application = new GuiceApplicationBuilder()
+  given ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  override given app: Application = new GuiceApplicationBuilder()
     .configure(Map(
       "metrics.enabled" -> false
     )).build()

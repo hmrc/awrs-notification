@@ -18,7 +18,7 @@ package services
 
 import models.{ContactTypes, PushNotificationRequest}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -29,18 +29,18 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import base.BaseSpec
 import org.mongodb.scala.result.{DeleteResult, UpdateResult}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
 
-  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  given ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   val mockNotificationRepository: NotificationRepository = mock[NotificationRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val mockNotificationViewedRepository: NotificationViewedRepository = mock[NotificationViewedRepository]
   val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override given app: Application = new GuiceApplicationBuilder()
     .configure(Map(
       "metrics.enabled" -> false
     )).build()
@@ -55,7 +55,7 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
         Some("XXAW00000123488"), Some("123456789333"),
         Some(ContactTypes.MTRJ), Some("04"), Some("2017-04-01T0013:07:11"))
       )
-      when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(notification)
+      when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(Future.successful(notification))
       val result = Await.result(notificationCacheService.findNotification("XXAW00000123488"), 2.second)
       result.get.contactType shouldBe notification.get.contactType
       result.get.status shouldBe notification.get.status
@@ -69,14 +69,14 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
         Some("XXAW00000123488"), Some("123456789333"),
         Some(ContactTypes.OTHR), Some("04"), Some("2017-04-01T0013:07:11"))
       )
-      when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(notification)
+      when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(Future.successful(notification))
       val result = Await.result(notificationCacheService.findNotification("XXAW00000123488"), 2.second)
       result.isDefined shouldBe false
     }
 
     "return None when the notification is not found in mongo" in {
       val notification = None
-      when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(notification)
+      when(mockNotificationRepository.findByRegistrationNumber(any())).thenReturn(Future.successful(notification))
       val result = Await.result(notificationCacheService.findNotification("XXAW00000123488"), 2.second)
       result.isDefined shouldBe false
     }
@@ -157,7 +157,7 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
 
     "return true when the notification is deleted from mongo" in {
       val writeResult = mock[DeleteResult]
-      when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(writeResult)
+      when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(Future.successful(writeResult))
       when(writeResult.wasAcknowledged()).thenReturn(true)
       val result = Await.result(notificationCacheService.deleteNotification("XXAW00000123488"), 2.second)
       result shouldBe true
@@ -165,7 +165,7 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
 
     "return false when an unexpected error occurs" in {
       val writeResult = mock[DeleteResult]
-      when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(writeResult)
+      when(mockNotificationRepository.deleteStatusNotification(any())).thenReturn(Future.successful(writeResult))
       when(writeResult.wasAcknowledged()).thenReturn(false)
       val result = Await.result(notificationCacheService.deleteNotification("XXAW00000123488"), 2.second)
       result shouldBe false
@@ -173,13 +173,13 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
 
     "return the viewed status found in mongo when it exists" in {
       val viewedStatus = Some(ViewedStatus(Some("XXAW00000123488"), Some(false)))
-      when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(viewedStatus)
+      when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(Future.successful(viewedStatus))
       val result = Await.result(notificationCacheService.findNotificationViewedStatus("XXAW00000123488"), 2.second)
       result shouldBe viewedStatus
     }
 
     "return None when the viewed status is not found in mongo" in {
-      when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(None)
+      when(mockNotificationViewedRepository.findViewedStatusByRegistrationNumber(any())).thenReturn(Future.successful(None))
       val result = Await.result(notificationCacheService.findNotificationViewedStatus("XXAW00000123488"), 2.second)
       result.isDefined shouldBe false
     }
@@ -193,7 +193,7 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
 
     "return true when the viewed status is updated in mongo" in {
       val writeResult = mock[UpdateResult]
-      when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(writeResult)
+      when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(Future.successful(writeResult))
       when(writeResult.wasAcknowledged()).thenReturn(true)
       val result = Await.result(notificationCacheService.markAsViewed("XXAW00000123488"), 2.second)
       result shouldBe true
@@ -201,7 +201,7 @@ class NotificationCacheServiceTest extends BaseSpec with MockitoSugar with Guice
 
     "return false when an unexpected error occurs when calling the mark as viewed service" in {
       val writeResult = mock[UpdateResult]
-      when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(writeResult)
+      when(mockNotificationViewedRepository.markAsViewed(any())).thenReturn(Future.successful(writeResult))
       when(writeResult.wasAcknowledged()).thenReturn(false)
       val result = Await.result(notificationCacheService.markAsViewed("XXAW00000123488"), 2.second)
       result shouldBe false

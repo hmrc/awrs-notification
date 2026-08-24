@@ -16,12 +16,11 @@
 
 package models
 
-import models.AwrsValidator._
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json._
-import utils.ErrorNotifications._
-import scala.language.implicitConversions
+import models.AwrsValidator.*
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.Reads.*
+import play.api.libs.json.*
+import utils.ErrorNotifications.*
 
 import scala.util.{Failure, Success, Try}
 
@@ -31,7 +30,7 @@ case class PushNotificationRequest(name: String, email: String, status: Option[S
 
 object ContactTypes extends Enumeration {
 
-  implicit def convertToString(value: Value): String = value.toString
+  given convertToString: Conversion[Value, String] = _.toString
 
   type ContactType = Value
 
@@ -44,7 +43,7 @@ object ContactTypes extends Enumeration {
     val NMRV: ContactTypes.Value = Value("NMRV")//No longer minded to Revoke
     val OTHR: ContactTypes.Value = Value("OTHR")//Other
 
-  implicit val reader: Reads[ContactTypes.Value] = {
+  given reader: Reads[ContactTypes.Value] = {
     case JsString(s) =>
       Try(ContactTypes.withName(s)) match {
         case Success(value) => JsSuccess(value)
@@ -53,7 +52,7 @@ object ContactTypes extends Enumeration {
     case _ => JsError(errorExpectedString)
   }
 
-  implicit val writer: Writes[ContactTypes.Value] =
+  given writer: Writes[ContactTypes.Value] =
     (contactType: ContactTypes.Value) => Json.toJson(contactType.toString)
 }
 
@@ -61,7 +60,7 @@ object PushNotificationRequest {
 
   private val maxEmailLength: Int = 100
 
-  implicit val writer: Writes[PushNotificationRequest] = (push: PushNotificationRequest) => Json.obj(
+  given writer: Writes[PushNotificationRequest] = (push: PushNotificationRequest) => Json.obj(
     "name" -> push.name,
     "email" -> push.email,
     "variation" -> push.variation)
@@ -69,7 +68,7 @@ object PushNotificationRequest {
     .++(push.contact_type.fold(Json.obj())(x => Json.obj("contact_type" -> x)))
     .++(push.contact_number.fold(Json.obj())(x => Json.obj("contact_number" -> x)))
 
-  implicit val pushNotificationRequestFormat: Reads[PushNotificationRequest] = (
+  given pushNotificationRequestFormat: Reads[PushNotificationRequest] = (
     (JsPath \ "name").read[String](verifyingWithError[String](validText(validateISO88591), invalidName)) and
       (JsPath \ "email").read[String](maxLength[String](maxEmailLength) keepAnd pattern(emailRegex, invalidEmail)) and
       (JsPath \ "status").readNullable[String](pattern(statusRegex, invalidStatus)) and

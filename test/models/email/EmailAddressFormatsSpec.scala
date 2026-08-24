@@ -20,7 +20,8 @@ import models.email.EmailAddress
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsError, JsString, JsSuccess, Json}
-import models.email.EmailAddressFormats._
+import models.email.EmailAddressFormats.given
+
 
 class EmailAddressFormatsSpec extends AnyWordSpec with Matchers {
 

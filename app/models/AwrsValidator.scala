@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Reads._
+import play.api.libs.json.Reads.*
 import play.api.libs.json.{JsonValidationError, Reads}
 
 import scala.util.matching.Regex
@@ -39,7 +39,7 @@ trait AwrsValidator {
   val asciiChar255 = 255
   val maxTextLength = 140
 
-  def verifyingWithError[A](cond: A => Boolean, error: String = "error.invalid")(implicit rds: Reads[A]): Reads[A] =
+  def verifyingWithError[A](cond: A => Boolean, error: String = "error.invalid")(using rds: Reads[A]): Reads[A] =
     filter[A](JsonValidationError(error))(cond)(rds)
 
   def validText(validationFunction: String => Boolean)(inputText: String): Boolean = exceedsMaxLength(inputText) match {

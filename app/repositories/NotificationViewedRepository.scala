@@ -18,10 +18,10 @@ package repositories
 
 import javax.inject.Inject
 import org.mongodb.scala.bson.collection.Document
-import org.mongodb.scala.model._
+import org.mongodb.scala.model.*
 import org.mongodb.scala.result.UpdateResult
 import play.api.Logging
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mdc.Mdc
@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class ViewedStatus(registrationNumber: Option[String], viewed: Option[Boolean])
 
 object ViewedStatus {
-  implicit val formats: OFormat[ViewedStatus] = Json.format[ViewedStatus]
+  given formats: OFormat[ViewedStatus] = Json.format[ViewedStatus]
 }
 
 trait NotificationViewedRepository {
@@ -44,7 +44,7 @@ trait NotificationViewedRepository {
 
 }
 
-class NotificationViewedMongoRepositoryImpl @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends
+class NotificationViewedMongoRepositoryImpl @Inject()(mongoComponent: MongoComponent)(using ec: ExecutionContext) extends
   PlayMongoRepository[ViewedStatus](
     mongoComponent = mongoComponent,
     collectionName = "viewedStatus",

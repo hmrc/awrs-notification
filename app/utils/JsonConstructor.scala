@@ -18,11 +18,11 @@ package utils
 
 import models.email.EmailResponse
 import play.api.libs.json.{JsValue, Json}
-import utils.ErrorNotifications._
+import utils.ErrorNotifications.*
 
 object JsonConstructor {
 
-   def constructErrorResponse(response: EmailResponse): JsValue =
+  def constructErrorResponse(response: EmailResponse): JsValue =
     response.errors match {
       case Some(errors) if errors.nonEmpty =>
         constructErrorJson(errors)
@@ -30,7 +30,7 @@ object JsonConstructor {
         constructErrorJson(invalidUnknown)
     }
 
-  def constructErrorJson(inputString: String) : JsValue =
+  def constructErrorJson(inputString: String): JsValue =
     Json.obj("reason" -> inputString)
 
 }

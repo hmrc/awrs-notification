@@ -16,10 +16,9 @@
 
 package models.email
 
-import play.api.libs.json._
-import utils.ErrorNotifications._
+import play.api.libs.json.*
+import utils.ErrorNotifications.*
 
-import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 case class EmailRequest(apiType: ApiTypes.ApiType,
@@ -31,7 +30,7 @@ case class EmailRequest(apiType: ApiTypes.ApiType,
 
 object ApiTypes extends Enumeration {
 
-  implicit def convertToString(value: Value): String = value.toString
+  given convertToString: Conversion[Value, String] = _.toString
 
   type ApiType = Value
 
@@ -41,7 +40,7 @@ object ApiTypes extends Enumeration {
   val API10: ApiTypes.Value = Value("api10")
   val API8: ApiTypes.Value = Value("api8")
 
-  implicit val reader: Reads[ApiTypes.Value] = {
+  given reader: Reads[ApiTypes.Value] = {
     case JsString(s) =>
       Try(ApiTypes.withName(s)) match {
         case Success(value) => JsSuccess(value)
@@ -50,10 +49,10 @@ object ApiTypes extends Enumeration {
     case _ => JsError(errorExpectedString)
   }
 
-  implicit val writer: Writes[ApiTypes.Value] = (apiType: ApiTypes.Value) => Json.toJson(apiType.toString)
+  given writer: Writes[ApiTypes.Value] = (apiType: ApiTypes.Value) => Json.toJson(apiType.toString)
 
 }
 
 object EmailRequest {
-  implicit val formats: OFormat[EmailRequest] = Json.format[EmailRequest]
+  given formats: OFormat[EmailRequest] = Json.format[EmailRequest]
 }

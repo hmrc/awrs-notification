@@ -18,7 +18,7 @@ package connectors
 
 import models.email.{EmailAddress, SendEmailRequest}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -35,13 +35,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EmailConnectorTest extends PlaySpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
-  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  given ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   val mockHttpClientV2: HttpClientV2 = mock[HttpClientV2]
   val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
   val emailRequest: SendEmailRequest = SendEmailRequest(List(EmailAddress("test@email.com")), "fakeTemplateId", Map("key" -> "value"), force = true, None)
   val emailConnector = new EmailConnector(mockHttpClientV2, mockServicesConfig, "awrs-notification")
-  implicit val mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
+  given mockHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   trait ConnectorTest {
     val requestBuilder: RequestBuilder = mock[RequestBuilder]
